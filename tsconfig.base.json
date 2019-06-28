@@ -6,7 +6,7 @@
     "paths": {
       "*": [
         "*",
-        "app/javascript/src/*"
+        "src/*"
       ]
     },
     "emitDecoratorMetadata": true,
@@ -33,7 +33,7 @@
     "jsx": "react",
     "typeRoots": [
       "node_modules/@types",
-      "app/javascript/src/app/typings",
+      "src/app/typings",
       "tests/webdriverTypings"
     ]
   },

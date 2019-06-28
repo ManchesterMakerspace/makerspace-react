@@ -1,7 +1,7 @@
 /**
  * Main injection point for application.  Webpacker compiles everything in this folder by default.
  */
-import "./stylesheets/application";
+// import "./stylesheets/application";
 import { composeWithDevTools } from 'redux-devtools-extension';
 import * as React from 'react';
 import { createBrowserHistory, History } from "history";
