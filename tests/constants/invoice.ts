@@ -1,23 +1,43 @@
 import * as moment from "moment";
-import { Invoice, InvoiceOperation, InvoiceableResource } from "app/entities/invoice";
-export const invoiceOptions: Partial<Invoice>[] = [
+import { Invoice, InvoiceOperation, InvoiceOption, InvoiceableResource } from "app/entities/invoice";
+export const defaultBillingOptions: InvoiceOption[] = [
   {
     id: "standard_membership",
     name: "Standard",
     description: "Standard Membership Subscription",
-    amount: 65
+    amount: 65,
+    quantity: 1,
+    discountId: undefined,
+    planId: "standard_membership",
+    resourceClass: InvoiceableResource.Membership,
+    operation: InvoiceOperation.Renew,
+    disabled: false,
   }, {
     id: "foo",
     name: "Foo",
     description: "Foo Membership",
-    amount: 10000
+    amount: 10000,
+    quantity: 1,
+    planId: "foo",
+    discountId: undefined,
+    disabled: false,
+    resourceClass: InvoiceableResource.Rental,
+    operation: InvoiceOperation.Renew,
   }, {
     id: "bar",
     name: "Bar",
     description: "Bar Membership",
-    amount: 45
+    amount: 45,
+    quantity: 1,
+    planId: "bar",
+    discountId: undefined,
+    resourceClass: InvoiceableResource.Rental,
+    operation: InvoiceOperation.Renew,
+    disabled: false,
   }
 ];
+export const defaultBillingOption = defaultBillingOptions[0];
+
 export const baseInvoice: Invoice = {
   id: "foo",
   name: "random membership invoice",
@@ -27,12 +47,14 @@ export const baseInvoice: Invoice = {
   quantity: 1,
   settled: false,
   pastDue: false,
+  refunded: false,
   resourceClass: InvoiceableResource.Membership,
   memberId: "test_member",
   operation: InvoiceOperation.Renew,
   resourceId: "123",
   createdAt: "Some time",
   dueDate: moment().add(1, "months").calendar(),
+  resource: undefined
 }
 export const defaultInvoice: Invoice = {
   ...baseInvoice,

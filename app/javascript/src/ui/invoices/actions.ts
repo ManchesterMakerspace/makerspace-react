@@ -1,6 +1,5 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
-import toNumber from "lodash-es/toNumber";
 import omit from "lodash-es/omit";
 
 import { Invoice, InvoiceQueryParams, InvoiceableResource, InvoiceOptionSelection } from "app/entities/invoice";
@@ -22,7 +21,7 @@ export const readInvoicesAction = (
       type: InvoicesAction.GetInvoicesSuccess,
       data: {
         invoices,
-        totalItems: toNumber(totalItems)
+        totalItems: Number(totalItems)
       }
     })
   } catch (e) {
@@ -37,15 +36,19 @@ export const readInvoicesAction = (
 export const createInvoiceAction = (
   invoiceForm: Invoice | InvoiceOptionSelection,
   admin: boolean,
-): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
+): ThunkAction<Promise<Invoice>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: InvoicesAction.StartCreateRequest });
 
   try {
-    await postInvoices(invoiceForm, admin);
+    const response = await postInvoices(invoiceForm, admin);
+    const { invoice } = response.data;
     dispatch({
       type: InvoicesAction.CreateInvoiceSuccess,
-    })
+      data: invoice,
+    });
+    return invoice;
   } catch (e) {
+    console.log(e);
     const { errorMessage } = e;
     dispatch({
       type: InvoicesAction.CreateInvoiceFailure,
@@ -143,8 +146,13 @@ export const invoicesReducer = (state: InvoicesState = defaultState, action: Any
         }
       };
     case InvoicesAction.CreateInvoiceSuccess:
+      const newInvoice = action.data;
       return {
         ...state,
+        entities: {
+          ...state.entities,
+          [newInvoice.id]: newInvoice,
+        },
         create: {
           ...state.create,
           isRequesting: false,

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Routing } from "app/constants";
 import DetailView from "ui/common/DetailView";
 import SubscriptionsList from "ui/subscriptions/SubscriptionsList";
+import TransactionsList from "ui/transactions/TransactionsList";
 import OptionsList from "ui/billing/OptionsList";
 
 interface StateProps {}
@@ -20,7 +21,7 @@ class BillingContainer extends React.Component<Props, State> {
     return (
       <>
         Statistics to be rendered here.
-        {/* <KeyValueItem label="Number of Members">100</KeyValueItem>
+        {/* TODO <KeyValueItem label="Number of Members">100</KeyValueItem>
         <KeyValueItem label="Number of Members on Subscription">100</KeyValueItem>
         <KeyValueItem label="Number of Rentals">100</KeyValueItem>
         <KeyValueItem label="Active Membership">100</KeyValueItem> */}
@@ -39,6 +40,11 @@ class BillingContainer extends React.Component<Props, State> {
             name: "subscriptions",
             content: (
               <SubscriptionsList/>
+            )
+          }, {
+            name: "transactions",
+            content: (
+              <TransactionsList />
             )
           }, {
             name: "options",

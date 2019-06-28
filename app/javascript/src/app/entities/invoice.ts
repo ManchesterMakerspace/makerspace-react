@@ -1,4 +1,6 @@
 import { QueryParams } from "app/interfaces";
+import { MemberDetails } from "app/entities/member";
+import { Rental } from "app/entities/rental";
 
 interface BaseInvoice {
   id: string;
@@ -11,15 +13,30 @@ interface BaseInvoice {
   amount: number;
   memberId: string;
   memberName: string;
+  refunded: boolean;
+  refundRequested?: Date;
   subscriptionId?: string;
+  transactionId?: string;
   discountId?: string;
-}
-
-export interface Invoice extends BaseInvoice {
+  planId?: string;
   resourceClass: InvoiceableResource;
   operation: InvoiceOperation,
   resourceId: string;
   quantity: number;
+}
+
+
+export interface MemberInvoice extends BaseInvoice {
+  resource: MemberDetails;
+}
+
+export interface RentalInvoice extends BaseInvoice {
+  resource: Rental;
+}
+
+export type Invoice = MemberInvoice | RentalInvoice;
+export const isMemberInvoice = (item: any): item is MemberInvoice => {
+  return item && item.resource && item.resource.hasOwnProperty("firstname");
 }
 
 export interface InvoiceOption {

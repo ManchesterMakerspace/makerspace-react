@@ -19,7 +19,7 @@ import DeleteSubscription from "ui/subscriptions/DeleteSubscriptionModal";
 import { CrudOperation } from "app/constants";
 import Form from "ui/common/Form";
 import UpdateSubscriptionContainer, { UpdateSubscriptionRenderProps } from "ui/subscriptions/UpdateSubscriptionContainer";
-import { numberAsCurrency } from "ui/utils/numberToCurrency";
+import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { SubscriptionQueryParams } from "api/subscriptions/transactions";
 
 
@@ -33,6 +33,8 @@ interface StateProps {
   totalItems: number;
   loading: boolean;
   error: string;
+  isWriting: boolean;
+  writeError: string;
 }
 interface Props extends OwnProps, DispatchProps, StateProps { }
 interface State {
@@ -96,6 +98,15 @@ class SubscriptionsList extends React.Component<Props, State> {
 
   public componentDidMount() {
     this.getSubscriptions();
+  }
+
+  public componentDidUpdate = (prevProps: Props) => {
+    const { isWriting, writeError } = this.props;
+    const { isWriting: wasWriting } = prevProps;
+
+    if (wasWriting && !isWriting && !writeError) {
+      this.getSubscriptions();
+    }
   }
 
   private getActionButtons = (): JSX.Element => {
@@ -185,6 +196,7 @@ class SubscriptionsList extends React.Component<Props, State> {
               <Checkbox
                 name="hide-canceled"
                 value="hide-canceled"
+                id="hide-cancelled"
                 checked={!!hideCanceled}
                 onChange={this.toggleSubscriptionView}
                 color="default"
@@ -221,6 +233,10 @@ const mapStateToProps = (
       totalItems,
       isRequesting: loading,
       error
+    },
+    delete: {
+      isRequesting: isWriting,
+      error: writeError,
     }
   } = state.subscriptions;
   const { currentUser: { isAdmin } } = state.auth;
@@ -229,7 +245,9 @@ const mapStateToProps = (
     isAdmin,
     totalItems,
     loading,
-    error
+    error,
+    isWriting,
+    writeError,
   }
 }
 

@@ -6,12 +6,15 @@
   },
   "description": "This is an interface to review which members are signed off on which stations.  This can be expanded to handle the access points.  If logged in (feature for officers & admin), you can also see member expiration dates and renew members.",
   "main": "index.js",
+  "engines": {
+    "node": ">=8.0.0 <11.0.0"
+  },
   "dependencies": {
     "@material-ui/core": "^3.9.1",
     "@material-ui/icons": "^3.0.2",
     "@rails/webpacker": "3.5",
     "@types/braintree-web": "^3.6.3",
-    "@types/history": "^4.7.0",
+    "@types/history": "^4.7.2",
     "@types/lodash-es": "^4.17.1",
     "@types/moment-timezone": "^0.5.9",
     "@types/object-hash": "^1.2.0",
@@ -68,7 +71,8 @@
     "start": "./bin/webpack-dev-server",
     "test": "$(npm bin)/jest --no-cache",
     "test-watch": "yarn test --watch",
-    "test-functional": "yarn test --testRegex='/tests/functional/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/functional/setup.js'"
+    "test-functional": "yarn test --testRegex='/tests/functional/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/functional/setup.js'",
+    "test-integration": "yarn test --testRegex='/tests/integration/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/integration/setup.js'"
   },
   "jest": {
     "collectCoverage": false,

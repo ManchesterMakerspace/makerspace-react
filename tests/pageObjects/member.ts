@@ -3,6 +3,7 @@ import utils from "./common";
 import { TablePageObject } from "./table";
 import { timeToDate } from "ui/utils/timeToDate"
 import { MemberDetails } from "app/entities/member";
+import { LoginMember } from "./auth";
 
 const membersListTableId = "members-table";
 const membersListFields = ["lastname", "expirationTime", "status"];
@@ -41,6 +42,7 @@ export class MemberPageObject extends TablePageObject {
   private memberDetailId = "#member-detail";
   public memberDetail = {
     title: "#detail-view-title",
+    loading: "#member-detail-loading",
     email: `${this.memberDetailId}-email`,
     expiration: `${this.memberDetailId}-expiration`,
     status: `${this.memberDetailId}-status`,
@@ -49,9 +51,19 @@ export class MemberPageObject extends TablePageObject {
     openCardButton: `${this.memberDetailId}-open-card-modal`,
     duesTab: "#dues-tab",
     rentalsTab: "#rentals-tab",
+    transactionsTab: "#transactions-tab",
     notificationModal: "#notification-modal",
     notificationModalSubmit: "#notification-modal-submit",
     notificationModalCancel: "#notification-modal-cancel",
+  }
+  
+  public verifyProfileInfo = async (member: LoginMember) => { 
+    const { firstname, lastname, email, expirationTime } = member;
+    expect(await utils.getElementText(this.memberDetail.title)).toEqual(`${firstname} ${lastname}`);
+    expect(await utils.getElementText(this.memberDetail.email)).toEqual(email);
+    if ( expirationTime) {
+      expect(await utils.getElementText(this.memberDetail.expiration)).toEqual(expirationTime ? timeToDate(expirationTime) : "N/A");
+    }
   }
 
   public goToMemberRentals = () =>
@@ -59,6 +71,9 @@ export class MemberPageObject extends TablePageObject {
 
   public goToMemberDues = () =>
     utils.clickElement(this.memberDetail.duesTab);
+
+  public goToMemberTransactions = () =>
+    utils.clickElement(this.memberDetail.transactionsTab);
 
   private cardFormId = "#card-form";
   public accessCardForm = {

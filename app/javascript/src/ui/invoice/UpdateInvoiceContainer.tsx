@@ -67,7 +67,7 @@ class UpdateInvoice extends React.Component<Props, {}> {
       validUpdate = this.formRef.validate && await this.formRef.validate(form);
     }
     if (!form.isValid()) return;
-
+    
     if (validUpdate && isInvoiceOptionSelection(validUpdate)) {
       await this.props.dispatchInvoiceOptionSelect(validUpdate);
     } else {
@@ -76,6 +76,9 @@ class UpdateInvoice extends React.Component<Props, {}> {
         ...validUpdate
       }
       await this.props.dispatchInvoice(updatedInvoice);
+    }
+    if (!this.props.error) {
+      return true;
     }
   }
 
@@ -148,7 +151,8 @@ const mapDispatchToProps = (
           action = (deleteInvoiceAction(invoice.id));
           break;
       }
-      action && dispatch(action);
+      // TODO: Fix this any
+      action && dispatch(action as any);
     },
     dispatchInvoiceOptionSelect: (invoiceOption) => dispatch(createInvoiceAction(invoiceOption, true)),
     getInvoiceOptions: (type) => dispatch(readOptionsAction({ types: [type] }))

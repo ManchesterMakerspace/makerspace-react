@@ -29,6 +29,7 @@ import { getDetailsForMember } from "ui/membership/constants";
 import AccessCardContainer, { CreateAccessCardProps } from "ui/accessCards/AccessCardContainer";
 import ReportList from "ui/reports/ReportList";
 import { readMembershipAction } from "ui/earnedMemberships/actions";
+import TransactionsList from "ui/transactions/TransactionsList";
 
 interface DispatchProps {
   getMember: () => Promise<void>;
@@ -159,7 +160,8 @@ class MemberDetail extends React.Component<Props, State> {
     const { member, isUpdatingMember, isRequestingMember, match, admin, goToSettings, billingEnabled, currentUserId } = this.props;
     const { memberId, resource } = match.params;
     const loading = isUpdatingMember || isRequestingMember;
-    const isEarnedMember = !!member.earnedMembershipId && (currentUserId === member.id || admin);
+    const { customerId, earnedMembershipId } = member;
+    const isEarnedMember = !!earnedMembershipId && (currentUserId === member.id || admin);
 
     return (
       <>
@@ -221,7 +223,16 @@ class MemberDetail extends React.Component<Props, State> {
                   member={member}
                 />
               )
-            }
+            },
+            ...billingEnabled && !!customerId ? [{
+              name: "transactions",
+              displayName: "Payment History",
+              content: (
+                <TransactionsList
+                  member={member}
+                />
+              )
+            }] : []
           ]}
         />
         {this.renderMemberForms()}
@@ -318,11 +329,10 @@ class MemberDetail extends React.Component<Props, State> {
 
   public render(): JSX.Element {
     const { member, isRequestingMember, match } = this.props;
-    const { memberId } = match.params;
     const { displayDocuments } = this.state;
     return (
       <>
-        {isRequestingMember && <LoadingOverlay id={memberId}/>}
+        {isRequestingMember && <LoadingOverlay id="member-detail"/>}
         {member && (
           displayDocuments ?
           <SignDocuments onSubmit={this.closeAgreements}/>

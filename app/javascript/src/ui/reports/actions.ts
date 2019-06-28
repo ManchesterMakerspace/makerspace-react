@@ -1,10 +1,7 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
-import toNumber from "lodash-es/toNumber";
-import omit from "lodash-es/omit";
 
 import { QueryParams } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
 
 import { Action as ReportAction } from "ui/reports/constants";
 import { ReportsState } from "ui/reports/interfaces";
@@ -27,12 +24,11 @@ export const readReportsAction = (
       type: ReportAction.GetReportsSuccess,
       data: {
         reports,
-        totalItems: toNumber(totalItems)
+        totalItems: Number(totalItems)
       }
     });
   } catch (e) {
     const { errorMessage } = e;
-    console.log(e)
     dispatch({
       type: ReportAction.GetReportsFailure,
       error: errorMessage

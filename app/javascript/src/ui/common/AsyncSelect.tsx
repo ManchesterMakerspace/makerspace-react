@@ -6,11 +6,13 @@ import Createable, { Props as CreateableProps } from "react-select/lib/Creatable
 import AsyncCreatable from "react-select/lib/AsyncCreatable";
 
 import { formDialogClass } from "ui/common/FormModal";
-import { SelectOption } from "ui/common/RenewalForm";
 import Form from "ui/common/Form";
 
-interface Props {
-  name?: string;
+export type SelectOption = { label: string, value: string, id?: string };
+
+interface Props extends AsyncProps<any> {
+  name: string;
+  createable?: boolean;
   getFormRef?: () => Form;
 }
 

@@ -1,18 +1,19 @@
 import * as moment from "moment";
 import { timeToDate } from "ui/utils/timeToDate";
 
-import { basicUser, adminUser, basicMembers } from "../constants/member";
+import { basicUser, adminUser, basicMembers } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
 import { CardStatus } from "app/entities/card";
-import { Rental } from "app/entities/rental";
-import { Invoice } from "app/entities/invoice";
-import auth, { LoginMember } from "../pageObjects/auth";
-import utils from "../pageObjects/common";
-import memberPO from "../pageObjects/member";
-import rentalPO from "../pageObjects/rentals";
-import invoicePo from "../pageObjects/invoice";
-import { defaultRental } from "../constants/rental";
-import { defaultInvoice } from "../constants/invoice";
+import { LoginMember } from "../../pageObjects/auth";
+import utils from "../../pageObjects/common";
+import memberPO from "../../pageObjects/member";
+import rentalPO from "../../pageObjects/rentals";
+import invoicePo from "../../pageObjects/invoice";
+import transactionPO from "../../pageObjects/transactions";
+import { defaultRentals } from "../../constants/rental";
+import { defaultInvoices } from "../../constants/invoice";
+import { defaultTransactions } from "../../constants/transaction";
+import { autoLogin } from "../autoLogin";
 
 const reviewMemberInfo = async (loggedInUser: LoginMember, viewingMember?: LoginMember, executeLogin: boolean = true) => {
   if (!viewingMember) viewingMember = loggedInUser;
@@ -20,24 +21,42 @@ const reviewMemberInfo = async (loggedInUser: LoginMember, viewingMember?: Login
   if (executeLogin) {
     await mock(mockRequests.member.get.ok(viewingMember.id, viewingMember));
     await mock(mockRequests.member.get.ok(viewingMember.id, viewingMember, true));
-    await auth.autoLogin(loggedInUser, memberPO.getProfilePath(viewingMember.id), { billing: true });
+    await autoLogin(loggedInUser, memberPO.getProfilePath(viewingMember.id), { billing: true });
   }
-  const { firstname, lastname, email, expirationTime } = viewingMember;
-  expect(await utils.getElementText(memberPO.memberDetail.title)).toEqual(`${firstname} ${lastname}`);
-  expect(await utils.getElementText(memberPO.memberDetail.email)).toEqual(email);
-  expect(await utils.getElementText(memberPO.memberDetail.expiration)).toEqual(expirationTime ? timeToDate(expirationTime) : "N/A");
+  await memberPO.verifyProfileInfo(viewingMember);
 }
 
-const reviewSubResource = async (member: LoginMember, rentals: Rental[], invoices: Invoice[], admin: boolean = false) => {
+const reviewSubResource = async (member: LoginMember, admin: boolean = false) => {
+  const memberDetails = { 
+    memberId: member.id,
+    memberName: `${member.firstname} ${member.lastname}`, 
+  };
+  const rentals = defaultRentals.map(r => ({...r, ...memberDetails }));
+  const invoices = defaultInvoices.map(i => ({...i, ...memberDetails }));
+  const transactions = defaultTransactions.map(t => ({...t, ...memberDetails }));
+  // Go to rentals
   // Rentals displayed
   await mock(mockRequests.rentals.get.ok(rentals, { memberId: member.id }, admin));
   await memberPO.goToMemberRentals();
-  expect(await rentalPO.getColumnText("number", rentals[0].id)).toEqual(rentals[0].number);
-  // Go to rentals
+  await utils.waitForVisible(rentalPO.getTitleId());
+  await utils.waitForNotVisible(rentalPO.getLoadingId());
+  await rentalPO.verifyListView(rentals, rentalPO.fieldEvaluator());
+
+  // Go to invoices
   // Invoices displayed
   await mock(mockRequests.invoices.get.ok(invoices, { resourceId: member.id }, admin));
   await memberPO.goToMemberDues();
-  expect(await invoicePo.getColumnText("resourceClass", invoices[0].id)).toMatch(new RegExp(invoices[0].resourceClass, 'i'));
+  await utils.waitForVisible(invoicePo.getTitleId());
+  await utils.waitForNotVisible(invoicePo.getLoadingId());
+  await invoicePo.verifyListView(invoices, invoicePo.fieldEvaluator());
+
+  // Go to transactions
+  // Transactions displayed
+  await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
+  await memberPO.goToMemberTransactions();
+  await utils.waitForVisible(transactionPO.getTitleId());
+  await utils.waitForNotVisible(transactionPO.getLoadingId());
+  await transactionPO.verifyListView(transactions, transactionPO.fieldEvaluator());
 }
 
 describe("Member Profiles", () => {
@@ -53,18 +72,8 @@ describe("Member Profiles", () => {
         /* 1. Login as basic user
            2. Assert profile shows tables for: Dues, Rentals,
         */
-        const rental = {
-          ...defaultRental,
-          memberId: basicUser.id,
-          memberName: `${basicUser.firstname} ${basicUser.lastname}`,
-        };
-        const invoice = {
-          ...defaultInvoice,
-          memberId: basicUser.id,
-          memberName: `${basicUser.firstname} ${basicUser.lastname}`,
-        }
-        return auth.autoLogin(basicUser, undefined, { billing: true }).then(() => {
-          return reviewSubResource(basicUser, [rental], [invoice]);
+        return autoLogin(basicUser, undefined, { billing: true }).then(async () => {
+          await reviewSubResource(basicUser);
         });
       });
     });
@@ -79,6 +88,7 @@ describe("Member Profiles", () => {
         await reviewMemberInfo(loggedInUser, viewingMember);
         expect(await utils.isElementDisplayed(memberPO.memberDetail.duesTab)).toBeFalsy();
         expect(await utils.isElementDisplayed(memberPO.memberDetail.rentalsTab)).toBeFalsy();
+        expect(await utils.isElementDisplayed(memberPO.memberDetail.transactionsTab)).toBeFalsy();
       });
     });
   });
@@ -94,18 +104,8 @@ describe("Member Profiles", () => {
         /* 1. Login as admin
            2. Assert profile shows tables for: Dues, Rentals,
         */
-        const rental = {
-          ...defaultRental,
-          memberId: adminUser.id,
-          memberName: `${adminUser.firstname} ${adminUser.lastname}`,
-        };
-        const invoice = {
-          ...defaultInvoice,
-          memberId: adminUser.id,
-          memberName: `${adminUser.firstname} ${adminUser.lastname}`,
-        }
-        return auth.autoLogin(adminUser, undefined, { billing: true }).then(() => {
-          return reviewSubResource(adminUser, [rental], [invoice], true);
+        return autoLogin(adminUser, undefined, { billing: true }).then(() => {
+          return reviewSubResource(adminUser, true);
         })
       });
     });
@@ -123,18 +123,8 @@ describe("Member Profiles", () => {
            2. Navigate to another user's profile
            2. Assert information block contains other member's info
         */
-        const rental = {
-          ...defaultRental,
-          memberId: viewingMember.id,
-          memberName: `${viewingMember.firstname} ${viewingMember.lastname}`,
-        };
-        const invoice = {
-          ...defaultInvoice,
-          memberId: viewingMember.id,
-          memberName: `${viewingMember.firstname} ${viewingMember.lastname}`,
-        }
         await reviewMemberInfo(adminUser, viewingMember);
-        await reviewSubResource(viewingMember, [rental], [invoice], true);
+        await reviewSubResource(viewingMember, true);
       });
       it("Can edit member's information", async () => {
         /* 1. Login as admin and nav to basic user's profile
@@ -146,7 +136,7 @@ describe("Member Profiles", () => {
           5. Assert updated information is dislayed
         */
         await mock(mockRequests.member.get.ok(viewingMember.id, viewingMember));
-        await auth.autoLogin(adminUser, memberPO.getProfilePath(viewingMember.id));
+        await autoLogin(adminUser, memberPO.getProfilePath(viewingMember.id));
         await utils.clickElement(memberPO.memberDetail.openEditButton);
         await mock(mockRequests.member.put.ok(updatedMember.id, updatedMember, true));
         await mock(mockRequests.member.get.ok(updatedMember.id, updatedMember));
@@ -172,7 +162,7 @@ describe("Member Profiles", () => {
            10. Assert modal closes
         */
         await mock(mockRequests.member.get.ok(viewingMember.id, viewingMember));
-        await auth.autoLogin(adminUser, memberPO.getProfilePath(viewingMember.id));
+        await autoLogin(adminUser, memberPO.getProfilePath(viewingMember.id));
         await utils.clickElement(memberPO.memberDetail.openEditButton);
         await utils.fillInput(memberPO.memberForm.email, "");
         await utils.fillInput(memberPO.memberForm.firstname, "");
@@ -229,7 +219,7 @@ describe("Member Profiles", () => {
           timeOf: moment().subtract(1, "minute").calendar()
         };
         await mock(mockRequests.member.get.ok(foblessMember.id, foblessMember));
-        await auth.autoLogin(adminUser, memberPO.getProfilePath(foblessMember.id));
+        await autoLogin(adminUser, memberPO.getProfilePath(foblessMember.id));
         await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
@@ -279,7 +269,7 @@ describe("Member Profiles", () => {
           timeOf: moment().subtract(1, "minute").calendar()
         };
         await mock(mockRequests.member.get.ok(fobbedMember.id, fobbedMember));
-        await auth.autoLogin(adminUser, memberPO.getProfilePath(fobbedMember.id));
+        await autoLogin(adminUser, memberPO.getProfilePath(fobbedMember.id));
         await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Replace Fob/i);

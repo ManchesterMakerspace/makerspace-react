@@ -111,7 +111,9 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
 
   private applyPlanToForm = () => {
     const { plans: { data: billingPlans } } = this.props.context;
-    const billingPlan = billingPlans[this.state.planId];
+    const billingPlan = billingPlans.find(plan => plan.id === this.state.planId);
+
+    if (!billingPlan) { return; }
 
     const planToValues = Object.entries(billingPlan).reduce((invoiceOptionForm, [key, val]) => {
       // Convert billing plan key to option key
@@ -194,6 +196,9 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
   public render() {
     const { isOpen, onClose, isRequesting, error, onSubmit, option } = this.props;
     const { type, planId, disableOption } = this.state;
+
+    // TODO: The validation / when things are disabled doesn't make a lot of sense
+    // Need to work out how selecting discounts & plans will relate to fields
 
     return (
       <FormModal

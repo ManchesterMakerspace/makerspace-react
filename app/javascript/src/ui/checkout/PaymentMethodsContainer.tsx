@@ -16,11 +16,13 @@ import { isCreditCard, isPaypal, AnyPaymentMethod } from "app/entities/paymentMe
 import Form from "ui/common/Form";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import PaymentMethodComponent from "ui/checkout/PaymentMethod";
+import { Subscription } from "app/entities/subscription";
 
 interface OwnProps {
   onPaymentMethodChange?: (newId: string) => void;
   managingMethods?: boolean;
   title?: string;
+  subscription?: Subscription;
 }
 interface Props extends OwnProps {}
 interface State {
@@ -39,6 +41,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const { subscription } = props;
     this.state = {
       isRequesting: false,
       isDeleting: false,
@@ -46,7 +49,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
       error: "",
       openAddPayment: false,
       openDeleteModal: false,
-      selectedPaymentMethodId: undefined,
+      selectedPaymentMethodId: subscription && subscription.paymentMethodToken,
     };
   }
 
@@ -76,7 +79,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   private selectPaymentMethod = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedPaymentMethodId = event.currentTarget.value;
-    this.props.onPaymentMethodChange(selectedPaymentMethodId);
+    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethodId);
     this.setState({ selectedPaymentMethodId })
   }
 
@@ -132,10 +135,12 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
   private renderPaymentMethod = (paymentMethod: AnyPaymentMethod, displayDelete: boolean = false, displayRadio: boolean = false): JSX.Element => {
     const label = <PaymentMethodComponent
       {...paymentMethod}
-      key={paymentMethod.id}
+      key={`${paymentMethod.id}-label`}
+      id={`select-payment-method-${paymentMethod.id}`}
     />;
 
     return displayRadio ? <FormControlLabel
+            classes={{label: "flex"}}
             key={paymentMethod.id}
             value={paymentMethod.id}
             label={label}

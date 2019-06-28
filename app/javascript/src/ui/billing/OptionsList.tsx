@@ -18,8 +18,8 @@ import DeleteInvoiceOptionModal from "ui/billing/DeleteInvoiceOptionModal";
 import UpdateBillingContainer, { UpdateBillingRenderProps } from "ui/billing/UpdateBillingContainer";
 import { InvoiceOptionQueryParams } from "api/invoices/interfaces";
 import StatusLabel from "ui/common/StatusLabel";
-import { Status } from "ui/common/constants";
-import { numberAsCurrency } from "ui/utils/numberToCurrency";
+import { Status } from "ui/constants";
+import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 
 interface OwnProps { }
 interface DispatchProps {
@@ -30,8 +30,8 @@ interface StateProps {
   totalItems: number;
   loading: boolean;
   error: string;
-  isCreating: boolean;
-  createError: string;
+  isWriting: boolean;
+  writeError: string;
 }
 interface Props extends OwnProps, DispatchProps, StateProps { }
 interface State {
@@ -66,7 +66,7 @@ const fields: Column<InvoiceOption>[] = [
   {
     id: "disabled",
     label: "Disabled",
-    cell: (row: InvoiceOption) => row.disabled ? <StatusLabel label="Disabled" color={Status.Default}/>
+    cell: (row: InvoiceOption) => row.disabled ? <StatusLabel label="Disabled" color={Status.Info}/>
                                                 : <StatusLabel label="Enabled" color={Status.Success} />,
   }
 ];
@@ -90,8 +90,8 @@ class OptionsList extends React.Component<Props, State> {
   }
 
   public componentDidUpdate(prevProps: Props, prevState: State) {
-    const { isCreating: wasCreating, options: priorInvoices, loading: wasLoading } = prevProps;
-    const { isCreating, createError, options, loading } = this.props;
+    const { isWriting: wasWriting, options: priorInvoices, loading: wasLoading } = prevProps;
+    const { isWriting, writeError, options, loading } = this.props;
 
     // Set initial selection on initial load
     if (
@@ -101,7 +101,7 @@ class OptionsList extends React.Component<Props, State> {
       this.setState({ selectedId: undefined });
     }
 
-    if ((wasCreating && !isCreating && !createError) // refresh list on create
+    if ((wasWriting && !isWriting && !writeError) // refresh list on create
     ) {
       this.getOptions(true);
     }
@@ -221,7 +221,7 @@ class OptionsList extends React.Component<Props, State> {
           onClick: this.openCreateForm,
           label: "Create Billing Option"
         }, {
-          id: "billing-list-renew",
+          id: "billing-list-edit",
           variant: "outlined",
           color: "primary",
           disabled: !selectedId,
@@ -315,6 +315,14 @@ const mapStateToProps = (
     create: {
       isRequesting: isCreating,
       error: createError
+    },
+    update: {
+      isRequesting: isUpdating,
+      error: updateError,
+    },
+    delete: {
+      isRequesting: isDeleting,
+      error: deleteError,
     }
   } = state.billing;
 
@@ -323,8 +331,8 @@ const mapStateToProps = (
     totalItems,
     loading,
     error,
-    isCreating,
-    createError,
+    isWriting: isCreating || isUpdating || isDeleting,
+    writeError: createError || updateError || deleteError,
   }
 }
 

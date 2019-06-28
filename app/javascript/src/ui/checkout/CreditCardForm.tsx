@@ -121,6 +121,8 @@ class CreditCardForm extends React.Component<Props, State> {
     return (
       <>
         <Form
+          onSubmit={this.requestPaymentMethod}
+          onCancel={this.props.closeHandler}
           id="credit-card-form"
           title="Enter your credit or debit card information"
         >

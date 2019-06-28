@@ -28,39 +28,37 @@ const styles = {
 
 export const formDialogClass = "form-modal-dialog";
 
-class FormModal extends React.Component<FormModalProps & { classes: any }> {
-  public render() {
-    const { formRef, isOpen, id, loading, title, closeHandler, cancelText,
-      submitText, onSubmit, children, error, style, fullScreen, classes } = this.props;
+const FormModal = (props: FormModalProps & { classes: any }) => {
+  const { formRef, isOpen, id, loading, title, closeHandler, cancelText,
+    submitText, onSubmit, children, error, style, fullScreen, classes } = props;
 
-    return (
-      <Dialog
-        className={formDialogClass}
-        classes={{ paperScrollPaper: classes.root }}
-        fullWidth={true}
-        fullScreen={fullScreen}
-        open={isOpen}
-        onClose={closeHandler}
-        disableBackdropClick={true}
-        scroll={"body"}
+  return (
+    <Dialog
+      className={formDialogClass}
+      classes={{ paperScrollPaper: classes.root }}
+      fullWidth={true}
+      fullScreen={fullScreen}
+      open={isOpen}
+      onClose={closeHandler}
+      disableBackdropClick={true}
+      scroll={"body"}
+    >
+      <Form
+        ref={formRef}
+        id={id}
+        title={title}
+        onCancel={closeHandler}
+        cancelText={cancelText}
+        loading={loading}
+        onSubmit={onSubmit}
+        submitText={submitText}
+        error={error}
+        style={style}
       >
-        <Form
-          ref={formRef}
-          id={id}
-          title={title}
-          onCancel={closeHandler}
-          cancelText={cancelText}
-          loading={loading}
-          onSubmit={onSubmit}
-          submitText={submitText}
-          error={error}
-          style={style}
-        >
-          {children}
-        </Form>
-      </Dialog>
-    );
-  }
+        {children}
+      </Form>
+    </Dialog>
+  );
 }
 
 export default withStyles(styles)(FormModal);
