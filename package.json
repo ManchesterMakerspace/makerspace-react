@@ -64,8 +64,8 @@
     "redux-mock-store": "^1.5.3",
     "selenium-webdriver": "latest",
     "ts-jest": "^24.0.0",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "2.11.2"
+    "webpack-cli": "^3.3.3",
+    "webpack-dev-server": "3.7.2"
   },
   "scripts": {
     "start": "./bin/webpack-dev-server",
