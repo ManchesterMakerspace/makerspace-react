@@ -11,7 +11,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuIcon from "@material-ui/icons/Menu";
 
-const Logo = require("images/FilledLaserableLogo.svg");
+import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
 
 import { ScopedThunkDispatch, State as ReduxState } from "ui/reducer";
 import { logoutUserAction } from "ui/auth/actions";
@@ -132,10 +132,10 @@ class Header extends React.Component<Props, State> {
   public render(): JSX.Element {
     const { currentUser, authRequesting } = this.props;
     return (
-      <AppBar style={{ marginBottom: "1em" }} position="static" color="default" title={Logo}>
+      <AppBar style={{ marginBottom: "1em" }} position="static" color="default" title="Manchester Makerspace">
         <Toolbar>
           <Typography variant="h6" color="inherit" className="flex">
-            <img src={Logo} alt="Manchester Makerspace" height={60} />
+            <Logo alt="Manchester Makerspace" viewBox="0 0 960 580" preserveAspectRatio="xMinYMin"/>
           </Typography>
           {currentUser.id ? this.renderHambMenu() : (!authRequesting && this.renderLoginLink()) }
         </Toolbar>

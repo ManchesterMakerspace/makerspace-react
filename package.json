@@ -1,6 +1,7 @@
 {
   "name": "makerspace-react",
   "version": "1.0.0",
+  "license": "MIT",
   "engines": {
     "node": ">=8.0.0 <11.0.0"
   },
@@ -47,17 +48,21 @@
     "babel-preset-react": "^6.24.1",
     "cache-loader": "^4.0.1",
     "chromedriver": "^2.42.0",
+    "copy-webpack-plugin": "^5.0.3",
     "css-loader": "^3.0.0",
     "fork-ts-checker-webpack-plugin": "^1.3.7",
     "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^24.1.0",
     "jest-environment-webdriver": "lynch16/jest-environment-webdriver#master",
     "mini-css-extract-plugin": "^0.7.0",
     "mockserver-client": "^5.3.0",
     "mockserver-node": "^5.3.0",
+    "node-sass": "^4.12.0",
     "object-hash": "^1.3.1",
     "prop-types": "^15.7.2",
     "react-hot-loader": "^4.3.4",
+    "react-svg-loader": "^3.0.3",
     "redux-mock-store": "^1.5.3",
     "sass": "^1.22.1",
     "sass-loader": "^7.1.0",
@@ -68,12 +73,14 @@
     "tslint": "^5.18.0",
     "tslint-loader": "^3.5.4",
     "typescript": "^3.4.5",
+    "url-loader": "^2.0.1",
     "webpack": "^4.35.0",
     "webpack-cli": "^3.3.3",
     "webpack-dev-server": "3.7.2"
   },
   "scripts": {
     "start": "$(npm bin)/webpack-dev-server",
+    "open": "yarn start --open",
     "build": "$(npm bin)/webpack",
     "test": "$(npm bin)/jest --no-cache",
     "test-watch": "yarn test --watch",
@@ -83,7 +90,7 @@
   "jest": {
     "collectCoverage": false,
     "collectCoverageFrom": [
-      "app/javascript/src/**/*.{ts,tsx}"
+      "src/**/*.{ts,tsx}"
     ],
     "coverageReporters": [
       "text",
@@ -94,7 +101,7 @@
     },
     "testRegex": "/tests/unit/.*\\.spec\\.(j|t)sx?$",
     "moduleNameMapper": {
-      "^(api|app|ui|)[/](.*)$": "<rootDir>/app/javascript/src/$1/$2"
+      "^(api|app|ui|documents)[/](.*)$": "<rootDir>/src/$1/$2"
     },
     "moduleFileExtensions": [
       "js",

@@ -3,41 +3,51 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: "development",
   entry: "./src/app/main.tsx",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].bundle.js"
+    filename: "[name].bundle.js",
+    publicPath: '/'
   },
   module: {
     rules: [
-      // {
-      //   loader: "html-loader",
-      //   options: {
-      //     minimize: true,
-      //     removeAttributeQuotes: false,
-      //     caseSensitive: true,
-      //     customAttrSurround: [[/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/]],
-      //     customAttrAssign: [/\)?\]?=/]
-      //   }
-      // },
-      // {
-      //   test: /\.tsx?$/,
-      //   enforce: "pre",
-      //   exclude: /(node_modules)/,
-      //   use: [
-      //     { loader: "cache-loader" },
-      //     {
-      //       loader: "tslint-loader",
-      //       options: {
-      //         typeCheck: false,
-      //         emitErrors: true
-      //       }
-      //     }
-      //   ]
-      // },
+      {
+        test: /\.(png|jpg|svg)$/,
+        loader: "url-loader",
+      },
+      {
+        test: /\.(html)$/,
+        use: {
+          loader: 'html-loader',
+          options: {
+            minimize: true,
+            removeAttributeQuotes: false,
+            caseSensitive: true,
+            customAttrSurround: [[/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/]],
+            customAttrAssign: [/\)?\]?=/]
+          }
+        }
+      },
+      {
+        test: /\.tsx?$/,
+        enforce: "pre",
+        exclude: /(node_modules)/,
+        use: [
+          { loader: "cache-loader" },
+          {
+            loader: "tslint-loader",
+            options: {
+              typeCheck: false,
+              emitErrors: true
+            }
+          }
+        ]
+      },
       {
         test: /\.tsx?$/,
         use: [
@@ -50,10 +60,17 @@ module.exports = {
           }
         ]
       },
-      // {
-      //   test: /\.scss$/,
-      //   use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
-      // }
+      {
+        test: /\.svg$/,
+        loader: "react-svg-loader",
+        options: {
+          jsx: true // true outputs JSX tags
+        }
+      },
+      {
+        test: /\.scss$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+      }
     ]
   },
   resolve: {
@@ -86,6 +103,7 @@ module.exports = {
   devServer: {
     hot: true,
     disableHostCheck: true,
+    historyApiFallback: true,
     proxy: {
       "/api": "http://localhost:3002"
     },
@@ -102,7 +120,14 @@ module.exports = {
     }),
     new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
-      filename: `css/[name].css`
-    })
+      filename: `[name].css`
+    }),
+    new HtmlWebPackPlugin({
+      template: "./src/assets/index.html",
+      filename: "./index.html"
+    }),
+    new CopyWebpackPlugin([
+      {from:'src/assets/favicon.png',to:'favicon.png'}, 
+    ]), 
   ]
 };

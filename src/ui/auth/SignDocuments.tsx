@@ -15,8 +15,8 @@ import { timeToDate } from "ui/utils/timeToDate";
 import Form from "ui/common/Form";
 import { State as ReduxState } from "ui/reducer";
 
-const codeOfConduct = require('code_of_conduct.html') as string;
-const memberContract = require('member_contract.html') as string;
+const codeOfConduct = require('documents/code_of_conduct.html') as string;
+const memberContract = require('documents/member_contract.html') as string;
 
 interface OwnProps {
   onSubmit: () => void;

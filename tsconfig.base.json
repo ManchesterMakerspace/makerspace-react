@@ -3,6 +3,7 @@
     "allowJs": true,
     "declaration": false,
     "baseUrl": ".",
+    "outDir": "dist",
     "paths": {
       "*": [
         "*",

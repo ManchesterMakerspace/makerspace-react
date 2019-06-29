@@ -15,6 +15,7 @@ dump/*.archive
 dump/*.png
 *.log
 .DS_Store
+/dist
 
 config.json
 old-config.json

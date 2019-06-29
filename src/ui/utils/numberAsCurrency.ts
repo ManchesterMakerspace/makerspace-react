@@ -1,1 +1,1 @@
-export const numberAsCurrency = (number: number | string) => `$${(Math.round(Number(number) * 100) / 100).toFixed(2)}`;
+export const numberAsCurrency = (value: number | string): string => `$${(Math.round(Number(value) * 100) / 100).toFixed(2)}`;

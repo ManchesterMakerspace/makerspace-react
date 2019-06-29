@@ -8,6 +8,8 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from "@material-ui/core/Button";
 import Typography from '@material-ui/core/Typography';
 
+import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
+
 import { Routing, billingEnabled } from "app/constants";
 import MembershipSelectForm from 'ui/membership/MembershipSelectForm';
 import { ScopedThunkDispatch } from 'ui/reducer';
@@ -46,8 +48,8 @@ class LandingPage extends React.Component<Props, State> {
             <CardContent>
               <Grid container spacing={24}>
 
-                <Grid item md={6} sm={12} style={{ width: '100%', height: '200px' }}>
-                  <Grid id="landing-page-graphic"></Grid>
+                <Grid item md={6} sm={12}>
+                  <Logo style={{ width: '100%', height: '200px' }} alt="Manchester Makerspace" viewBox="0 0 960 580"/>
                 </Grid>
 
                 <Grid item md={6} sm={12}>
