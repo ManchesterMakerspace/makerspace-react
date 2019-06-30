@@ -2,6 +2,13 @@
 # set -e
 
 max_wait_seconds=300
+if [ "${LOCAL}" == "TRUE" ]; then
+  echo "Setting --interactive local env"
+  API_DOMAIN=http://0.0.0.0:1080
+  APP_DOMAIN=0.0.0.0
+  MOCKSERVER_DOMAIN=0.0.0.0
+fi
+
 echo "Waiting.."
 if [ ${SELENIUM_ADDRESS} ]; then
   echo "Waiting for selenium to start..."
@@ -38,6 +45,7 @@ if [ "${INTERACTIVE}" == "TRUE" ]; then
   echo "App: 0.0.0.0:${PORT}"
   /bin/bash
 else
+  echo "Interactive: ${INTERACTIVE}"
   cd /usr/src/app && echo "Starting testing..."
   if [ ${SELENIUM_ADDRESS} ]; then
     if [ "${CONFIG}" == "integration" ]; then

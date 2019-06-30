@@ -1,63 +1,34 @@
 version: '2'
 services:
-  interface:
+  app:
     extends:
       file: app.yml
-      service: interface
+      service: app
     environment:
-      - INTERACTIVE
       - LOCAL
-      - SELENIUM_ADDRESS=http://selenium:4444/wd/hub
-      - RAILS_ENV=test
-      - APP_DOMAIN=interface
+      - INTERACTIVE
       - API_DOMAIN=http://mockserver:1080
-      - MOCKSERVER_DOMAIN=mockserver
-      - PORT=3002
-      - MLAB_URI
-      - SLACK_ADMIN_TOKEN
-      - GMAIL_PASSWORD
-      - GMAIL_USERNAME
-      - BT_ENV
-      - BT_PRIVATE_KEY
-      - BT_PUBLIC_KEY
-      - BT_MERCHANT_ID
-      - SIGNATURES_FOLDER
-      - SECRET_KEY_BASE
       - BILLING_ENABLED=true
-    tty: false
-    logging:
-      driver: "none"
+    command: yarn start --host 0.0.0.0 --env.API_DOMAIN http://mockserver:1080
   tester:
     build:
       context: ../..
       dockerfile: Docker/Dockerfiles/tester
     volumes_from:
-      - interface
+      - app
     links:
       - selenium
-      - interface
+      - app
       - mockserver
     depends_on:
-      - interface
+      - app
     environment:
       - LOCAL
       - INTERACTIVE
-      - RAILS_ENV=test
-      - APP_DOMAIN=interface
-      - PORT=3002
+      - APP_DOMAIN=app
+      - PORT=3035
       - SELENIUM_ADDRESS=http://selenium:4444/wd/hub
       - MOCKSERVER_DOMAIN=mockserver
-      - MLAB_URI
-      - SLACK_ADMIN_TOKEN
-      - GMAIL_PASSWORD
-      - GMAIL_USERNAME
-      - BT_ENV
-      - BT_PRIVATE_KEY
-      - BT_PUBLIC_KEY
-      - BT_MERCHANT_ID
-      - SIGNATURES_FOLDER
-      - SECRET_KEY_BASE
-      - BILLING_ENABLED=true
     tty: true
   mockserver:
     image: jamesdbloom/mockserver:mockserver-5.4.1
@@ -72,7 +43,7 @@ services:
     - 4444:4444
     - 5900
     links:
-      - interface
+      - app
     tty: false
     logging:
       driver: "none"

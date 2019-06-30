@@ -1,14 +1,12 @@
-PROJECT_NAME=mmsinterface
+PROJECT_NAME=mmsreact
+DC_DEV=docker-compose -f Docker/docker-compose/dev.yml -p $(PROJECT_NAME)
 DC_FUNCTIONAL=docker-compose -f Docker/docker-compose/functional.yml -p $(PROJECT_NAME)
 DC_INTEGRATION=docker-compose -f Docker/docker-compose/integration.yml -p $(PROJECT_NAME)
-DC_DEV=docker-compose -f Docker/docker-compose/dev.yml -p $(PROJECT_NAME)
-DC_TEST=docker-compose -f Docker/docker-compose/test.yml -p $(PROJECT_NAME)
 
-start: clean-dev dev-up
+start: dev-up
 test: clean-test test-up functional-up
 
-rebuild-dev: clean-dev build-up-dev
-start-unit: clean-test test-up
+
 start-func: clean-test functional-up
 start-func-dev: clean-test functional-up-interactive
 start-func-local: clean-test functional-up-interactive-local
@@ -27,46 +25,41 @@ clean-dev:
 	${DC_DEV} rm -f
 
 build-up-dev:
-	${DC_DEV} build
-	${DC_DEV} up
+	${DC_DEV} up --build
 
 dev-up:
 	${DC_DEV} up
 
 clean-test:
-	${DC_TEST} rm -f
 	${DC_FUNCTIONAL} rm -f
 	${DC_INTEGRATION} rm -f
 
-test-up:
-	${DC_TEST} up --exit-code-from interface
-
 functional-up:
-	./Docker/scripts/functional_test.sh
+	${DC_FUNCTIONAL} up --exit-code-from tester
 build-up-functional:
-	./Docker/scripts/functional_test.sh --build
+	${DC_FUNCTIONAL} up --build --exit-code-from tester
 functional-up-interactive:
-	./Docker/scripts/functional_test.sh --interactive
+	INTERACTIVE=TRUE ${MAKE} functional-up
 build-up-functional-interactive:
-	./Docker/scripts/functional_test.sh --build --interactive
+	INTERACTIVE=TRUE ${MAKE} build-up-functional
 functional-up-interactive-local:
-	./Docker/scripts/functional_test.sh --interactive --local
+	LOCAL=TRUE ${MAKE} functional-up-interactive
 build-up-functional-interactive-local:
-	./Docker/scripts/functional_test.sh --build --interactive --local
+	LOCAL=TRUE ${MAKE} build-up-functional-interactive
 
 
 integration-up:
-	./Docker/scripts/functional_test.sh --config integration
+	${DC_INTEGRATION} up --exit-code-from tester
 build-up-integration:
-	./Docker/scripts/functional_test.sh --build --config integration
+	${DC_INTEGRATION} up --build --exit-code-from tester
 integration-up-interactive:
-	./Docker/scripts/functional_test.sh --interactive --config integration
+	INTERACTIVE=TRUE ${MAKE} integration-up
 build-up-integration-interactive:
-	./Docker/scripts/functional_test.sh --build --interactive --config integration
+	INTERACTIVE=TRUE ${MAKE} build-up-integration
 integration-up-interactive-local:
-	./Docker/scripts/functional_test.sh --interactive --local --config integration
+	LOCAL=TRUE	${MAKE} integration-up-interactive
 build-up-integration-interactive-local:
-	./Docker/scripts/functional_test.sh --build --interactive --local --config integration
+	LOCAL=TRUE ${MAKE} build-up-integration-interactive
 
 # These functions are for running Yarn functional tests manually with docker interactive containers.
 # Can be used with Docker or Local Selenium instance.
@@ -75,7 +68,7 @@ build-up-integration-interactive-local:
 # always set to the local domain because it is scoped to yarn, which is running locally in.
 MOCKSERVER_DOMAIN=0.0.0.0
 SELENIUM_ADDRESS=http://0.0.0.0:4444/wd/hub
-APP_DOCKER_DOMAIN=interface
+APP_DOCKER_DOMAIN=app
 APP_LOCAL_DOMAIN=0.0.0.0
 FUNC_DOCKER=bash -c "SELENIUM_ADDRESS=${SELENIUM_ADDRESS} MOCKSERVER_DOMAIN=${MOCKSERVER_DOMAIN} APP_DOMAIN=${APP_DOCKER_DOMAIN} yarn test-functional"
 FUNC_LOCAL=bash -c "MOCKSERVER_DOMAIN=${MOCKSERVER_DOMAIN} APP_DOMAIN=${APP_LOCAL_DOMAIN} yarn test-functional"
