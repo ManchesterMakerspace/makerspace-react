@@ -11,7 +11,7 @@ module.exports = {
   entry: "./src/app/main.tsx",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].bundle.js",
+    filename: "makerspace-react.js",
     publicPath: '/'
   },
   module: {
@@ -120,7 +120,7 @@ module.exports = {
     }),
     new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
-      filename: `[name].css`
+      filename: `makerspace-react.css`
     }),
     new HtmlWebPackPlugin({
       template: "./src/assets/index.html",
