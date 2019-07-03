@@ -129,5 +129,8 @@ module.exports = env => ({
     new CopyWebpackPlugin([
       {from:'src/assets/favicon.png',to:'favicon.png'}, 
     ]), 
+    new webpack.EnvironmentPlugin({
+      BILLING_ENABLED: true,
+    })
   ]
 });
