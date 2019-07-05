@@ -70,7 +70,7 @@ build-up-integration-interactive-local:
 # always set to the local domain because it is scoped to yarn, which is running locally in.
 MOCKSERVER_DOMAIN=0.0.0.0
 SELENIUM_ADDRESS=http://0.0.0.0:4444/wd/hub
-APP_DOCKER_DOMAIN=app
+APP_DOCKER_DOMAIN=react
 APP_LOCAL_DOMAIN=0.0.0.0
 FUNC_DOCKER=bash -c "SELENIUM_ADDRESS=${SELENIUM_ADDRESS} MOCKSERVER_DOMAIN=${MOCKSERVER_DOMAIN} APP_DOMAIN=${APP_DOCKER_DOMAIN} yarn test-functional"
 FUNC_LOCAL=bash -c "MOCKSERVER_DOMAIN=${MOCKSERVER_DOMAIN} APP_DOMAIN=${APP_LOCAL_DOMAIN} yarn test-functional"

@@ -1,9 +1,9 @@
 version: '2'
 services:
-  app:
+  react:
     extends:
       file: app.yml
-      service: app
+      service: react
     command: yarn start --host 0.0.0.0
     stdin_open: true
     tty: true

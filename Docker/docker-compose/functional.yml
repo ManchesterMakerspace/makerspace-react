@@ -1,9 +1,9 @@
 version: '2'
 services:
-  app:
+  react:
     extends:
       file: app.yml
-      service: app
+      service: react
     environment:
       - LOCAL
       - INTERACTIVE
@@ -15,17 +15,17 @@ services:
       context: ../..
       dockerfile: Docker/Dockerfiles/tester
     volumes_from:
-      - app
+      - react
     links:
       - selenium
-      - app
+      - react
       - mockserver
     depends_on:
-      - app
+      - react
     environment:
       - LOCAL
       - INTERACTIVE
-      - APP_DOMAIN=app
+      - APP_DOMAIN=react
       - PORT=3035
       - SELENIUM_ADDRESS=http://selenium:4444/wd/hub
       - MOCKSERVER_DOMAIN=mockserver
@@ -43,7 +43,7 @@ services:
     - 4444:4444
     - 5900
     links:
-      - app
+      - react
     tty: false
     logging:
       driver: "none"

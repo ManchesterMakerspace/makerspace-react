@@ -1,6 +1,6 @@
 version: '2'
 services:
-  app:
+  react:
     build:
       context: ../..
       dockerfile: Docker/Dockerfiles/dev
