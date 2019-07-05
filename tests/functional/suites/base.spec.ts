@@ -22,6 +22,7 @@ it('initialises the context', async () => {
 
 // Smoke test that app is running
 it('should load the landing page', async () => {
+  console.error("rootURL", rootURL);
   await browser.get(rootURL);
   expect(await utils.isElementDisplayed('[id="landing-page-graphic"]')).toBeTruthy();
 });
