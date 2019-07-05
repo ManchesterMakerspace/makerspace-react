@@ -59,7 +59,7 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false) =>
   await transactionPO.verifyListView(transactions, transactionPO.fieldEvaluator());
 }
 
-fdescribe("Member Profiles", () => {
+describe("Member Profiles", () => {
   describe("Basic User", () => {
     describe("Own Profile", () => {
       it("Displays your membership information", async () => {

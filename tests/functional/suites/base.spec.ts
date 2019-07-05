@@ -14,15 +14,14 @@ beforeEach(async () => {
 });
 
 // Initialize browser context
-fit('initialises the context', async () => {
+it('initialises the context', async () => {
   await browser.manage().window().setPosition(0, 0);
   await browser.manage().window().setSize(1280, 1024);
   await browser.get(rootURL);
 });
 
 // Smoke test that app is running
-fit('should load the landing page', async () => {
-  console.error("rootURL", rootURL);
+it('should load the landing page', async () => {
   await browser.get(rootURL);
   expect(await utils.isElementDisplayed('[id="landing-page-graphic"]')).toBeTruthy();
 });
