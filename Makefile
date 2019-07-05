@@ -5,6 +5,8 @@ DC_INTEGRATION=docker-compose -f Docker/docker-compose/integration.yml -p $(PROJ
 
 start: dev-up
 test: clean-test test-up functional-up
+upload_screenshots: 
+	node tests/uploadScreenshots.js
 
 
 start-func: clean-test functional-up
