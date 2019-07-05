@@ -294,21 +294,15 @@ class TransactionsList extends React.Component<Props, State> {
 
     const selectedTransaction = transactions[selectedId];
 
-    return (admin &&
-      <>
-        {!!selectedTransaction && (
-          <>
-            <UpdateTransactionContainer
-              operation={CrudOperation.Delete}
-              isAdmin={admin}
-              isOpen={openTransactionForm && modalOperation === CrudOperation.Delete}
-              transaction={transactions[selectedId]}
-              closeHandler={this.closeTransactionModal}
-              render={refundModal}
-            />
-          </>
-        )}
-      </>
+    return (!!selectedTransaction &&
+      <UpdateTransactionContainer
+        operation={CrudOperation.Delete}
+        isAdmin={admin}
+        isOpen={openTransactionForm && modalOperation === CrudOperation.Delete}
+        transaction={transactions[selectedId]}
+        closeHandler={this.closeTransactionModal}
+        render={refundModal}
+      />
     );
   }
 

@@ -47,7 +47,7 @@ class TransactionsPageObject extends TablePageObject {
   public refundTransactionModal: { [key: string]: string } = {
     id: `${this.refundTransactionModalId}`,
     date: `${this.refundTransactionModalId}-date`,
-    amount: `${this.refundTransactionModal}-amount`,
+    amount: `${this.refundTransactionModalId}-amount`,
     description: `${this.refundTransactionModalId}-description`,
     member: `${this.refundTransactionModalId}-member`,
     submit: `${this.refundTransactionModalId}-submit`,

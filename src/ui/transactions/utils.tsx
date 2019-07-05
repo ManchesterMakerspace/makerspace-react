@@ -4,7 +4,7 @@ import { Status } from "ui/constants";
 import StatusLabel from "ui/common/StatusLabel";
 
 export const renderTransactionStatus = (transaction: Transaction) => {
-  let label = "In Progress";
+  let label = "Pending";
   let color = Status.Info;
 
   switch (transaction.status) {

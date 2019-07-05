@@ -8,9 +8,10 @@ import transactionsPO from "../../pageObjects/transactions";
 import billingPO from "../../pageObjects/billing";
 import { defaultTransaction, defaultTransactions } from "../../constants/transaction";
 import { timeToDate } from "ui/utils/timeToDate";
+import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { autoLogin } from "../autoLogin";
 
-xdescribe("Transactions", () => {
+describe("Transactions", () => {
   describe("Basic user", () => {
     const customer = {
       ...basicUser,
@@ -41,8 +42,8 @@ xdescribe("Transactions", () => {
       await transactionsPO.selectRow(initTransaction.id);
       await utils.clickElement(transactionsPO.actionButtons.delete);
       await utils.waitForVisible(transactionsPO.refundTransactionModal.submit);
-      expect(await utils.getElementText(transactionsPO.refundTransactionModal.member)).toEqual(`${customer.firstname} ${customer.lastname}`);
-      expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(initTransaction.amount);
+      expect(await utils.getElementText(transactionsPO.refundTransactionModal.date)).toEqual(timeToDate(initTransaction.createdAt));
+      expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(numberAsCurrency(initTransaction.amount));
       await mock(mockRequests.transaction.delete.ok(initTransaction.id));
       await mock(mockRequests.transactions.get.ok([], { memberId: customer.id }));
       await utils.clickElement(transactionsPO.refundTransactionModal.submit);
@@ -73,7 +74,7 @@ xdescribe("Transactions", () => {
         await utils.clickElement(transactionsPO.transactionsList.deleteButton);
         await utils.waitForVisible(transactionsPO.refundTransactionModal.submit);
         expect(await utils.getElementText(transactionsPO.refundTransactionModal.date)).toEqual(timeToDate(defaultTransactions[0].createdAt));
-        expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(defaultTransactions[0].amount);
+        expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(numberAsCurrency(defaultTransactions[0].amount));
         await mock(mockRequests.transaction.delete.ok(defaultTransactions[0].id, true));
         await mock(mockRequests.transactions.get.ok([], undefined, true));
         await utils.clickElement(transactionsPO.refundTransactionModal.submit);
@@ -107,8 +108,8 @@ xdescribe("Transactions", () => {
         await utils.clickElement(transactionsPO.actionButtons.delete);
         await utils.waitForVisible(transactionsPO.refundTransactionModal.submit);
         expect(await utils.getElementText(transactionsPO.refundTransactionModal.member)).toEqual(`${customer.firstname} ${customer.lastname}`);
-        expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(initTransaction.amount);
-        await mock(mockRequests.transaction.delete.ok(initTransaction.id));
+        expect(await utils.getElementText(transactionsPO.refundTransactionModal.amount)).toEqual(numberAsCurrency(initTransaction.amount));
+        await mock(mockRequests.transaction.delete.ok(initTransaction.id, true));
         await mock(mockRequests.transactions.get.ok([], { memberId: customer.id }, true));
         await utils.clickElement(transactionsPO.refundTransactionModal.submit);
         await utils.waitForNotVisible(transactionsPO.refundTransactionModal.submit);
