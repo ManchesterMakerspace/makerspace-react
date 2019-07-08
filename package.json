@@ -10,11 +10,11 @@
   "dependencies": {
     "@material-ui/core": "^3.9.1",
     "@material-ui/icons": "^3.0.2",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "braintree-web": "^3.36.0",
     "connected-react-router": "^6.2.0",
     "history": "^4.7.2",
-    "lodash-es": "^4.17.10",
+    "lodash-es": "^4.17.11",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "paypal-checkout": "^4.0.217",
