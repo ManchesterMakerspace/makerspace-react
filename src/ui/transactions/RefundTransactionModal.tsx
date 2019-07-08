@@ -6,6 +6,7 @@ import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";
 import { timeToDate } from "ui/utils/timeToDate";
+import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 
 interface OwnProps {
   transaction: Partial<Transaction>;
@@ -22,59 +23,21 @@ class DeleteTransactionModal extends React.Component<OwnProps, {}> {
   public formRef: Form;
   private setFormRef = (ref: Form) => this.formRef = ref;
 
-  private getAdminContent = () => {
-    const { transaction } = this.props;
-    return (
-      <>
-        <Typography gutterBottom>
-          Are you sure you want to refund this transaction?
-        </Typography>
-        <KeyValueItem label="Date">
-          <span id="refund-transaction-date">{timeToDate(transaction.createdAt)}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Amount">
-          <span id="refund-transaction-amount">{(Number(transaction.amount) - Number(transaction.discountAmount))}</span>
-        </KeyValueItem>
-        { transaction.invoice && 
-          <>
-            <KeyValueItem label="Member">
-              <span id="refund-transaction-member">{transaction.invoice.memberName}</span>
-            </KeyValueItem>
-            <KeyValueItem label="Description">
-              <span id="refund-transaction-description">{transaction.invoice.description}</span>
-            </KeyValueItem>
-          </>
-        }
-      </>
-    )
-  }
-
-  private getMemberContent = () => {
-    const { transaction } = this.props;
-    return (
-      <>
-        <Typography gutterBottom>
-          Would you like to request a refund for this transaction?
-
-          An administrator will review the request and notify you of a decision. Please note, requests for refunds are evaluated on a case by case basis and are not guaranteed.
-        </Typography>
-        <KeyValueItem label="Date">
-          <span id="refund-transaction-date">{timeToDate(transaction.createdAt)}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Amount">
-          <span id="refund-transaction-amount">{(Number(transaction.amount) - Number(transaction.discountAmount))}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Description">
-          <span id="refund-transaction-description">{transaction.invoice.description}</span>
-        </KeyValueItem>
-      </>
-    )
-  }
-
   public render(): JSX.Element {
     const { isOpen, onClose, isRequesting, error, onSubmit, transaction, isAdmin } = this.props;
 
     const title = isAdmin ? "Refund Transaction" : "Request Refund";
+    const text = isAdmin ? (
+      <span>
+          Are you sure you want to refund this transaction?
+      </span>
+    ) : (
+      <span>
+        Would you like to request a refund for this transaction?
+        <br/>
+        An administrator will review the request and notify you of a decision. Please note, requests for refunds are evaluated on a case by case basis and are not guaranteed.
+      </span>
+    );
 
     return transaction ? (
       <FormModal
@@ -87,7 +50,24 @@ class DeleteTransactionModal extends React.Component<OwnProps, {}> {
         onSubmit={onSubmit}
         error={error}
       >
-        {isAdmin ? this.getAdminContent() : this.getMemberContent()}
+        <Typography gutterBottom>
+          {text}
+        </Typography>
+        <KeyValueItem label="Date">
+          <span id="refund-transaction-date">{timeToDate(transaction.createdAt)}</span>
+        </KeyValueItem>
+        <KeyValueItem label="Amount">
+          <span id="refund-transaction-amount">{numberAsCurrency(Number(transaction.amount) - Number(transaction.discountAmount))}</span>
+        </KeyValueItem>
+        { isAdmin && transaction.memberName && 
+          <KeyValueItem label="Member">
+            <span id="refund-transaction-member">{transaction.memberName}</span>
+          </KeyValueItem>}
+        { transaction.invoice && 
+          <KeyValueItem label="Description">
+            <span id="refund-transaction-description">{transaction.invoice.description}</span>
+          </KeyValueItem>
+        }
       </FormModal>
     ) : null;
   }

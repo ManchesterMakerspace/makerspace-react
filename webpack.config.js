@@ -4,14 +4,14 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
+module.exports = env => ({
   mode: "development",
   entry: "./src/app/main.tsx",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].bundle.js",
+    filename: "makerspace-react.js",
     publicPath: '/'
   },
   module: {
@@ -105,7 +105,7 @@ module.exports = {
     disableHostCheck: true,
     historyApiFallback: true,
     proxy: {
-      "/api": "http://localhost:3002"
+      "/api": env && env.API_DOMAIN || "http://localhost:3002"
     },
     https: false,
     port: 3035,
@@ -120,7 +120,7 @@ module.exports = {
     }),
     new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
-      filename: `[name].css`
+      filename: `makerspace-react.css`
     }),
     new HtmlWebPackPlugin({
       template: "./src/assets/index.html",
@@ -129,5 +129,8 @@ module.exports = {
     new CopyWebpackPlugin([
       {from:'src/assets/favicon.png',to:'favicon.png'}, 
     ]), 
+    new webpack.EnvironmentPlugin({
+      BILLING_ENABLED: true,
+    })
   ]
-};
+});

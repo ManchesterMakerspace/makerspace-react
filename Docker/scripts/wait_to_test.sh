@@ -2,6 +2,13 @@
 # set -e
 
 max_wait_seconds=300
+if [ "${LOCAL}" == "TRUE" ]; then
+  echo "Setting --interactive local env"
+  API_DOMAIN=http://0.0.0.0:1080
+  APP_DOMAIN=0.0.0.0
+  MOCKSERVER_DOMAIN=0.0.0.0
+fi
+
 echo "Waiting.."
 if [ ${SELENIUM_ADDRESS} ]; then
   echo "Waiting for selenium to start..."
@@ -19,17 +26,13 @@ if [ ${SELENIUM_ADDRESS} ]; then
 fi
 
 echo "Waiting for application to start..."
-while true; do
-  if ! curl --output /dev/null --silent --head --fail "http://${APP_DOMAIN}:${PORT}" > /dev/null 2>&1; then
-    sleep 5;
+while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://${APP_DOMAIN}:${PORT})" != "200" ]]; do 
+    sleep 5; 
     ((max_wait_seconds-=5))
     ((max_wait_seconds%15==0)) && echo "...waiting for application at http://${APP_DOMAIN}:${PORT}"
     ((max_wait_seconds == 0)) && echo "FAILED waiting for application at http://${APP_DOMAIN}:${PORT}" && exit 1
-  else
-    echo "Application ready"
-    break
-  fi
 done
+echo "Application ready"
 
 echo "# All containers ready."
 if [ "${INTERACTIVE}" == "TRUE" ]; then
@@ -38,6 +41,7 @@ if [ "${INTERACTIVE}" == "TRUE" ]; then
   echo "App: 0.0.0.0:${PORT}"
   /bin/bash
 else
+  echo "Interactive: ${INTERACTIVE}"
   cd /usr/src/app && echo "Starting testing..."
   if [ ${SELENIUM_ADDRESS} ]; then
     if [ "${CONFIG}" == "integration" ]; then

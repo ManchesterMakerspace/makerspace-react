@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
+const tmpDir = path.resolve(__dirname, '../../tmp');
 const screenshotDir = path.resolve(__dirname, '../../tmp/screenshots');
 
 export class ScreenshotReporter {
@@ -10,6 +11,9 @@ export class ScreenshotReporter {
   }
   cleanScreenshots() {
     if (!fs.existsSync(screenshotDir)) {
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir)
+      }
       fs.mkdirSync(screenshotDir)
     } else {
       const files = fs.readdirSync(screenshotDir);

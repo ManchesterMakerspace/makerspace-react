@@ -11,6 +11,7 @@ import LoginForm from "ui/auth/LoginForm";
 import { Routing } from 'app/constants';
 import { connect } from 'react-redux';
 import { ScopedThunkDispatch } from 'ui/reducer';
+import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
 
 interface DispatchProps {
   goToRegister: () => void;
@@ -21,8 +22,8 @@ class LoginPage extends React.Component<DispatchProps> {
     return (
       <Grid container spacing={24}>
         <Hidden smDown>
-          <Grid item md={6} sm={12} style={{ padding: '3em', height: '350px' }}>
-            <Grid id="landing-page-graphic"></Grid>
+          <Grid item md={6} sm={12} id="landing-page-graphic">
+            <Logo style={{ width: '100%', height: '200px' }} alt="Manchester Makerspace" viewBox="0 0 960 580"/>
           </Grid>
         </Hidden>
 

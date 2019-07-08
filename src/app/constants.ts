@@ -72,7 +72,7 @@ export namespace Url {
     Subscriptions: `${baseBillingPath}/subscriptions`,
     Subscription: `${baseBillingPath}/subscriptions/${PathPlaceholder.SubscriptionId}`,
     Transactions: `${baseBillingPath}/transactions`,
-    Transaction: `${baseBillingPath}/billing/transactions/${PathPlaceholder.TransactionId}`,
+    Transaction: `${baseBillingPath}/transactions/${PathPlaceholder.TransactionId}`,
   }
 
   export const EarnedMemberships = `${baseApiPath}/earned_memberships`

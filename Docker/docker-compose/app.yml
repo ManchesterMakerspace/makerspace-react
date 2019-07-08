@@ -1,11 +1,13 @@
 version: '2'
 services:
-  interface:
+  react:
     build:
       context: ../..
       dockerfile: Docker/Dockerfiles/dev
     volumes:
       - ../..:/usr/src/app
-      - /box
+      - '/usr/src/app/node_modules'
     ports:
-      - 3002:3002
+      - 3035:3035
+    environment:
+      - NODE_ENV=development

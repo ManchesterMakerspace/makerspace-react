@@ -2,7 +2,7 @@ import { Key, WebElement } from "selenium-webdriver";
 import { toDatePicker } from "ui/utils/timeToDate";
 import { matchPath } from "react-router";
 
-export const rootURL = `http://${process.env.APP_DOMAIN || 'localhost'}:${process.env.PORT || 3002}`;
+export const rootURL = `http://${process.env.APP_DOMAIN || 'localhost'}:${process.env.PORT || 3035}`;
 
 export class PageUtils {
   private waitUntilTime = 10 * 1000;
