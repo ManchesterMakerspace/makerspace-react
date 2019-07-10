@@ -340,7 +340,7 @@ export const mockRequests = {
       ok: (memberId: string, memberPermissions: CollectionOf<Permission>) => ({
         httpRequest: {
           method: Method.Get,
-          path: `/${Url.Permissions}/${memberId}.json`,
+          path: `/api/members/${memberId}/permissions.json`,
         },
         httpResponse: {
           statusCode: 200,

@@ -26,8 +26,7 @@ export namespace Url {
   export const Invoices = `${baseApiPath}/invoices`;
   export const InvoiceOptions = `${baseApiPath}/invoice_options`;
 
-  export const Permissions = `${baseApiPath}/permissions`;
-  export const Permission = `${Permissions}/${PathPlaceholder.MemberId}`;
+  export const Permissions = `${baseApiPath}/members/${PathPlaceholder.MemberId}/permissions`;
 
   export const Auth = {
     SignIn: `${Members}/sign_in`,
@@ -67,8 +66,8 @@ export namespace Url {
   export const Billing = {
     PaymentMethods: `${baseBillingPath}/payment_methods`,
     PaymentMethod: `${baseBillingPath}/payment_methods/${PathPlaceholder.PaymentMethodId}`,
-    Plans: `${baseBillingPath}/plans`,
-    Discounts: `${baseBillingPath}/plans/discounts`,
+    Plans: `${baseAdminPath}/billing/plans`,
+    Discounts: `${baseAdminPath}/billing/plans/discounts`,
     Subscriptions: `${baseBillingPath}/subscriptions`,
     Subscription: `${baseBillingPath}/subscriptions/${PathPlaceholder.SubscriptionId}`,
     Transactions: `${baseBillingPath}/transactions`,
