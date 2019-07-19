@@ -7,6 +7,8 @@ start: dev-up
 test: clean-test test-up functional-up
 upload_screenshots: 
 	node tests/uploadScreenshots.js
+deploy: 
+	node scripts/release.js
 
 
 start-func: clean-test functional-up
