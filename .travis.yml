@@ -15,7 +15,7 @@ after_failure:
 jobs:
   include:
     - stage: test
-      script: make start-func
+      script: echo "TEST"
     - stage: deploy
       before_script:
         - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -23,3 +23,14 @@ jobs:
         - sudo apt-get install libstdc++-4.9-dev
       script: make deploy
       if: branch = master AND type = push
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - build-essential
+      - libssl-dev
+      - gcc-4.9-multilib
+      - g++-4.9-multilib
+      - lcov
