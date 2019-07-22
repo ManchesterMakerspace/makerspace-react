@@ -17,5 +17,9 @@ jobs:
     - stage: test
       script: make start-func
     - stage: deploy
+      before_script:
+        - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        - sudo apt-get update
+        - sudo apt-get install libstdc++-4.9-dev
       script: make deploy
       if: branch = master AND type = push
