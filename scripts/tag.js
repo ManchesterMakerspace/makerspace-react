@@ -11,7 +11,7 @@ const getLastTag = async (repo) => {
   return tags.length ? tags[tags.length - 1] : "0.0.0";
 }
 
-const getCreds = () => git.Cred.sshKeyMemoryNew(
+const getCreds = () => git.Cred.userpassPlaintextNew(
   process.env.USERNAME,
   process.env.PASSPHRASE,
 )
