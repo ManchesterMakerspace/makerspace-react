@@ -40,7 +40,10 @@ const applyMethodToTag = (method, tagName) => {
 const tagRepo = async (repo, tag) => {
   let nextTag = tag;
   const lastCommit = await repo.getHeadCommit();
-  console.log("lastCommit", lastCommit);
+  console.log("lastCommit", await lastCommit.message());
+
+  const masterCommit = await repo.getMasterCommit();
+  console.log("master commit", await masterCommit.message());
 
   const tagName = await getLastTag(repo);
   const taggedCommit = await getCommitByTag(repo, tagName);
