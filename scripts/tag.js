@@ -74,18 +74,13 @@ const tagRepo = async (repo, tag) => {
 const pushRepo = async (repo, nextTag) => {
   const remote = await repo.getRemote('origin');
 
-  const status = await repo.getStatus();
-  console.log("Repo Status: ", status);
-  console.log("Starting PUSH");
   await remote.push(
     [`refs/tags/${nextTag}:refs/tags/${nextTag}`],
     {
       callbacks: {
         credentials: getCreds
       }
-    },
-    repo.defaultSignature(),
-    "Push to master"
+    }
   )
 }
 
