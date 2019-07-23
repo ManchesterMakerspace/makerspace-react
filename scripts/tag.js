@@ -73,6 +73,10 @@ const tagRepo = async (repo, tag) => {
 
 const pushRepo = async (repo, nextTag) => {
   const remote = await repo.getRemote('origin');
+
+  const status = await repo.getStatus();
+  console.log("Repo Status: ", status);
+  console.log("Starting PUSH");
   await remote.push(
     [`refs/tags/${nextTag}:refs/tags/${nextTag}`],
     {
@@ -88,6 +92,11 @@ const pushRepo = async (repo, nextTag) => {
 const tagNpmRepo = async () => {
   console.log("Bumping NPM Package");
   const reactRepo = await git.Repository.open(path.join(__dirname, ".."));
+  await reactRepo.fetch("origin", {
+    callbacks: {
+      credentials: getCreds
+    }
+  })
   const nextTag = await tagRepo(reactRepo);
 
   if (nextTag) {
