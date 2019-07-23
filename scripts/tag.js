@@ -2,7 +2,7 @@ const git = require("nodegit");
 const path = require("path");
 const fs = require("fs");
 const { gemRepo, gemFolder } = require("./release_gem");
-const methodRegex = /#(patch|minor|major)\w/m;
+const methodRegex = /#(patch|minor|major)\b/m;
 const writeOptions = { encoding: "utf-8", flag: "w+" };
 const versionRegex = /\d+.\d+.\d+/;
 
