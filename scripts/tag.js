@@ -11,6 +11,11 @@ const getLastTag = async (repo) => {
   return tags.length ? tags[tags.length - 1] : "0.0.0";
 }
 
+const getCreds = () => git.Cred.sshKeyMemoryNew(
+  process.env.USERNAME,
+  process.env.PASSPHRASE,
+)
+
 const parseCommitForMethod = async (repo) => {
   const lastCommit = await repo.getHeadCommit();
   const commitMsg = lastCommit.message();
@@ -72,10 +77,7 @@ const pushRepo = async (repo, nextTag) => {
     [`refs/tags/${nextTag}:refs/tags/${nextTag}`],
     {
       callbacks: {
-        credentials: () => git.Cred.userpassPlaintextNew(
-          process.env.USERNAME,
-          process.env.PASSPHRASE,
-        )
+        credentials: getCreds
       }
     },
     repo.defaultSignature(),
@@ -112,10 +114,7 @@ const tagRubyRepo = async (newVersion) => {
       await git.Clone.clone(gemRepo.url, gemFolder, {
         fetchOpts: {
           callbacks: {
-            credentials: () => git.Cred.userpassPlaintextNew(
-              process.env.USERNAME,
-              process.env.PASSPHRASE,
-            )
+            credentials: getCreds
           }
         }
       });
