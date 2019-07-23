@@ -2,7 +2,7 @@ const git = require("nodegit");
 const path = require("path");
 const fs = require("fs");
 const { gemRepo, gemFolder } = require("./release_gem");
-const methodRegex = /#(patch|minor|major)$/m;
+const methodRegex = /#(patch|minor|major)\w/m;
 const writeOptions = { encoding: "utf-8", flag: "w+" };
 const versionRegex = /\d+.\d+.\d+/;
 
@@ -40,10 +40,6 @@ const applyMethodToTag = (method, tagName) => {
 const tagRepo = async (repo, tag) => {
   let nextTag = tag;
   const lastCommit = await repo.getHeadCommit();
-  console.log("lastCommit", await lastCommit.message());
-
-  const masterCommit = await repo.getMasterCommit();
-  console.log("master commit", await masterCommit.message());
 
   const tagName = await getLastTag(repo);
   const taggedCommit = await getCommitByTag(repo, tagName);
