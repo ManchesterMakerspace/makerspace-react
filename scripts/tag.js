@@ -72,10 +72,8 @@ const pushRepo = async (repo, nextTag) => {
     [`refs/tags/${nextTag}:refs/tags/${nextTag}`],
     {
       callbacks: {
-        credentials: async (url, username) => await git.Cred.sshKeyMemoryNew(
-          username,
-          process.env.PUBLIC_KEY,
-          process.env.PRIVATE_KEY,
+        credentials: () => git.Cred.userpassPlaintextNew(
+          process.env.USERNAME,
           process.env.PASSPHRASE,
         )
       }
@@ -114,10 +112,8 @@ const tagRubyRepo = async (newVersion) => {
       await git.Clone.clone(gemRepo.url, gemFolder, {
         fetchOpts: {
           callbacks: {
-            credentials: async (url, username) => await git.Cred.sshKeyMemoryNew(
-              username,
-              process.env.PUBLIC_KEY,
-              process.env.PRIVATE_KEY,
+            credentials: () => git.Cred.userpassPlaintextNew(
+              process.env.USERNAME,
               process.env.PASSPHRASE,
             )
           }

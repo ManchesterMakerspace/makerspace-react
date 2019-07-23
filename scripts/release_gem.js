@@ -7,7 +7,7 @@ const gemName = "makerspace-react-rails";
 const gemFolder = path.join(__dirname, "..", gemName);
 
 const gemRepo = {
-  url: "git@github.com:ManchesterMakerspace/makerspace-react-rails.git",
+  url: "https://github.com/ManchesterMakerspace/makerspace-react-rails.git",
   jsFolder: path.join(gemFolder, "vendor", "assets", "javascripts"),
   cssFolder: path.join(gemFolder, "vendor", "assets", "stylesheets"),
   versionFile: path.join(gemFolder, "lib", "makerspace", "react", "rails", "version.rb"),
