@@ -40,6 +40,7 @@ const applyMethodToTag = (method, tagName) => {
 const tagRepo = async (repo, tag) => {
   let nextTag = tag;
   const lastCommit = await repo.getHeadCommit();
+  console.log("lastCommit", lastCommit);
 
   const tagName = await getLastTag(repo);
   const taggedCommit = await getCommitByTag(repo, tagName);
@@ -56,7 +57,7 @@ const tagRepo = async (repo, tag) => {
     }
     nextTag = applyMethodToTag(method, tagName);
   }
-  
+
   // Create new tag
   if (nextTag) {
     console.log(`Tagging repo: ${nextTag}`)
@@ -72,7 +73,12 @@ const pushRepo = async (repo) => {
     ['refs/heads/master:refs/heads/master'],
     {
       callbacks: {
-        credentials: (url, username) => git.Cred.sshKeyFromAgent(username)
+        credentials: async (url, username) => await git.Cred.sshKeyMemoryNew(
+          username,
+          process.env.PUBLIC_KEY,
+          process.env.PRIVATE_KEY,
+          process.env.PASSPHRASE,
+        )
       }
     },
     repo.defaultSignature(),
@@ -98,7 +104,7 @@ const tagNpmRepo = async () => {
     fs.writeFileSync(packaageFilePath, JSON.stringify(newPackage, null, 2), writeOptions);
     await pushRepo(reactRepo);
   }
-  
+
   return nextTag;
 }
 
@@ -110,7 +116,7 @@ const tagRubyRepo = async (newVersion) => {
         fetchOpts: {
           callbacks: {
             credentials: async (url, username) => await git.Cred.sshKeyMemoryNew(
-              username, 
+              username,
               process.env.PUBLIC_KEY,
               process.env.PRIVATE_KEY,
               process.env.PASSPHRASE,
@@ -119,24 +125,24 @@ const tagRubyRepo = async (newVersion) => {
         }
       });
     }
-  
+
     const rubyRepo = await git.Repository.open(gemFolder);
-  
+
     await tagRepo(rubyRepo, newVersion);
-  
+
     const currentVersion = fs.readFileSync(gemRepo.versionFile, { encoding: "utf-8" });
     const version = versionRegex.exec(currentVersion);
     if (version === currentVersion) {
       throw new Error("Cannot tag gem, version already exists");
     }
-  
+
     const updatedVersion = currentVersion.replace(versionRegex, newVersion);
-  
+
     console.log(`Updating gem to ${newVersion}`);
     fs.writeFileSync(gemRepo.versionFile, updatedVersion, writeOptions);
     await pushRepo(rubyRepo);
   }
- 
+
   return newVersion;
 }
 
