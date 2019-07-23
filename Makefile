@@ -8,7 +8,6 @@ test: clean-test test-up functional-up
 upload_screenshots: 
 	node tests/uploadScreenshots.js
 deploy: 
-	npm i nodegit
 	node scripts/release.js
 
 
