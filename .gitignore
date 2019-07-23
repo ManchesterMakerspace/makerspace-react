@@ -9,5 +9,6 @@ test.env
 yarn-debug.log*
 .yarn-integrity
 yarn-error.log*
+package-lock.json
 
 /makerspace-react-rails
