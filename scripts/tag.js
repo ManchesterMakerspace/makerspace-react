@@ -66,10 +66,10 @@ const tagRepo = async (repo, tag) => {
   return nextTag;
 }
 
-const pushRepo = async (repo) => {
+const pushRepo = async (repo, nextTag) => {
   const remote = await repo.getRemote('origin');
   await remote.push(
-    ['refs/heads/master:refs/heads/master'],
+    [`refs/tags/${nextTag}:refs/tags/${nextTag}`],
     {
       callbacks: {
         credentials: async (url, username) => await git.Cred.sshKeyMemoryNew(
@@ -101,7 +101,7 @@ const tagNpmRepo = async () => {
 
     console.log(`Updating package to ${nextTag}`);
     fs.writeFileSync(packaageFilePath, JSON.stringify(newPackage, null, 2), writeOptions);
-    await pushRepo(reactRepo);
+    await pushRepo(reactRepo, nextTag);
   }
 
   return nextTag;
@@ -139,7 +139,7 @@ const tagRubyRepo = async (newVersion) => {
 
     console.log(`Updating gem to ${newVersion}`);
     fs.writeFileSync(gemRepo.versionFile, updatedVersion, writeOptions);
-    await pushRepo(rubyRepo);
+    await pushRepo(rubyRepo, newVersion);
   }
 
   return newVersion;
