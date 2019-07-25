@@ -7,7 +7,7 @@ const mailDir = path.resolve(__dirname, '../../tmp/mail');
 const getMail = () => {
   return fs.readdirSync(mailDir);
 }
-const buildFileName = (emailAddress) => `${mailDir}/${emailAddress}`;
+const buildFileName = (emailAddress: string) => `${mailDir}/${emailAddress}`;
 
 export const emptyMail = () => {
   if (!fs.existsSync(mailDir)) {

@@ -1,0 +1,65 @@
+const simpleGit = require("simple-git/promise");
+const path = require("path");
+const fs = require("fs");
+const os = require("os");
+const remote = (repo) => `https://${process.env.USERNAME}:${process.env.PASSPHRASE}@github.com/ManchesterMakerspace/${repo}.git`
+
+const patchRegex = /#(patch)\b/m;
+const minorRegex = /#(minor)\b/m;
+const majorRegex = /#(major)\b/m;
+
+module.exports.tagRepo = async (repo, forceTag) => {
+  console.log(`Bumping ${repo}`);
+  let git = simpleGit();
+  let nextTag = forceTag;
+
+  let repoRemote = remote(repo);
+  const repoPath = path.join(process.cwd(), repo);
+
+  if (!fs.existsSync(repoPath)) {
+    await git.clone(repoRemote);
+  }
+  git = simpleGit(repoPath);
+
+  if (!nextTag) {
+    console.log(`Evaluating next tag for ${repo}`);
+    const { latest: lastTag } = await git.tags();
+
+    if (!lastTag) {
+      console.log("No tags for this repo. Setting initial tag 0.0.0");
+      await git.tag(["0.0.0"]);
+      await git.pushTags();
+      return;
+    }
+  
+    const { latest: { hash, message } } = await git.log();
+    const commitTags = await git.tag(["--points-at", hash]);
+  
+    if (commitTags) {
+      const msgFriendlyTags = commitTags.split(os.EOL).filter(t => !!t).join(", ");
+      console.log(`Commit already tagged with ${msgFriendlyTags}. Exiting.`);
+      process.exit(0);
+    }
+  
+    const [major, minor, patch] = lastTag.split(".");
+    if (majorRegex.exec(message)) {
+      nextTag = `${Number(major)+1}.0.0`;
+    } else if (minorRegex.exec(message)) {
+      nextTag = `${major}.${Number(minor)+1}.0`;
+    } else if (patchRegex.exec(message)) {
+      nextTag = `${major}.${minor}.${Number(patch)+1}`;
+    }
+  }
+
+  if (!nextTag) {
+    console.log("No tagging for this commit");
+    return;
+  }
+
+  console.log(`Tagging repo: ${nextTag}`)
+  await git.tag([nextTag]);
+  console.log("Pushing new tag");
+  await git.pushTags();
+  console.log("Tagging complete");
+  return nextTag;
+}

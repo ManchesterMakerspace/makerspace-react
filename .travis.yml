@@ -9,7 +9,13 @@ node_js:
 addons:
   chrome: stable
 
-script: make start-func
-
 after_failure:
   - make upload_screenshots
+
+jobs:
+  include:
+    - stage: test
+      script: echo "TEST"
+    - stage: deploy
+      script: make deploy
+      if: branch = master AND type = push
