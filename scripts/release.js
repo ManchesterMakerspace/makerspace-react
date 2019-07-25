@@ -1,0 +1,21 @@
+/**
+ * 1. Tag and commit React package
+ * 3. Tag and commit gem
+ * 3. Package and publish gem
+ */
+
+const { tagRepo } = require("./simple_tag");
+const packageGem = require("./release_gem");
+const reactRepo = "makerspace-react";
+const gemRepo = "makerspace-react-rails";
+
+
+const main = async () => {
+  const nextTag = await tagRepo(reactRepo);
+  if (nextTag) {
+    await tagRepo(gemRepo, nextTag);
+    await packageGem(nextTag);
+  }
+};
+
+main();
