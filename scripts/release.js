@@ -13,7 +13,11 @@ const gemRepo = "makerspace-react-rails";
 const main = async () => {
   const nextTag = await tagRepo(reactRepo);
   if (nextTag) {
-    await tagRepo(gemRepo, nextTag);
+    try {
+      await tagRepo(gemRepo, nextTag);
+    } catch (e) { // Catch gem tag error but dont block publish
+      console.log(`Error tagging ${gemRepo}`, e);
+    }
     await packageGem(nextTag);
   }
 };

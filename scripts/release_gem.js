@@ -61,7 +61,7 @@ const packageGem = async (newVersion) => {
 }
 
 const publishGem = async (version) => {
-  console.log("Publishing gem...");
+  console.log(`Publishing gem version ${version}...`);
   process.chdir(gemFolder);
   return new Promise(resolve => {
     exec("gem build makerspace-react-rails.gemspec", { shell: true }, (err) => {

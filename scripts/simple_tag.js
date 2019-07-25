@@ -20,13 +20,14 @@ module.exports.tagRepo = async (repo, forceTag) => {
     await git.clone(repoRemote);
   }
   git = simpleGit(repoPath);
+  await git.slient(true); // Silence any errors to prevent logging of credentials
 
   if (!nextTag) {
     console.log(`Evaluating next tag for ${repo}`);
     const { latest: lastTag } = await git.tags();
 
     if (!lastTag) {
-      console.log("No tags for this repo. Setting initial tag 0.0.0");
+      console.log(`No tags for repo ${repo}. Setting initial tag 0.0.0`);
       await git.tag(["0.0.0"]);
       await git.pushTags();
       return;
@@ -36,9 +37,13 @@ module.exports.tagRepo = async (repo, forceTag) => {
     const commitTags = await git.tag(["--points-at", hash]);
   
     if (commitTags) {
-      const msgFriendlyTags = commitTags.split(os.EOL).filter(t => !!t).join(", ");
-      console.log(`Commit already tagged with ${msgFriendlyTags}. Exiting.`);
-      process.exit(0);
+      const commitTagsList = commitTags.split(os.EOL).filter(t => !!t);
+      if (commitTagsList.length > 1) {
+        console.log(`Commit has too many tags to parse: ${commitTagsList.join(", ")}. Exiting.`);
+        process.exit(0);
+      }
+      console.log(`Commit already tagged with ${commitTagsList[0]}. Skipping tagging..`);
+      return commitTagsList[0];
     }
   
     const [major, minor, patch] = lastTag.split(".");
