@@ -15,7 +15,7 @@ after_failure:
 jobs:
   include:
     - stage: test
-      script: echo "TEST"
+      script: make start-func
     - stage: deploy
       script: make deploy
       if: branch = master AND type = push
