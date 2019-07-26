@@ -20,7 +20,7 @@ module.exports.tagRepo = async (repo, forceTag) => {
     await git.clone(repoRemote);
   }
   git = simpleGit(repoPath);
-  await git.slient(true); // Silence any errors to prevent logging of credentials
+  await git.silent(true); // Silence any errors to prevent logging of credentials
 
   if (!nextTag) {
     console.log(`Evaluating next tag for ${repo}`);
