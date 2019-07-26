@@ -70,11 +70,14 @@ const publishGem = async (version) => {
         return;
       }
   
-      exec(`gem push makerspace-react-rails-${version}.gem`, { shell: true }, (err) => {
+      exec(`echo ":rubygems_api_key: $GEM_HOST_API_KEY" >> ~/.gem/credentials; \
+            chmod 0600 ~/.gem/credentials; \
+            gem push makerspace-react-rails-${version}.gem`, { shell: true }, (err) => {
         if (err) {
           console.error(`Error publishing gem: ${err}`);
           return;
         }
+        console.log("Gem published successfully");
         resolve();
       });
     });
