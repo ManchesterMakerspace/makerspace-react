@@ -8,12 +8,10 @@ import * as Braintree from "braintree-web";
 //@ts-ignore
 import * as checkoutJs from "paypal-checkout";
 
-import { postPaymentMethod } from "api/paymentMethods/transactions";
-
-import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import ErrorMessage from "ui/common/ErrorMessage";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import Typography from "@material-ui/core/Typography";
+import { createPaymentMethod } from "makerspace-ts-api-client";
 
 interface OwnProps {
   braintreeInstance: any;
@@ -76,7 +74,7 @@ class PaypalButton extends React.Component<Props, State> {
             return paypalCheckoutInstance.tokenizePayment(data, async (err: any, payload: any) => {
               if (err) throw err;
               try {
-                await postPaymentMethod(payload.nonce);
+                await createPaymentMethod({ payment_method_nonce: payload.nonce, make_default: true });
                 this.props.paymentMethodCallback && this.props.paymentMethodCallback(payload.nonce);
               } catch (e) {
                 const { errorMessage } = e;

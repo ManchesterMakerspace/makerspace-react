@@ -1,71 +1,75 @@
-import { ThunkAction } from "redux-thunk";
+import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 
 import { AuthState, AuthForm, SignUpForm } from "ui/auth/interfaces";
-import { postLogin, deleteLogin, postSignUp } from "api/auth/transactions";
 import { Action as AuthAction } from "ui/auth/constants";
 import { Action as CheckoutAction } from "ui/checkout/constants";
 import { memberIsAdmin } from "ui/member/utils";
-import { getPermissionsForMember } from "api/permissions/transactions";
+import {
+  signIn,
+  listMembersPermissions,
+  Member,
+  signOut,
+  registerMember,
+  isApiErrorResponse,
+  ApiErrorResponse,
+  ApiDataResponse
+} from "makerspace-ts-api-client";
+
+const handleAuthWithPermissions = async (
+  response: ApiErrorResponse | ApiDataResponse<Member>,
+  dispatch: ThunkDispatch<{}, {}, AnyAction>,
+  ignoreError: boolean = false
+) => {
+  if (isApiErrorResponse(response)) {
+    dispatch({
+      type: AuthAction.AuthUserFailure,
+      error: ignoreError ? undefined : response.error.message
+    });
+  } else {
+    const member = response.data;
+    const permissionsResponse = await listMembersPermissions(member.id);
+
+    if (isApiErrorResponse(permissionsResponse)) {
+      dispatch({
+        type: AuthAction.AuthUserFailure,
+        error: permissionsResponse.error.message
+      });
+    } else {
+      const permissions = permissionsResponse.data;
+
+      dispatch({
+        type: AuthAction.AuthUserSuccess,
+        data: {
+          member,
+          permissions
+        }
+      });
+    }
+  }
+}
 
 export const loginUserAction = (
   loginForm?: AuthForm
 ): ThunkAction<Promise<void>, {}, {}, AnyAction>  => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  try {
-    const response = await postLogin(loginForm);
-    const { member } = response.data;
-    const permissionsResponse = await getPermissionsForMember(member.id);
-    const { permissions } = permissionsResponse.data;
-
-    dispatch({
-      type: AuthAction.AuthUserSuccess,
-      data: {
-        member,
-        permissions
-      }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: AuthAction.AuthUserFailure,
-      error: errorMessage
-    });
-  }
+  const response = await signIn(loginForm);
+  await handleAuthWithPermissions(response, dispatch);
 }
 
-// Only used when initializing app
-// Used to attempt login from session cookies
-export const activeSessionLogin = (
-): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
+export const sessionLoginUserAction = (): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  try {
-    const response = await postLogin();
-    const { member } = response.data;
-    const permissionsResponse = await getPermissionsForMember(member.id);
-    const { permissions } = permissionsResponse.data;
-
-    dispatch({
-      type: AuthAction.AuthUserSuccess,
-      data: {
-        member,
-        permissions
-      }
-    });
-  } catch {
-    dispatch({ type: AuthAction.AuthUserFailure })
-  }
+  const response = await signIn();
+  await handleAuthWithPermissions(response, dispatch, true);
 }
 
 export const logoutUserAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
-  try {
-    await deleteLogin();
+  await signOut();
     // TODO Reset stores
-  } catch {}
   dispatch({ type: AuthAction.LogoutSuccess });
 }
 
@@ -74,27 +78,9 @@ export const submitSignUpAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
   dispatch({ type: CheckoutAction.ResetStagedInvoices });
-  try {
-    const response = await postSignUp(signUpForm);
-    const { member } = response.data;
 
-    const permissionsResponse = await getPermissionsForMember(member.id);
-    const { permissions } = permissionsResponse.data;
-
-    dispatch({
-      type: AuthAction.AuthUserSuccess,
-      data: {
-        member: member,
-        permissions,
-      }
-    });
-  } catch(e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: AuthAction.AuthUserFailure,
-      error: errorMessage
-    })
-  }
+  const response = await registerMember(signUpForm);
+  await handleAuthWithPermissions(response, dispatch);
 }
 
 const defaultState: AuthState = {

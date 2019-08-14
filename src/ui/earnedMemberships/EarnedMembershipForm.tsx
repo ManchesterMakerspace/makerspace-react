@@ -11,16 +11,19 @@ import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import MenuItem from "@material-ui/core/MenuItem";
 
-import { MemberDetails } from "app/entities/member";
-
 import FormModal from "ui/common/FormModal";
-import { getMember } from "api/members/transactions";
-import { getMembers } from "api/members/transactions";
 import Form from "ui/common/Form";
 import { formPrefix, requirementFields, earnedMembershipFields, RequirementNames } from "ui/earnedMemberships/constants";
-import { EarnedMembership, Requirement } from "app/entities/earnedMembership";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import AsyncSelectFixed from "ui/common/AsyncSelect";
+import {
+  getMember,
+  isApiErrorResponse,
+  listMembers,
+  Member,
+  EarnedMembership,
+  Requirement
+} from "makerspace-ts-api-client";
 
 interface OwnProps {
   isOpen: boolean;
@@ -29,7 +32,7 @@ interface OwnProps {
   onClose: () => void;
   onSubmit: (form: Form) => void;
   membership: Partial<EarnedMembership>;
-  member?: Partial<MemberDetails>;
+  member?: Partial<Member>;
   title?: string;
   noDialog?: boolean;
   ref?: any;
@@ -62,14 +65,17 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     const { membership } = this.props;
     if (membership && membership.memberId) {
       this.setState({ member: { value: membership.memberId, label: membership.memberName, id: membership.memberId } })
-      try {
-        const { data } = await getMember(membership.memberId);
-        const { member } = data;
-        if (member) {
-          this.updateMemberValue({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
-        }
-      } catch (e) {
-        console.log(e);
+      const result = await getMember(membership.memberId);
+
+      if (isApiErrorResponse(result)) {
+        console.log(result.error);
+      } else {
+        const member = result.data;
+        this.updateMemberValue({
+          value: member.id,
+          label: `${member.firstname} ${member.lastname}`,
+          id: member.id
+        });
       }
     } else {
       this.updateMemberValue({ value: "", label: "None", id: undefined });
@@ -301,13 +307,18 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
   }
 
   private memberOptions = async (searchValue: string) => {
-    try {
-      const membersResponse = await getMembers({ search: searchValue });
-      const members: MemberDetails[] = membersResponse.data ? membersResponse.data.members : [];
-      const memberOptions = members.map(member => ({ value: member.email, label: `${member.firstname} ${member.lastname}`, id: member.id }));
+    const membersResponse = await listMembers({ search: searchValue });
+
+    if (isApiErrorResponse(membersResponse)) {
+      console.log(membersResponse.error);
+    } else {
+      const members = membersResponse.data;
+      const memberOptions = members.map(member => ({
+        value: member.email,
+        label: `${member.firstname} ${member.lastname}`,
+        id: member.id
+      }));
       return memberOptions;
-    } catch (e) {
-      console.log(e);
     }
   }
 

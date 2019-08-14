@@ -1,4 +1,5 @@
-import { MemberDetails, Properties as MemberProperties } from "app/entities/member";
+import { Properties as MemberProperties } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import { Permission } from "app/entities/permission";
 import { CollectionOf } from "app/interfaces";
 
@@ -21,17 +22,17 @@ export interface SignUpForm {
   password: string;
 }
 
-export type AuthMember = Pick<MemberDetails,
+export type AuthMember = Pick<Member,
                         MemberProperties.Id |
                         MemberProperties.Email |
                         MemberProperties.Lastname |
                         MemberProperties.Firstname |
                         MemberProperties.Expiration
-                      > & Partial<MemberDetails> & {
+                      > & Partial<Member> & {
   isAdmin: boolean;
 };
 
-type NewUserSignUp = Pick<MemberDetails,
+type NewUserSignUp = Pick<Member,
                           MemberProperties.Email |
                           MemberProperties.Lastname |
                           MemberProperties.Firstname> & {

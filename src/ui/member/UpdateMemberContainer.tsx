@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import { CrudOperation } from "app/constants";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
@@ -10,14 +10,13 @@ import RenewalForm from "ui/common/RenewalForm"
 import { updateMemberAction } from "ui/member/actions";
 import { createMembersAction } from "ui/members/actions";
 import MemberForm from "ui/member/MemberForm"
-import { AccessCardForm } from "ui/accessCards/AccessCardForm"
 
 export interface UpdateMemberRenderProps extends Props {
-  submit: (form: Form) => Promise<MemberDetails>;
-  setRef: (ref: MemberForm | RenewalForm | AccessCardForm) => void;
+  submit: (form: Form) => Promise<Member>;
+  setRef: (ref: MemberForm | RenewalForm) => void;
 }
 interface OwnProps {
-  member: Partial<MemberDetails>;
+  member: Partial<Member>;
   isOpen: boolean;
   operation: CrudOperation;
   closeHandler: () => void;
@@ -29,7 +28,7 @@ interface StateProps {
   isRequesting: boolean;
 }
 interface DispatchProps {
-  dispatchMember: (updatedMember: MemberDetails, isAdmin: boolean) => Promise<MemberDetails>;
+  dispatchMember: (updatedMember: Member, isAdmin: boolean) => Promise<Member>;
 }
 interface Props extends OwnProps, StateProps, DispatchProps {}
 
@@ -46,7 +45,7 @@ class EditMember extends React.Component<Props, {}> {
   }
 
   private submitMemberForm = async (form: Form) => {
-    const validUpdate: MemberDetails = await this.formRef.validate(form);
+    const validUpdate: Member = await this.formRef.validate(form);
 
     if (!form.isValid()) return;
 

@@ -1,15 +1,15 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
-import { Invoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";
 import { timeToDate } from "ui/utils/timeToDate";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 interface OwnProps {
-  invoice: Partial<Invoice>;
+  invoice: Partial<MemberInvoice | RentalInvoice>;
   isOpen: boolean;
   isRequesting: boolean;
   error: string;

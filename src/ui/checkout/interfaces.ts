@@ -1,9 +1,9 @@
 import { RequestStatus } from "app/interfaces";
-import { Invoice } from "app/entities/invoice";
+import { Transaction } from "makerspace-ts-api-client";
 import { CollectionOf } from "app/interfaces";
-import { Transaction } from "app/entities/transaction";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 export interface CheckoutState extends RequestStatus {
-  invoices: CollectionOf<Invoice>;
+  invoices: CollectionOf<MemberInvoice | RentalInvoice>;
   transactions: CollectionOf<Transaction & RequestStatus>;
 }

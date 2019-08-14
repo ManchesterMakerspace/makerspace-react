@@ -12,18 +12,18 @@ module.exports = env => ({
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "makerspace-react.js",
-    publicPath: '/'
+    publicPath: "/"
   },
   module: {
     rules: [
       {
         test: /\.(png|jpg|svg)$/,
-        loader: "url-loader",
+        loader: "url-loader"
       },
       {
         test: /\.(html)$/,
         use: {
-          loader: 'html-loader',
+          loader: "html-loader",
           options: {
             minimize: true,
             removeAttributeQuotes: false,
@@ -105,7 +105,7 @@ module.exports = env => ({
     disableHostCheck: true,
     historyApiFallback: true,
     proxy: {
-      "/api": env && env.API_DOMAIN || "http://localhost:3002"
+      "/api": (env && env.API_DOMAIN) || "http://localhost:3002"
     },
     https: false,
     port: 3035,
@@ -126,11 +126,10 @@ module.exports = env => ({
       template: "./src/assets/index.html",
       filename: "./index.html"
     }),
-    new CopyWebpackPlugin([
-      {from:'src/assets/favicon.png',to:'favicon.png'}, 
-    ]), 
+    new CopyWebpackPlugin([{ from: "src/assets/favicon.png", to: "favicon.png" }]),
     new webpack.EnvironmentPlugin({
       BILLING_ENABLED: true,
+      BASE_URL: env && env.BASE_URL || ""
     })
   ]
 });

@@ -6,12 +6,11 @@ import Grid from "@material-ui/core/Grid";
 //@ts-ignore
 import * as Braintree from "braintree-web";
 
-import { postPaymentMethod } from "api/paymentMethods/transactions";
-
 import Form from "ui/common/Form";
 import { CreditCardFields } from "ui/checkout/constants";
 import ErrorMessage from "ui/common/ErrorMessage";
 import HostedInput from "ui/checkout/HostedInput";
+import { createPaymentMethod, isApiErrorResponse } from "makerspace-ts-api-client";
 
 interface OwnProps {
   braintreeInstance: any;
@@ -25,7 +24,7 @@ interface Props extends OwnProps {}
 
 interface State {
   hostedFieldsInstance: any;
-  braintreeError: Braintree.BraintreeError;
+  braintreeError: Braintree.BraintreeError | string;
 }
 
 class CreditCardForm extends React.Component<Props, State> {
@@ -98,17 +97,15 @@ class CreditCardForm extends React.Component<Props, State> {
           this.setState({ braintreeError: err });
           toggleLoading(false);
         } else {
-          try {
-            const response = await postPaymentMethod(payload.nonce);
-            const paymentMethodId = response.data;
-            this.props.onSuccess && this.props.onSuccess(paymentMethodId);
+          const result = await createPaymentMethod({ payment_method_nonce: payload.nonce, make_default: true });
+
+          if (isApiErrorResponse(result)) {
+            this.setState({ braintreeError: result.error.message });
+          } else {
+            this.props.onSuccess && this.props.onSuccess(result.data.id);
             this.setState({ braintreeError: undefined });
-          } catch (e) {
-            const { errorMessage } = e;
-            this.setState({ braintreeError: errorMessage });
-          } finally {
-            toggleLoading(false);
           }
+          toggleLoading(false);
         }
       });
     }

@@ -2,10 +2,10 @@ import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 import omit from "lodash-es/omit";
 
-import { getRentals, postRentals, putRental, deleteRental } from "api/rentals/transactions";
 import { Action as RentalsAction } from "ui/rentals/constants";
 import { RentalsState } from "ui/rentals/interfaces";
-import { Rental, RentalQueryParams } from "app/entities/rental";
+import { RentalQueryParams } from "app/entities/rental";
+import { Rental, adminDeleteRental, listRentals, isApiErrorResponse, adminCreateRental, adminUpdateRental, adminListRentals } from "makerspace-ts-api-client";
 
 export const readRentalsAction = (
   isUserAdmin: boolean,
@@ -13,22 +13,23 @@ export const readRentalsAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartReadRequest });
 
-  try {
-    const response = await getRentals(isUserAdmin, queryParams);
-    const { rentals } = response.data;
-    const totalItems = response.headers[("total-items")];
+  const func = isUserAdmin ? adminListRentals : listRentals
+  const result = await func(queryParams);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: RentalsAction.GetRentalsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { data, response } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: RentalsAction.GetRentalsSuccess,
       data: {
-        rentals,
+        rentals: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: RentalsAction.GetRentalsFailure,
-      error: errorMessage
     });
   }
 };
@@ -38,64 +39,61 @@ export const createRentalAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartCreateRequest });
 
-  try {
-    const response = await postRentals(rentalForm);
-    const { rental } = response.data;
-    dispatch({
-      type: RentalsAction.CreateRentalSuccess,
-      data: rental
-    })
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminCreateRental(rentalForm);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: RentalsAction.CreateRentalFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: RentalsAction.CreateRentalSuccess,
+      data: result.data
     });
   }
 };
 
 export const updateRentalAction = (
   rentalId: string,
-  updatedRental: Partial<Rental>
+  updatedRental: Rental
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartUpdateRequest });
 
-  try {
-    const response = await putRental(rentalId, updatedRental);
-    const { rental } = response.data;
-    dispatch({
-      type: RentalsAction.UpdateRentalSuccess,
-      data: rental
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminUpdateRental(rentalId, updatedRental);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: RentalsAction.UpdateRentalFailure,
-      error: errorMessage
-    })
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: RentalsAction.UpdateRentalSuccess,
+      data: result.data
+    });
   }
 };
-
 
 export const deleteRentalAction = (
   rentalId: string,
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartDeleteRequest });
 
-  try {
-    await deleteRental(rentalId);
+  const result = await adminDeleteRental(rentalId);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: RentalsAction.DeleteRentalFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: RentalsAction.DeleteRentalSuccess,
       data: rentalId
     });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: RentalsAction.DeleteRentalFailure,
-      error: errorMessage
-    });
   }
-}
+};
 
 const defaultState: RentalsState = {
   entities: {},

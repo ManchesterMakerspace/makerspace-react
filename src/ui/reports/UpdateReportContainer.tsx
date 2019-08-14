@@ -1,16 +1,14 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import { Member, EarnedMembership, NewReport } from "makerspace-ts-api-client";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
-import { MemberDetails } from "app/entities/member";
 import { CrudOperation } from "app/constants";
 
 import Form from "ui/common/Form";
-import { EarnedMembership, NewReport } from "app/entities/earnedMembership";
 import {
   createMembershipAction,
   updateMembershipAction,
-  deleteMembershipAction
 } from "ui/earnedMemberships/actions";
 import { createReportAction } from "ui/reports/actions";
 import { ReportForm } from "ui/reports/ReportForm";
@@ -23,7 +21,7 @@ export interface UpdateReportRenderProps extends Props {
 }
 interface OwnProps {
   membership: EarnedMembership;
-  member: Partial<MemberDetails>;
+  member: Partial<Member>;
   isOpen: boolean;
   operation: CrudOperation;
   closeHandler: () => void;

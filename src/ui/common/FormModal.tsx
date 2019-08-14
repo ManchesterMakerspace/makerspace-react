@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Form from "ui/common/Form";
 
 interface FormModalProps {
-  formRef: (ref: Form) => Form | void;
+  formRef?: (ref: Form) => Form | void;
   id: string;
   isOpen: boolean;
   title?: string;

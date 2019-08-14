@@ -1,8 +1,8 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 
 export interface MembersState {
-  entities: CollectionOf<MemberDetails>;
+  entities: CollectionOf<Member>;
   read: RequestStatus & {
     totalItems: number;
   };

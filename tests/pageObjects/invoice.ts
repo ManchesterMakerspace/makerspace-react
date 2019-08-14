@@ -1,8 +1,8 @@
 import { TablePageObject } from "./table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { MemberDetails } from "app/entities/member";
 import { timeToDate } from "ui/utils/timeToDate";
-import { Invoice } from "app/entities/invoice";
+import { Member } from "makerspace-ts-api-client";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 const invoicesTableId = "invoices-table";
 // Settled not included because that's only for admins
@@ -11,7 +11,7 @@ const fields = [
   "resourceClass", "dueDate", "amount", "description"
 ];
 export class InvoicePageObject extends TablePageObject {
-  public fieldEvaluator = (member?: Partial<MemberDetails>) => (invoice: Partial<Invoice>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member?: Partial<Member>) => (invoice: Partial<MemberInvoice | RentalInvoice>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
       if (field === "dueDate") {
         expect(text).toEqual(timeToDate(invoice.dueDate));

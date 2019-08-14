@@ -6,7 +6,8 @@ import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import CardContent from "@material-ui/core/CardContent";
 
-import { Invoice, InvoiceOptionSelection } from "app/entities/invoice";
+import { InvoiceOptionSelection } from "app/entities/invoice";
+import { Invoice } from "makerspace-ts-api-client";
 import { Routing } from "app/constants";
 import { CollectionOf } from "app/interfaces";
 

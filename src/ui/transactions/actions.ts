@@ -1,12 +1,10 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 
-import { getTransactions, deleteTransaction } from "api/transactions/transactions";
 import { Action as TransactionsAction } from "ui/transactions/constants";
 import { TransactionsState } from "ui/transactions/interfaces";
-import { Transaction } from "app/entities/transaction";
-import { TransactionQueryParams } from "api/transactions/interfaces";
-import { Invoice } from "app/entities/invoice";
+import { TransactionQueryParams } from "app/entities/transaction";
+import { Transaction, deleteTransaction, adminListTransaction, listTransactions, isApiErrorResponse, adminDeleteTransaction } from "makerspace-ts-api-client";
 
 export const readTransactionsAction = (
   isUserAdmin: boolean,
@@ -14,26 +12,23 @@ export const readTransactionsAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: TransactionsAction.StartReadRequest });
 
-  try {
-    const response = await getTransactions(isUserAdmin, queryParams);
-    const transactions: Transaction[] = response.data.transactions;
+  const func = isUserAdmin ? adminListTransaction : listTransactions;
+  const result = await func(queryParams as any);
 
-    const totalItems = response.headers[("total-items")];
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: TransactionsAction.GetTransactionsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { response, data } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: TransactionsAction.GetTransactionsSuccess,
       data: {
-        transactions,
+        transactions: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    if (!errorMessage) {
-      throw e;
-    }
-    dispatch({
-      type: TransactionsAction.GetTransactionsFailure,
-      error: errorMessage
     });
   }
 };
@@ -44,24 +39,20 @@ export const refundTransactionAction = (
 ): ThunkAction<Promise<boolean>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: TransactionsAction.StartDeleteRequest });
 
-  try {
-    const response = await deleteTransaction(transactionId, admin);
-    const { transaction, invoice } = response.data;
-    const refundedTransaction = transaction && {
-      ...transaction,
-      invoice
-    };
-    dispatch({
-      type: TransactionsAction.DeleteTransactionSuccess,
-      data: refundedTransaction
-    });
-    return true;
-  } catch (e) {
-    const { errorMessage } = e;
+  const func = admin ? adminDeleteTransaction : deleteTransaction;
+  const result = await func(transactionId);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: TransactionsAction.DeleteTransactionFailure,
-      error: errorMessage
+      error: result.error.message
     });
+    return false;
+  } else {
+    dispatch({
+      type: TransactionsAction.DeleteTransactionSuccess,
+    });
+    return true;
   }
 }
 

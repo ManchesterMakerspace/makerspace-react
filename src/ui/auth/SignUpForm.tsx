@@ -44,7 +44,7 @@ class SignUpFormComponent extends React.Component<Props, State> {
       passwordMask: true,
       emailExists: false,
       membershipSelectionError: "",
-      membershipSelectionId: props.selectedOption && props.selectedOption.invoiceOptionId,
+      membershipSelectionId: props.selectedOption && props.selectedOption.id,
       discountId: props.selectedOption && props.selectedOption.discountId,
     };
   }
@@ -184,7 +184,7 @@ class SignUpFormComponent extends React.Component<Props, State> {
           </Grid>
           {this.props.renderMembershipOptions && (
             <Grid item xs={12}>
-              <MembershipSelectForm onSelect={this.updateMembershipSelection}/>
+              <MembershipSelectForm onSelect={this.updateMembershipSelection} subscriptionOnly={true}/>
               {membershipSelectionError && <ErrorMessage error={membershipSelectionError}/>}
             </Grid>
           )}

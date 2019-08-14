@@ -8,22 +8,19 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import Select from "@material-ui/core/Select";
 import Radio from "@material-ui/core/Radio";
 import Grid from "@material-ui/core/Grid";
-import MenuItem from "@material-ui/core/MenuItem";
 
-import { Invoice, InvoiceableResource, InvoiceOption } from "app/entities/invoice";
+import { InvoiceOption, adminListRentals, isApiErrorResponse, getMember, Member, listMembers, Rental } from "makerspace-ts-api-client";
+
+import { InvoiceableResource, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 import { fields } from "ui/invoice/constants";
 import { toDatePicker } from "ui/utils/timeToDate";
-import { getMembers, getMember } from "api/members/transactions";
-import { MemberDetails } from "app/entities/member";
-import { Rental } from "app/entities/rental";
-import { getRentals } from "api/rentals/transactions";
 import { CollectionOf } from "app/interfaces";
 import AsyncSelectFixed from "ui/common/AsyncSelect";
 
 interface OwnProps {
-  invoice?: Partial<Invoice>;
+  invoice?: Partial<MemberInvoice | RentalInvoice>;
   isOpen: boolean;
   isRequesting: boolean;
   error: string;
@@ -31,13 +28,13 @@ interface OwnProps {
   invoiceOptions: CollectionOf<InvoiceOption>;
   optionsLoading: boolean;
   optionsError: string;
-  getInvoiceOptions: (type: InvoiceableResource) => void;
+  getInvoiceOptions: (type: InvoiceableResource | string) => void;
   onClose: () => void;
   onSubmit: (form: Form) => void;
 }
 
 interface State {
-  invoiceType: InvoiceableResource;
+  invoiceType: InvoiceableResource | string;
   member: SelectOption;
   rentals: Rental[];
   rentalsLoading: boolean;
@@ -83,17 +80,18 @@ export class InvoiceForm extends React.Component<Props, State> {
 
   private getRentals = async () => {
     this.setState({ rentalsLoading: true });
-    try {
-      const response = await getRentals(true);
-      this.setState({ rentalsLoading: false, rentals: response.data.rentals });
-    } catch (e) {
-      const { errorMessage } = e;
-      this.setState({ rentalsLoading: false, rentalsError: errorMessage });
+
+    const result = await adminListRentals();
+
+    if (isApiErrorResponse(result)) {
+      this.setState({ rentalsLoading: false, rentalsError: result.error.message });
+    } else {
+      this.setState({ rentalsLoading: false, rentals: result.data });
     }
   }
 
-  public validate = async (form: Form): Promise<Invoice> => {
-    const updatedInvoice = await form.simpleValidate<Invoice>(fields);
+  public validate = async (form: Form): Promise<MemberInvoice | RentalInvoice> => {
+    const updatedInvoice = await form.simpleValidate<MemberInvoice | RentalInvoice>(fields);
     const { member } = this.state;
 
     if (updatedInvoice.resourceClass === InvoiceableResource.Membership) {
@@ -123,15 +121,15 @@ export class InvoiceForm extends React.Component<Props, State> {
   private initInvoiceMember = async () => {
     const { invoice } = this.props;
     if (invoice && invoice.memberId) {
-      this.setState({ member: { value: invoice.memberId, label: invoice.memberName } })
-      const response = await getMember(invoice.memberId);
-      if (response.data && response.data.member) {
-        this.updateContactValue(this.memberToOption(response.data.member));
+      this.setState({ member: { value: invoice.memberId, label: invoice.memberName } });
+      const result = await getMember(invoice.memberId);
+      if (!isApiErrorResponse(result)) {
+        this.updateContactValue(this.memberToOption(result.data));
       }
     }
   }
 
-  private memberToOption = (member: MemberDetails) => ({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
+  private memberToOption = (member: Member) => ({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
 
   // Need to update internal state and set form value since input is otherwise a controleld input
   private updateContactValue = (newMember: SelectOption) => {
@@ -140,13 +138,13 @@ export class InvoiceForm extends React.Component<Props, State> {
   }
 
   private memberOptions = async (searchValue: string) => {
-    try {
-      const membersResponse = await getMembers({ search: searchValue });
-      const members: MemberDetails[] = membersResponse.data ? membersResponse.data.members : [];
+    const result = await listMembers({ search: searchValue });
+    if (isApiErrorResponse(result)) {
+      console.log(result.error);
+    } else {
+      const members = result.data;
       const memberOptions = members.map(this.memberToOption);
       return memberOptions;
-    } catch (e) {
-      console.log(e);
     }
   }
 

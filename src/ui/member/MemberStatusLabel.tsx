@@ -1,5 +1,6 @@
 import * as React from "react";
-import { MemberDetails, MemberStatus } from "app/entities/member";
+import { MemberStatus } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import { Status } from "ui/constants";
 import StatusLabel from "ui/common/StatusLabel";
 
@@ -10,9 +11,9 @@ export const memberStatusLabelMap = {
   [MemberStatus.Inactive]: "Inactive"
 };
 
-const MemberStatusLabel: React.SFC<{ member: Partial<MemberDetails>, id?: string }> = (props) => {
+const MemberStatusLabel: React.SFC<{ member: Partial<Member>; id?: string }> = props => {
   const { member } = props;
-  const inActive = ![MemberStatus.Active, MemberStatus.NonMember].includes(member.status);
+  const inActive = ![MemberStatus.Active, MemberStatus.NonMember].includes(member.status as MemberStatus);
   const current = member.expirationTime > Date.now();
 
   let statusColor;
@@ -27,15 +28,13 @@ const MemberStatusLabel: React.SFC<{ member: Partial<MemberDetails>, id?: string
     label = memberStatusLabelMap[member.status];
   } else {
     if (!member.expirationTime) {
-      label = "N/A"
+      label = "N/A";
     } else {
       label = current ? "Active" : "Expired";
     }
   }
 
-  return (
-    <StatusLabel id={props.id} label={label} color={statusColor} />
-  );
-}
+  return <StatusLabel id={props.id} label={label} color={statusColor} />;
+};
 
 export default MemberStatusLabel;

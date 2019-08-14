@@ -1,29 +1,25 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 
 import { QueryParams, CollectionOf } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
+import { Member, EarnedMembership, Report } from "makerspace-ts-api-client";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import ButtonRow from "ui/common/ButtonRow";
 import { SortDirection } from "ui/common/table/constants";
 import TableContainer from "ui/common/table/TableContainer";
 import { Column } from "ui/common/table/Table";
-import Form from "ui/common/Form";
 import { CrudOperation } from "app/constants";
-import { EarnedMembership, Report } from "app/entities/earnedMembership";
 import { timeToDate } from "ui/utils/timeToDate";
 import { ReportForm } from "ui/reports/ReportForm";
 import UpdateReportContainer, { UpdateReportRenderProps } from "ui/reports/UpdateReportContainer";
 import { readReportsAction } from "ui/reports/actions";
-import { readMembershipAction } from "ui/earnedMemberships/actions";
-import { readMemberAction } from "ui/member/actions";
 
 interface OwnProps extends RouteComponentProps<{}> {
-  member: MemberDetails;
+  member: Member;
 }
 interface DispatchProps {
   getReports: (queryParams: QueryParams, admin: boolean) => void;

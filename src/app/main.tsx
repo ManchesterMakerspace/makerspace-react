@@ -26,7 +26,10 @@ const store: Store<ReduxState> = createStore(
       reduxThunk
     ),
   ),
-);;
+);
+
+export const getStore = () => store;
+
 const theme: Theme = createMuiTheme({
   palette: {
     secondary: {

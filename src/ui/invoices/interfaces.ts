@@ -1,8 +1,8 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { Invoice } from "app/entities/invoice";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 export interface InvoicesState {
-  entities: CollectionOf<Invoice>;
+  entities: CollectionOf<MemberInvoice | RentalInvoice>;
   read: RequestStatus & {
     totalItems: number;
   };

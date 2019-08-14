@@ -2,94 +2,59 @@
 import * as React from "react";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
+import { adminGetNewCard, adminCreateCard, Member } from "makerspace-ts-api-client";
 
-import { MemberDetails } from "app/entities/member";
-import { getRejectionCard } from "api/accessCards/transactions";
 import FormModal from "ui/common/FormModal";
-import Form from "ui/common/Form";
+import useWriteTransaction from "ui/hooks/useWriteTransaction";
+import useReadTransaction from "ui/hooks/useReadTransaction";
 
-interface OwnProps {
-  isOpen: boolean;
-  isRequesting: boolean;
-  error: string;
+interface Props {
+  member: Member;
   onClose: () => void;
-  createAccessCard: (uid: string) => void;
-  member: Partial<MemberDetails>;
 }
 
-interface Props extends OwnProps {}
-interface State {
-  rejectionCardId: string;
-  loading: boolean;
-  error: string;
-}
+const AccessCardForm: React.FC<Props> = ({ member, onClose }) => {
+  const [error, setError] = React.useState();
+  const { loading: createLoading, error: createError, call: createCard, data: newCard } = useWriteTransaction(adminCreateCard);
+  const {
+    loading: newCardLoading,
+    error: newCardError,
+    refresh: getNewCard,
+    data: rejectionCard
+  } = useReadTransaction(adminGetNewCard, [member.id]);
 
-const defaultState = {
-  rejectionCardId: "",
-  loading: false,
-  error: "",
-};
-export class AccessCardForm extends React.Component<Props,State> {
-  public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = defaultState;
-  }
-
-  public componentDidUpdate(prevProps: Props) {
-    const { isOpen } = this.props;
-    const { isOpen: wasOpen } = prevProps;
-    if (!wasOpen && isOpen) {
-      this.setState(defaultState);
+  const onSubmit = React.useCallback(() => {
+    if (!rejectionCard) {
+      setError("Import new key fob before proceeding.");
+      return;
     }
-  }
+    createCard({
+      memberId: member.id,
+      uid: rejectionCard.uid,
+      cardLocation: undefined // TODO: this should be optional
+    });
+  }, [rejectionCard, createCard, setError, member.id]);
 
-  private fetchRejectionCard = () => {
-    try {
-      this.setState((state) => ({
-        ...state,
-        loading: true
-      }), async () => {
-        const rejectionCardResposne = await getRejectionCard();
-        const { card } = rejectionCardResposne.data;
-        let error = "";
-        if (!card || !card.uid) {
-          error = "No card found. Scan card and try again."
-        }
-        this.setState({
-          loading: false,
-          error: error,
-          rejectionCardId: card.uid
-        })
-      });
-    } catch (error) {
-      this.setState((state) => ({
-        ...state,
-        loading: false,
-        error
-      }))
-    }
-  }
+  React.useEffect(() => {
+    !createLoading && !createError && !!newCard && onClose();
+  }, [createLoading, createError, newCard, onClose]);
 
-  private renderNewCardInstructions = () => {
-    const { member } = this.props;
-    return (
-      <>
-        <Typography variant="body1" gutterBottom>Instructions to register new member key fob</Typography>
-        {(member && member.cardId) ?
-          <Typography color="default" variant="body1" gutterBottom>Access card exists for {member.firstname}</Typography>
-         : <Typography color="secondary" variant="body1" gutterBottom>No access card exists for {member.firstname}</Typography>
-        }
-        {this.renderImportInstructions()}
-      </>
-    )
-  }
-
-  private renderImportInstructions = () => {
-    const { rejectionCardId } = this.state;
-    return (
+  return (
+    <FormModal
+      id="card-form"
+      loading={createLoading || newCardLoading}
+      isOpen={true}
+      title="Register New Fob"
+      closeHandler={onClose}
+      onSubmit={onSubmit}
+      error={createError || newCardError || error}
+    >
+      <Typography variant="body1" gutterBottom>Instructions to register new member key fob</Typography>
+      {(member && member.cardId) ?
+        <Typography color="default" variant="body1" gutterBottom>Access card exists for {member.firstname}</Typography>
+        : <Typography color="secondary" variant="body1" gutterBottom>No access card exists for {member.firstname}</Typography>
+      }
       <ol className="instruction-list">
         <li>Scan a new keyfob at the front door</li>
         <li>
@@ -99,7 +64,7 @@ export class AccessCardForm extends React.Component<Props,State> {
               id="card-form-import-new-key"
               color="primary"
               variant="contained"
-              onClick={this.fetchRejectionCard}
+              onClick={getNewCard}
             >
               Import New Key
             </Button>
@@ -108,9 +73,9 @@ export class AccessCardForm extends React.Component<Props,State> {
         <li>Confirm new ID is displayed here:
           <span id="card-form-key-confirmation">
             {
-              rejectionCardId ?
-              <span style={{ color: "green" }}> {rejectionCardId}</span>
-              : <span style={{ color: "red" }}> No Card Found</span>
+              rejectionCard ?
+                <span style={{ color: "green" }}> {rejectionCard.uid}</span>
+                : <span style={{ color: "red" }}> No Card Found</span>
             }
           </span>
         </li>
@@ -119,37 +84,8 @@ export class AccessCardForm extends React.Component<Props,State> {
           <li>If ID displayed, click 'Submit' button</li>
         </ul>
       </ol>
-    )
-  }
-
-  private onSubmit = () => {
-    const { rejectionCardId } = this.state;
-    if (!rejectionCardId) {
-      this.setState({ error: "Import new key fob before proceeding." });
-      return;
-    }
-    this.props.createAccessCard(rejectionCardId);
-  }
-
-  public render(): JSX.Element {
-    const { isOpen, onClose, isRequesting, error } = this.props;
-    const { loading, error: stateError } = this.state;
-
-    return (
-      <FormModal
-        formRef={this.setFormRef}
-        id="card-form"
-        loading={isRequesting || loading}
-        isOpen={isOpen}
-        title="Register New Fob"
-        closeHandler={onClose}
-        onSubmit={this.onSubmit}
-        error={error || stateError}
-      >
-        {this.renderNewCardInstructions()}
-      </FormModal>
-    )
-  }
-}
+    </FormModal>
+  );
+};
 
 export default AccessCardForm;

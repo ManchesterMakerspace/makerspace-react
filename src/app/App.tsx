@@ -2,20 +2,20 @@ import * as React from 'react';
 import { connect } from "react-redux";
 
 import { ScopedThunkDispatch, State as ReduxState } from "ui/reducer";
-import { activeSessionLogin } from "ui/auth/actions";
+import { sessionLoginUserAction } from "ui/auth/actions";
 import Header from "ui/common/Header";
 import LoadingOverlay from 'ui/common/LoadingOverlay';
 import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { CollectionOf } from 'app/interfaces';
-import { Invoice } from 'app/entities/invoice';
-import { Permission } from 'app/entities/permission';
+import { Permission } from "app/entities/permission";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { withRouter, RouteComponentProps } from 'react-router';
 
 interface StateProps {
   auth: string;
   isSigningIn: boolean;
-  stagedInvoices: CollectionOf<Invoice>;
+  stagedInvoices: CollectionOf<MemberInvoice | RentalInvoice>;
   isCheckingOut: boolean;
   checkoutError: string;
   permissions: CollectionOf<Permission>;
@@ -103,8 +103,8 @@ const mapDispatchToProps = (
   dispatch: ScopedThunkDispatch
 ): DispatchProps => {
   return {
-    attemptLogin: () => dispatch(activeSessionLogin())
-  }
+    attemptLogin: () => dispatch(sessionLoginUserAction())
+  };
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));

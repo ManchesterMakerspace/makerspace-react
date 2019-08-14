@@ -17,12 +17,12 @@ import { AuthMember } from "ui/auth/interfaces";
 import UpdateMembershipForm from "ui/membership/UpdateMembershipForm";
 import { Whitelists } from "app/constants";
 import { readMemberAction } from "ui/member/actions";
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import { withRouter, RouteComponentProps } from "react-router";
 
 interface StateProps {
   currentMember: AuthMember;
-  member: MemberDetails;
+  member: Member;
   isReading: boolean;
   readError: string;
   billingEnabled: boolean;
@@ -108,9 +108,9 @@ class SettingsContainer extends React.Component<Props, State> {
         >
           {/* <ListItemIcon>
           </ListItemIcon> */}
-          <ListItemText 
+          <ListItemText
             id="settings-profile"
-            primary="Profile Details" 
+            primary="Profile Details"
           />
         </ListItem>
         {billingEnabled && <>
@@ -121,9 +121,9 @@ class SettingsContainer extends React.Component<Props, State> {
           >
             {/* <ListItemIcon>
             </ListItemIcon> */}
-            <ListItemText 
+            <ListItemText
               id="settings-membership"
-              primary="Membership" 
+              primary="Membership"
             />
           </ListItem>
           <ListItem
@@ -133,9 +133,9 @@ class SettingsContainer extends React.Component<Props, State> {
           >
             {/* <ListItemIcon>
             </ListItemIcon> */}
-            <ListItemText 
+            <ListItemText
               id="settings-payment-methods"
-              primary="Payment Methods" 
+              primary="Payment Methods"
             />
           </ListItem>
         </>}

@@ -9,11 +9,11 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import { uploadMemberSignature } from "api/members/transactions";
 import { AuthMember } from "ui/auth/interfaces";
 import { timeToDate } from "ui/utils/timeToDate";
 import Form from "ui/common/Form";
 import { State as ReduxState } from "ui/reducer";
+import { updateMember } from "makerspace-ts-api-client";
 
 const codeOfConduct = require('documents/code_of_conduct.html') as string;
 const memberContract = require('documents/member_contract.html') as string;
@@ -156,7 +156,7 @@ class SignDocuments extends React.Component<Props, State>{
     const signature = this.signatureRef.toDataURL();
     try {
       this.setState({ signatureUploading: true });
-      await uploadMemberSignature(this.props.currentUser && this.props.currentUser.id, signature);
+      await updateMember(this.props.currentUser && this.props.currentUser.id, signature);
       this.setState({ signatureUploading: false, signatureUploadError: "" });
     } catch (e) {
       this.setState({ signatureUploading: false, signatureUploadError: e });

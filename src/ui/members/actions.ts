@@ -2,11 +2,10 @@ import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 
 import { QueryParams } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
 
-import { getMembers, postMembers } from "api/members/transactions";
 import { Action as MembersAction } from "ui/members/constants";
 import { MembersState } from "ui/members/interfaces";
+import { listMembers, isApiErrorResponse, adminCreateMember, Member } from "makerspace-ts-api-client";
 
 
 export const readMembersAction = (
@@ -14,46 +13,48 @@ export const readMembersAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembersAction.StartReadRequest });
 
-  try {
-    const response = await getMembers(queryParams);
-    const {members} = response.data;
-    const totalItems = response.headers[("total-items")];
+  const result = await listMembers(queryParams);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: MembersAction.GetMembersFailure,
+      error: result.error.message
+    });
+  } else {
+    const { data, response } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: MembersAction.GetMembersSuccess,
       data: {
-        members,
+        members: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: MembersAction.GetMembersFailure,
-      error: errorMessage
     });
   }
 };
 
 
 export const createMembersAction = (
-  memberForm: MemberDetails
-): ThunkAction<Promise<MemberDetails>, {}, {}, AnyAction> => async (dispatch) => {
+  memberForm: Member
+): ThunkAction<Promise<Member>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembersAction.StartCreateRequest });
 
-  try {
-    const response = await postMembers(memberForm);
-    const { member: newMember } = response.data;
-    dispatch({
-      type: MembersAction.CreateMembersSuccess,
-    })
-    return newMember;
-  } catch (e) {
-    const { errorMessage } = e;
+  let newMember: Member;
+  const result = await adminCreateMember(memberForm);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MembersAction.CreateMembersFailure,
-      error: errorMessage
+      error: result.error.message
     });
+  } else {
+    dispatch({
+      type: MembersAction.CreateMembersSuccess,
+    });
+    newMember = result.data;
   }
+
+  return newMember;
 };
 
 const defaultState: MembersState = {
@@ -88,7 +89,7 @@ export const membersReducer = (state: MembersState = defaultState, action: AnyAc
       } = action;
 
       const newMembers = {};
-      members.forEach((member: MemberDetails) => {
+      members.forEach((member: Member) => {
         newMembers[member.id] = member;
       });
 

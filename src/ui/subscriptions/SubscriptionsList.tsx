@@ -5,7 +5,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 
 
-import { Subscription } from "app/entities/subscription";
+import { Subscription } from "makerspace-ts-api-client";
 import { CollectionOf } from "app/interfaces";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
@@ -20,7 +20,7 @@ import { CrudOperation } from "app/constants";
 import Form from "ui/common/Form";
 import UpdateSubscriptionContainer, { UpdateSubscriptionRenderProps } from "ui/subscriptions/UpdateSubscriptionContainer";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { SubscriptionQueryParams } from "api/subscriptions/transactions";
+import { SubscriptionQueryParams } from "app/entities/subscription";
 
 
 interface OwnProps { }
@@ -38,7 +38,7 @@ interface StateProps {
 }
 interface Props extends OwnProps, DispatchProps, StateProps { }
 interface State {
-  hideCanceled: boolean;
+  hideCancelled: boolean;
   selectedId: string;
   pageNum: number;
   orderBy: string;
@@ -77,7 +77,7 @@ class SubscriptionsList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      hideCanceled: true,
+      hideCancelled: true,
       selectedId: undefined,
       pageNum: 0,
       orderBy: "",
@@ -88,10 +88,10 @@ class SubscriptionsList extends React.Component<Props, State> {
   }
 
   private getSubscriptions = () => {
-    const { hideCanceled } = this.state;
+    const { hideCancelled } = this.state;
     this.props.getSubscriptions({
-      ...hideCanceled && {
-        hideCanceled
+      ...hideCancelled && {
+        hideCancelled
       }
     })
   }
@@ -179,17 +179,15 @@ class SubscriptionsList extends React.Component<Props, State> {
   }
 
   private toggleSubscriptionView = () =>
-    this.setState(state => ({ hideCanceled: !state.hideCanceled }), this.getSubscriptions)
+    this.setState(state => ({ hideCancelled: !state.hideCancelled }), this.getSubscriptions)
 
   public render(): JSX.Element {
     const { subscriptions: data, totalItems, loading, error } = this.props;
-    const { selectedId, hideCanceled } = this.state;
+    const { selectedId, hideCancelled } = this.state;
 
     return (
       <>
-        <Grid style={{ paddingTop: 20 }}>
-          {this.getActionButtons()}
-        </Grid>
+        <Grid style={{ paddingTop: 20 }}>{this.getActionButtons()}</Grid>
         <Grid>
           <FormControlLabel
             control={
@@ -197,7 +195,7 @@ class SubscriptionsList extends React.Component<Props, State> {
                 name="hide-canceled"
                 value="hide-canceled"
                 id="hide-cancelled"
-                checked={!!hideCanceled}
+                checked={!!hideCancelled}
                 onChange={this.toggleSubscriptionView}
                 color="default"
               />
@@ -255,7 +253,7 @@ const mapDispatchToProps = (
   dispatch: ScopedThunkDispatch
 ): DispatchProps => {
   return {
-    getSubscriptions: (queryParams) => dispatch(readSubscriptionsAction(queryParams))
+    getSubscriptions: (queryParams) => dispatch(readSubscriptionsAction())
   }
 }
 

@@ -1,11 +1,12 @@
 import * as moment from "moment";
-import { Invoice, InvoiceOperation, InvoiceOption, InvoiceableResource } from "app/entities/invoice";
+import { InvoiceOperation, InvoiceableResource } from "app/entities/invoice";
+import { Invoice, InvoiceOption } from "makerspace-ts-api-client";
 export const defaultBillingOptions: InvoiceOption[] = [
   {
     id: "standard_membership",
     name: "Standard",
     description: "Standard Membership Subscription",
-    amount: 65,
+    amount: "65",
     quantity: 1,
     discountId: undefined,
     planId: "standard_membership",
@@ -16,7 +17,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     id: "foo",
     name: "Foo",
     description: "Foo Membership",
-    amount: 10000,
+    amount: "10000",
     quantity: 1,
     planId: "foo",
     discountId: undefined,
@@ -27,7 +28,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     id: "bar",
     name: "Bar",
     description: "Bar Membership",
-    amount: 45,
+    amount: "45",
     quantity: 1,
     planId: "bar",
     discountId: undefined,
@@ -43,7 +44,7 @@ export const baseInvoice: Invoice = {
   name: "random membership invoice",
   description: "Some more details about this membership invoice",
   memberName: "Some dude",
-  amount: 50,
+  amount: "50",
   quantity: 1,
   settled: false,
   pastDue: false,
@@ -54,7 +55,6 @@ export const baseInvoice: Invoice = {
   resourceId: "123",
   createdAt: "Some time",
   dueDate: moment().add(1, "months").calendar(),
-  resource: undefined
 }
 export const defaultInvoice: Invoice = {
   ...baseInvoice,
@@ -81,5 +81,6 @@ export const defaultInvoices: Invoice[] = new Array(20).fill(undefined).map((_v,
   }
 })
 export const membershipOptionQueryParams = {
+  subscriptionOnly: "true",
   types: [InvoiceableResource.Membership]
 };

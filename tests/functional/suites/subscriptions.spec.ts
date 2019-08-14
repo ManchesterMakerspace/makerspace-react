@@ -78,14 +78,14 @@ describe("Paid Subscriptions", () => {
       await header.navigateTo(header.links.settings);
       await utils.waitForPageLoad(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
-  
+
       // Non subscription details displayed
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
 
       await mock(mockRequests.invoices.post.ok({
         ...membershipOption,
-        resource: basicUser,
+        member: basicUser,
       } as Partial<MemberInvoice>, false)); // initial invoice creation
       await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
       await mock(mockRequests.paymentMethods.get.ok([newCard]));
@@ -127,13 +127,13 @@ describe("Paid Subscriptions", () => {
       await header.navigateTo(header.links.settings);
       await utils.waitForPageLoad(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
-  
+
       // Non subscription details displayed
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
       expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
     });
-    
+
     it("Can cancel their subscriptions", async () => {
       await autoLogin({
         ...basicUser,
@@ -146,11 +146,11 @@ describe("Paid Subscriptions", () => {
       };
       await mock(mockRequests.subscription.get.ok(initSubscription))
       await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
-     
+
       await header.navigateTo(header.links.settings);
       await utils.waitForPageLoad(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
-  
+
       // Subscription details displayed
       await utils.waitForNotVisible(settingsPO.subscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();

@@ -2,10 +2,10 @@ import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 import omit from "lodash-es/omit";
 
-import { Invoice, InvoiceQueryParams, InvoiceableResource, InvoiceOptionSelection } from "app/entities/invoice";
-import { getInvoices, postInvoices, getInvoiceOptions } from "api/invoices/transactions";
+import { InvoiceQueryParams, InvoiceOptionSelection, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { Action as InvoicesAction } from "ui/invoices/constants";
 import { InvoicesState } from "ui/invoices/interfaces";
+import { adminListInvoices, listInvoices, isApiErrorResponse, adminCreateInvoices, createInvoice } from "makerspace-ts-api-client";
 
 export const readInvoicesAction = (
   isUserAdmin: boolean,
@@ -13,47 +13,48 @@ export const readInvoicesAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: InvoicesAction.StartReadRequest });
 
-  try {
-    const response = await getInvoices(isUserAdmin, queryParams);
-    const {invoices} = response.data;
-    const totalItems = response.headers[("total-items")];
+  const func = isUserAdmin ? adminListInvoices : listInvoices;
+  const result = await func(queryParams);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: InvoicesAction.GetInvoicesFailure,
+      error: result.error.message
+    });
+  } else {
+    const { response, data } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: InvoicesAction.GetInvoicesSuccess,
       data: {
-        invoices,
+        invoices: data,
         totalItems: Number(totalItems)
       }
-    })
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: InvoicesAction.GetInvoicesFailure,
-      error: errorMessage
     });
   }
 };
 
 export const createInvoiceAction = (
-  invoiceForm: Invoice | InvoiceOptionSelection,
+  invoiceForm: MemberInvoice | RentalInvoice | InvoiceOptionSelection,
   admin: boolean,
-): ThunkAction<Promise<Invoice>, {}, {}, AnyAction> => async (dispatch) => {
+): ThunkAction<Promise<MemberInvoice | RentalInvoice>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: InvoicesAction.StartCreateRequest });
 
-  try {
-    const response = await postInvoices(invoiceForm, admin);
-    const { invoice } = response.data;
-    dispatch({
-      type: InvoicesAction.CreateInvoiceSuccess,
-      data: invoice,
-    });
-    return invoice;
-  } catch (e) {
-    console.log(e);
-    const { errorMessage } = e;
+  const result = admin
+    ? await adminCreateInvoices(invoiceForm as MemberInvoice | RentalInvoice)
+    : await createInvoice(invoiceForm as InvoiceOptionSelection);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: InvoicesAction.CreateInvoiceFailure,
-      error: errorMessage
+      error: result.error.message
     });
+  } else {
+    dispatch({
+      type: InvoicesAction.CreateInvoiceSuccess,
+      data: result.data,
+    });
+    return result.data;
   }
 };
 
@@ -94,7 +95,7 @@ export const invoicesReducer = (state: InvoicesState = defaultState, action: Any
       } = action;
 
       const newInvoices = {};
-      invoices.forEach((invoice: Invoice) => {
+      invoices.forEach((invoice: MemberInvoice | RentalInvoice) => {
         newInvoices[invoice.id] = invoice;
       });
 

@@ -1,29 +1,31 @@
 import { TablePageObject } from "./table";
 import utils from "./common";
 const tableId = "membership-reports-table";
-import { MemberDetails } from "app/entities/member";
-import { Report } from "app/entities/earnedMembership";
+import { Member, Report } from "makerspace-ts-api-client";
 import { timeToDate } from "ui/utils/timeToDate";
 
 const reportsListFields = ["date", "view"];
 class ReportsPageObject extends TablePageObject {
   public actionButtons = {
-    create: "#report-list-create",
-  }
+    create: "#report-list-create"
+  };
 
-  public fieldEvaluator = (member?: Partial<MemberDetails>) => (report: Partial<Report>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member?: Partial<Member>) => (report: Partial<Report>) => (fieldContent: {
+    field: string;
+    text: string;
+  }) => {
     const { field, text } = fieldContent;
     if (field === "date") {
       expect(text).toEqual(timeToDate(report.date));
     } else {
       expect(text.includes(report[field])).toBeTruthy();
     }
-  }
+  };
 
   public viewReport = (rowId: string) => {
     const { view: viewId } = this.getColumnIds(reportsListFields, rowId);
     return utils.clickElement(`${viewId} button`);
-  }
+  };
 
   private reportFormId = "#report-form";
   private reportRequirementFormId = "#report-form-{requirementIndex}";
@@ -35,7 +37,7 @@ class ReportsPageObject extends TablePageObject {
     reportedCount: `${this.getReportRequirementPrefix(index)}-reportedCount`,
     member: this.memberInput(index),
     addMemberButton: `${this.getReportRequirementPrefix(index)}-add-member-row`,
-    removeMemberButton: `${this.getReportRequirementPrefix(index)}-remove-member-row`,
+    removeMemberButton: `${this.getReportRequirementPrefix(index)}-remove-member-row`
   });
   public memberInput = (formIndex: number) => (memberIndex: number) =>
     `${this.getReportRequirementPrefix(formIndex)}-members-${memberIndex}`;
@@ -52,8 +54,8 @@ class ReportsPageObject extends TablePageObject {
     submit: `${this.reportFormId}-submit`,
     cancel: `${this.reportFormId}-cancel`,
     error: `${this.reportFormId}-error`,
-    loading: `${this.reportFormId}-loading`,
-  }
+    loading: `${this.reportFormId}-loading`
+  };
 }
 
 export default new ReportsPageObject(tableId, reportsListFields);

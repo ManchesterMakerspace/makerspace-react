@@ -1,5 +1,4 @@
 import * as moment from "moment";
-import { timeToDate } from "ui/utils/timeToDate";
 
 import { basicUser, adminUser, basicMembers } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
@@ -27,9 +26,9 @@ const reviewMemberInfo = async (loggedInUser: LoginMember, viewingMember?: Login
 }
 
 const reviewSubResource = async (member: LoginMember, admin: boolean = false) => {
-  const memberDetails = { 
+  const memberDetails = {
     memberId: member.id,
-    memberName: `${member.firstname} ${member.lastname}`, 
+    memberName: `${member.firstname} ${member.lastname}`,
   };
   const rentals = defaultRentals.map(r => ({...r, ...memberDetails }));
   const invoices = defaultInvoices.map(i => ({...i, ...memberDetails }));
@@ -212,21 +211,30 @@ describe("Member Profiles", () => {
        }
         const newCard = {
           id: "345",
+          memberId: foblessMember.id,
           uid: cardId,
         }
         const rejectionCard = {
           uid: cardId,
           timeOf: moment().subtract(1, "minute").calendar()
         };
+
+        const openingCard = {
+          ...rejectionCard,
+          uid: "90210"
+        };
         await mock(mockRequests.member.get.ok(foblessMember.id, foblessMember));
         await autoLogin(adminUser, memberPO.getProfilePath(foblessMember.id));
-        await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
+        await mock(mockRequests.rejectionCard.get.ok(openingCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
         await utils.clickElement(memberPO.memberDetail.openCardButton);
         await utils.waitForVisible(memberPO.accessCardForm.submit);
+        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(openingCard.uid); // Verify auto request works
+
+        await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
         await utils.clickElement(memberPO.accessCardForm.importButton);
-        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId);
+        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId);// Verify manual import works
         await mock(mockRequests.accessCard.post.ok(newCard));
         await mock(mockRequests.member.get.ok(updatedMember.id, updatedMember));
         await utils.clickElement(memberPO.accessCardForm.submit);
@@ -268,15 +276,22 @@ describe("Member Profiles", () => {
           uid: cardId,
           timeOf: moment().subtract(1, "minute").calendar()
         };
+        const openingCard = {
+            ...rejectionCard,
+            uid: "90210"
+        };
         await mock(mockRequests.member.get.ok(fobbedMember.id, fobbedMember));
         await autoLogin(adminUser, memberPO.getProfilePath(fobbedMember.id));
-        await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
+        await mock(mockRequests.rejectionCard.get.ok(openingCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Replace Fob/i);
         await utils.clickElement(memberPO.memberDetail.openCardButton);
         await utils.waitForVisible(memberPO.accessCardForm.submit);
+        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(openingCard.uid); // Verify auto request works
+
+        await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
         await utils.clickElement(memberPO.accessCardForm.importButton);
-        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId);
+        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId); // Verify manual import works
         await mock(mockRequests.accessCard.post.ok(newCard));
         await mock(mockRequests.member.get.ok(updatedMember.id, updatedMember));
         await utils.clickElement(memberPO.accessCardForm.submit);

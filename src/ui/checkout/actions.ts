@@ -1,35 +1,38 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
-import isObject from "lodash-es/isObject";
 import omit from "lodash-es/omit";
+import { createTransaction, isApiErrorResponse } from "makerspace-ts-api-client";
 
-import { postTransaction } from "api/transactions/transactions";
-
-import { Invoice } from "app/entities/invoice";
-
+import isObject from "ui/utils/isObject";
 import { Action as CheckoutAction } from "ui/checkout/constants";
 import { CheckoutState } from "ui/checkout/interfaces";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 export const submitPaymentAction = (
-  paymentMethodToken: string,
-  invoices: Invoice[],
+  paymentMethodId: string,
+  invoices: (MemberInvoice | RentalInvoice)[],
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: CheckoutAction.StartAsyncRequest });
   await Promise.all(invoices.map(async (invoice) => {
     const invoiceId = invoice.id;
     dispatch({ type: CheckoutAction.StartTransactionRequest, data: invoiceId });
 
-    try {
-      const response = await postTransaction(paymentMethodToken, invoiceId);
-      const{ transaction } = response.data;
-      dispatch({ type: CheckoutAction.FinishTransactionSuccess, data: {
-        ...transaction,
-        invoice,
-      } });
-      return transaction;
-    } catch (e) {
-      const { errorMessage } = e;
-      dispatch({ type: CheckoutAction.FinishTransactionFailure, error: errorMessage, id: invoiceId });
+
+    const result = await createTransaction({ paymentMethodId, invoiceId });
+
+    if (isApiErrorResponse(result)) {
+      dispatch({
+        type: CheckoutAction.FinishTransactionFailure,
+        error: result.error.message,
+        id: invoiceId
+      });
+    } else {
+      dispatch({
+        type: CheckoutAction.FinishTransactionSuccess, data: {
+          ...result.data,
+          invoice,
+        }
+      });
     }
   }));
   dispatch({ type: CheckoutAction.StopAsyncRequest });
@@ -63,7 +66,7 @@ export const checkoutReducer = (state: CheckoutState = defaultState, action: Any
       // Can accept array or collection of invoices to stage
       if (Array.isArray(invoices)) {
         const newInvoices = {};
-        invoices.forEach((invoice: Invoice) => {
+        invoices.forEach((invoice: MemberInvoice | RentalInvoice) => {
           newInvoices[invoice.id] = invoice;
         });
         return {

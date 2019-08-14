@@ -13,7 +13,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 
-import { InvoiceOption, InvoiceableResource, Properties as InvoiceOptionProps } from "app/entities/invoice";
+import { InvoiceOption } from "makerspace-ts-api-client";
+import { InvoiceableResource, Properties as InvoiceOptionProps } from "app/entities/invoice";
 import { Properties as BillingPlanProps } from "app/entities/billingPlan";
 import { fields } from "ui/billing/constants";
 import { CollectionOf } from "app/interfaces";
@@ -89,7 +90,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     }
     // Update form type if option changed and is out of sync
     if (optionType && optionType !== oldOptionType && optionType !== type) {
-      this.setState({ type: optionType });
+      this.setState({ type: optionType as InvoiceableResource });
     }
     // Apply selected plan to form vlaues if a different plan was chosen
     if (planId && planId !== oldPlanId && planId !== option.planId) {

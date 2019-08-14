@@ -1,9 +1,8 @@
 import { TablePageObject } from "./table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { Routing } from "app/constants";
-import { Transaction } from "app/entities/transaction";
-import { MemberDetails } from "app/entities/member";
 import { timeToDate } from "ui/utils/timeToDate";
+import { Member, Transaction } from "makerspace-ts-api-client";
 
 const tableId = "transactions-table";
 const transactionsListFields = ["createdAt", "description", "amount", "status"];
@@ -11,7 +10,7 @@ const transactionsListFields = ["createdAt", "description", "amount", "status"];
 class TransactionsPageObject extends TablePageObject {
   public listUrl = Routing.Billing
 
-  public fieldEvaluator = (member?: Partial<MemberDetails>) => (transaction: Partial<Transaction>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member?: Partial<Member>) => (transaction: Partial<Transaction>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "createdAt") {
       expect(text).toEqual(timeToDate(transaction.createdAt));

@@ -12,11 +12,11 @@ import RemoveRedEye from "@material-ui/icons/RemoveRedEye";
 import Typography from "@material-ui/core/Typography";
 
 import { Routing } from "app/constants";
-import { putPassword } from "api/auth/transactions";
 import Form, { FormFields } from "ui/common/Form";
 import ErrorMessage from "ui/common/ErrorMessage";
 import { ScopedThunkDispatch } from "ui/reducer";
-import { activeSessionLogin } from "ui/auth/actions";
+import { loginUserAction } from "ui/auth/actions";
+import { resetPassword, isApiErrorResponse } from "makerspace-ts-api-client";
 
 interface DispatchProps {
   attemptLogin: () => void;
@@ -78,16 +78,14 @@ class PasswordReset extends React.Component<Props, State> {
     if (!form.isValid()) return;
 
     this.setState({ passwordRequesting: true });
-    try {
-      // Successfully changing password counts as auth action for Devise
-      await putPassword(passwordToken, password);
+    // Successfully changing password counts as auth action for Devise
+    const passwordReset = await resetPassword({ resetPasswordToken: passwordToken, password });
+    if (isApiErrorResponse(passwordReset)) {
+      this.setState({ passwordRequesting: false, passwordError: passwordReset.error.message });
+    } else {
       // TODO: Toast Message
       await this.props.attemptLogin();
-      // TODO: Toast Message
       this.setState({ passwordRequesting: false });
-    } catch (e) {
-      const { errorMessage } = e;
-      this.setState({ passwordRequesting: false, passwordError: errorMessage });
     }
   }
 
@@ -143,9 +141,9 @@ const mapDispatchToProps = (
   dispatch: ScopedThunkDispatch
 ): DispatchProps => {
   return {
-    attemptLogin: async () => dispatch(await activeSessionLogin()),
-    goToRoot: () => dispatch(push(Routing.Root)),
-  }
+    attemptLogin: async () => dispatch(await loginUserAction()),
+    goToRoot: () => dispatch(push(Routing.Root))
+  };
 }
 
 export default connect(null, mapDispatchToProps)(PasswordReset);

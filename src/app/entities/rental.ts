@@ -1,14 +1,5 @@
 import { QueryParams } from "app/interfaces";
-
-export interface Rental {
-  id: string;
-  number: string;
-  description: string;
-  expiration: number;
-  memberId: string;
-  memberName: string;
-  subscriptionId?: string;
-}
+import { Rental } from "makerspace-ts-api-client";
 
 export enum Properties {
   Id = "id",

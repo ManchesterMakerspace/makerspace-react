@@ -1,7 +1,7 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
-import { Rental } from "app/entities/rental";
+import { Rental } from "makerspace-ts-api-client";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";

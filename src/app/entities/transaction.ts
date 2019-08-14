@@ -1,32 +1,4 @@
-import { Discount } from "app/entities/billingPlan";
-import { Invoice } from "app/entities/invoice";
-import { Paypal, CreditCard } from "app/entities/paymentMethod";
-
-export interface Transaction {
-  id: string;
-  memberName: string;
-  memberId: string;
-  description: string;
-  createdAt: Date;
-  status: string;
-  amount: string;
-  recurring: boolean;
-  discounts: Discount[];
-  discountAmount: string;
-  lineItems: any[];
-  customerDetails: any;
-  invoice?: Invoice;
-  planId?: string;
-  subscriptionId?: string;
-  subscriptionDetails?: {
-    billingPeriodStartDate: Date;
-    billingPeriodEndDate: Date;
-  };
-  disputes?: any[];
-  gatewayRejectionReason?: string;
-  refundedTransactionId: string;
-  paymentMethodDetails?: CreditCard | Paypal;
-}
+import { QueryParams } from "app/interfaces";
 
 export enum TransactionStatus {
   Settled = "settled",
@@ -35,4 +7,15 @@ export enum TransactionStatus {
   Rejected = "gateway_rejected",
   Voided = "voided",
   Unknown = "unrecognized"
+}
+
+export enum TransactionSearchCriteria {
+  Member = "member",
+  Subscription = "subscription"
+}
+export interface TransactionQueryParams extends QueryParams {
+  searchBy?: TransactionSearchCriteria;
+  searchId?: string;
+  startDate?: Date;
+  endDate?: Date;
 }

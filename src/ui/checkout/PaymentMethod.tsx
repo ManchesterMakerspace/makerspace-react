@@ -1,11 +1,10 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
 
-import { CreditCard, Paypal } from "app/entities/paymentMethod";
+import { CreditCard, PayPalAccount } from "makerspace-ts-api-client";
 
-interface Props extends Partial<CreditCard>, Partial<Paypal> {}
+interface Props extends Partial<CreditCard>, Partial<PayPalAccount> {}
 
 const PaymentMethodComponent: React.SFC<Props> = ({ cardType, last4, debit, imageUrl, email, id }) => {
   const image = imageUrl;

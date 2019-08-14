@@ -1,12 +1,11 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { Invoice } from "app/entities/invoice";
 import { CrudOperation } from "app/constants";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import Form from "ui/common/Form";
-import { Subscription } from "app/entities/subscription";
+import { Subscription } from "makerspace-ts-api-client";
 import DeleteSubscription from "ui/subscriptions/DeleteSubscriptionModal";
 import { deleteSubscriptionAction } from "ui/subscriptions/actions";
 

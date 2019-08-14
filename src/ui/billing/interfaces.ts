@@ -1,5 +1,6 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { InvoiceOption, InvoiceOptionSelection } from "app/entities/invoice";
+import { InvoiceOptionSelection } from "app/entities/invoice";
+import { InvoiceOption } from "makerspace-ts-api-client";
 
 export interface BillingState {
   entities: CollectionOf<InvoiceOption>;

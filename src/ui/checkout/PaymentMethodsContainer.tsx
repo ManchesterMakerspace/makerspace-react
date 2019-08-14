@@ -8,15 +8,14 @@ import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 import PaymentMethodForm from "ui/checkout/PaymentMethodForm";
-import { getPaymentMethods, deletePaymentMethod } from "api/paymentMethods/transactions";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import FormModal from "ui/common/FormModal";
 import ErrorMessage from "ui/common/ErrorMessage";
-import { isCreditCard, isPaypal, AnyPaymentMethod } from "app/entities/paymentMethod";
+import { AnyPaymentMethod } from "app/entities/paymentMethod";
 import Form from "ui/common/Form";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import PaymentMethodComponent from "ui/checkout/PaymentMethod";
-import { Subscription } from "app/entities/subscription";
+import { Subscription, listPaymentMethods, isApiErrorResponse, deletePaymentMethod } from "makerspace-ts-api-client";
 
 interface OwnProps {
   onPaymentMethodChange?: (newId: string) => void;
@@ -59,11 +58,11 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   private fetchPaymentMethods = async () => {
     this.setState({ isRequesting: true, paymentMethods: [] });
-    try {
-      const { data } = await getPaymentMethods();
-      this.setState({ isRequesting: false, paymentMethods: data.paymentMethods, error: "" });
-    } catch (e) {
-      this.setState({ isRequesting: false, error: e.errorMessage });
+    const result = await listPaymentMethods();
+    if (isApiErrorResponse(result)) {
+      this.setState({ isRequesting: false, error: result.error.message });
+    } else {
+      this.setState({ isRequesting: false, paymentMethods: result.data as any, error: "" });
     }
   }
 
@@ -121,14 +120,15 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
   private deletePaymentMethod = async () => {
     const { selectedPaymentMethodId } = this.state;
     this.setState({ isDeleting: true });
-    try {
-      await deletePaymentMethod(selectedPaymentMethodId);
+
+    const result = await deletePaymentMethod(selectedPaymentMethodId);
+    if (isApiErrorResponse(result)) {
+      this.setState({ isDeleting: false, error: result.error.message });
+    } else {
       this.setState({ isDeleting: false, error: "", selectedPaymentMethodId: undefined });
       this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(null);
       this.closeDeleteModal();
       this.fetchPaymentMethods();
-    } catch (e) {
-      this.setState({ isDeleting: false, error: e.errorMessage });
     }
   }
 

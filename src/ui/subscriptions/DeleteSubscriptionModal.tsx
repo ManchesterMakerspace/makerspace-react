@@ -5,7 +5,7 @@ import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";
 import { timeToDate } from "ui/utils/timeToDate";
-import { Subscription } from "app/entities/subscription";
+import { Subscription } from "makerspace-ts-api-client";
 
 interface OwnProps {
   subscription: Partial<Subscription>;

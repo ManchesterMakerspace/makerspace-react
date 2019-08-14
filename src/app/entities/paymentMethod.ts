@@ -1,29 +1,18 @@
+import { CreditCard, PayPalAccount } from "makerspace-ts-api-client";
+
 export interface PaymentMethod {
   id: string;
   customerId: string;
-  paymentType: PaymentMethodType;
+  paymentType?: string;
   imageUrl: string;
   default: boolean;
 }
 
-export interface CreditCard extends PaymentMethod {
-  cardType: string;
-  expirationMonth?: string;
-  expirationYear?: string;
-  expirationDate?: string;
-  last4: string;
-  debit: boolean;
-}
-
-export interface Paypal extends PaymentMethod {
-  email: string;
-}
-
-export const isCreditCard = (paymentMethod: PaymentMethod): paymentMethod is CreditCard => {
+export const isCreditCard = (paymentMethod: any): paymentMethod is CreditCard => {
   return paymentMethod.paymentType === PaymentMethodType.CreditCard;
 };
 
-export const isPaypal = (paymentMethod: PaymentMethod): paymentMethod is CreditCard => {
+export const isPaypal = (paymentMethod: any): paymentMethod is CreditCard => {
   return paymentMethod.paymentType === PaymentMethodType.PayPal;
 };
 
@@ -33,4 +22,4 @@ export enum PaymentMethodType {
   CreditCard = "credit_card",
 }
 
-export type AnyPaymentMethod = CreditCard | Paypal;
+export type AnyPaymentMethod = CreditCard | PayPalAccount;
