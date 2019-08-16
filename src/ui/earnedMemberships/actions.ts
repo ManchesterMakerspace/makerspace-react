@@ -3,12 +3,19 @@ import { ThunkAction } from "redux-thunk";
 import omit from "lodash-es/omit";
 
 import { QueryParams } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
 
 import { Action as MembershipAction } from "ui/earnedMemberships/constants";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
-import { getMemberships, getMembership, postMembership, putMembership } from "api/earnedMemberships/transactions";
-import { EarnedMembership, NewEarnedMembership } from "app/entities/earnedMembership";
+import {
+  NewEarnedMembership,
+  EarnedMembership,
+  adminListEarnedMemberships,
+  isApiErrorResponse,
+  adminGetEarnedMembership,
+  getEarnedMembership,
+  adminCreateEarnedMembership,
+  adminUpdateEarnedMembership
+} from "makerspace-ts-api-client";
 
 
 export const readMembershipsAction = (
@@ -16,22 +23,23 @@ export const readMembershipsAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartReadRequest });
 
-  try {
-    const response = await getMemberships(queryParams);
-    const {earnedMemberships} = response.data;
-    const totalItems = response.headers[("total-items")];
+
+  const result = await adminListEarnedMemberships(queryParams);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: MembershipAction.GetMembershipsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { response, data } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: MembershipAction.GetMembershipsSuccess,
       data: {
-        memberships: earnedMemberships,
+        memberships: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: MembershipAction.GetMembershipsFailure,
-      error: errorMessage
     });
   }
 };
@@ -42,18 +50,18 @@ export const readMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartReadRequest });
 
-  try {
-    const response = await getMembership(membershipId, admin);
-    const { earnedMembership } = response.data;
-    dispatch({
-      type: MembershipAction.GetMembershipSuccess,
-      data: earnedMembership
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const func = admin ? adminGetEarnedMembership : getEarnedMembership;
+  const result = await func(membershipId);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MembershipAction.GetMembershipsFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: MembershipAction.GetMembershipSuccess,
+      data: result.data
     });
   }
 };
@@ -64,16 +72,16 @@ export const createMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartCreateRequest });
 
-  try {
-    const response = await postMembership(membershipForm);
-    dispatch({
-      type: MembershipAction.CreateMembershipSuccess,
-    })
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminCreateEarnedMembership(membershipForm);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MembershipAction.CreateMembershipFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: MembershipAction.CreateMembershipSuccess
     });
   }
 };
@@ -81,46 +89,24 @@ export const createMembershipAction = (
 
 export const updateMembershipAction = (
   membershipId: string,
-  updatedMembership: Partial<EarnedMembership>
+  updatedMembership: EarnedMembership
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartUpdateRequest });
 
-  try {
-    const response = await putMembership(membershipId, updatedMembership);
-    const { Membership } = response.data;
-    dispatch({
-      type: MembershipAction.UpdateMembershipSuccess,
-      data: Membership
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminUpdateEarnedMembership(membershipId, updatedMembership);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MembershipAction.UpdateMembershipFailure,
-      error: errorMessage
-    })
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: MembershipAction.UpdateMembershipSuccess,
+      data: result.data
+    });
   }
 };
-
-
-export const deleteMembershipAction = (
-  membershipId: string,
-): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
-  dispatch({ type: MembershipAction.StartDeleteRequest });
-
-  try {
-    await getMembership(membershipId);
-    dispatch({
-      type: MembershipAction.DeleteMembershipSuccess,
-      data: membershipId
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: MembershipAction.DeleteMembershipFailure,
-      error: errorMessage
-    });
-  }
-}
 
 const defaultState: EarnedMembershipsState = {
   entities: {},

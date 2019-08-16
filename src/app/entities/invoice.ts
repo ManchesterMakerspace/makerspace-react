@@ -1,49 +1,22 @@
 import { QueryParams } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
-import { Rental } from "app/entities/rental";
+import {Invoice } from "makerspace-ts-api-client";
 
-interface BaseInvoice {
-  id: string;
-  name: string;
-  description: string;
-  settled: boolean;
-  pastDue: boolean;
-  createdAt: string;
-  dueDate: string;
-  amount: number;
-  memberId: string;
-  memberName: string;
-  refunded: boolean;
-  refundRequested?: Date;
-  subscriptionId?: string;
-  transactionId?: string;
-  discountId?: string;
-  planId?: string;
-  resourceClass: InvoiceableResource;
-  operation: InvoiceOperation,
-  resourceId: string;
-  quantity: number;
+export interface MemberInvoice extends Invoice {
+  rental: undefined;
 }
 
-
-export interface MemberInvoice extends BaseInvoice {
-  resource: MemberDetails;
-}
-
-export interface RentalInvoice extends BaseInvoice {
-  resource: Rental;
-}
+export interface RentalInvoice extends Invoice {}
 
 export type Invoice = MemberInvoice | RentalInvoice;
 export const isMemberInvoice = (item: any): item is MemberInvoice => {
-  return item && item.resource && item.resource.hasOwnProperty("firstname");
+  return item && !!item.member && !item.rental;
 }
 
 export interface InvoiceOption {
   id: string;
   name: string;
   description: string;
-  amount: number;
+  amount: string;
   quantity: number;
   operation: InvoiceOperation,
   resourceClass: InvoiceableResource;
@@ -53,7 +26,7 @@ export interface InvoiceOption {
 }
 
 export interface InvoiceOptionSelection {
-  invoiceOptionId: string;
+  id: string;
   discountId: string;
 }
 
@@ -99,4 +72,9 @@ export enum Properties {
 
 export interface InvoiceQueryParams extends QueryParams {
   [Properties.ResourceId]?: string;
+}
+
+export interface InvoiceOptionQueryParams extends QueryParams {
+  types: InvoiceableResource[];
+  subscriptionOnly?: boolean;
 }

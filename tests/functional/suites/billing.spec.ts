@@ -54,7 +54,7 @@ describe("Admin Billing Options", () => {
       quantity: 11,
       description: "bar",
       name: "edited option",
-      amount: 500
+      amount: "500"
     }
     await billingPO.selectRow(defaultBillingOptions[0].id);
     await utils.clickElement(billingPO.actionButtons.editButton);
@@ -88,6 +88,6 @@ describe("Admin Billing Options", () => {
 
   it("Billing option form validation", async () => {
     // TODO validate all fields required for create, that can select plan & discount
-    // 
+    //
   })
 });

@@ -1,34 +1,39 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
+import { omit } from "lodash-es";
 
 import { Action as BillingAction } from "ui/billing/constants";
 import { BillingState } from "ui/billing/interfaces";
-import { getInvoiceOptions, postInvoiceOptions, putInvoiceOption, deleteInvoiceOption } from "api/invoices/transactions";
-import { InvoiceOption } from "app/entities/invoice";
-import { omit } from "lodash-es";
-import { InvoiceOptionQueryParams } from "api/invoices/interfaces";
+import { InvoiceOptionQueryParams } from "app/entities/invoice";
+import {
+  adminCreateInvoiceOption,
+  adminUpdateInvoiceOption,
+  InvoiceOption,
+  adminDeleteInvoiceOption,
+  listInvoiceOptions,
+  isApiErrorResponse
+} from "makerspace-ts-api-client";
 
 export const readOptionsAction = (
   queryParams?: InvoiceOptionQueryParams,
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartReadRequest });
+  const result = await listInvoiceOptions(queryParams);
 
-  try {
-    const response = await getInvoiceOptions(queryParams);
-    const { invoiceOptions: options } = response.data;
+  if(isApiErrorResponse(result)) {
+    dispatch({
+      type: BillingAction.GetOptionsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { response, data } = result;
     const totalItems = response.headers[("total-items")];
     dispatch({
       type: BillingAction.GetOptionsSuccess,
       data: {
-        options,
+        options: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: BillingAction.GetOptionsFailure,
-      error: errorMessage
     });
   }
 };
@@ -38,38 +43,34 @@ export const createBillingAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartCreateRequest });
 
-  try {
-    await postInvoiceOptions(invoiceForm);
+  const result = await adminCreateInvoiceOption(invoiceForm);
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: BillingAction.CreateOptionFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: BillingAction.CreateOptionSuccess,
     })
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: BillingAction.CreateOptionFailure,
-      error: errorMessage
-    });
   }
 };
 
 export const updateBillingAction = (
   invoiceOptionId: string,
-  updateDetails: Partial<InvoiceOption>
+  updateDetails: InvoiceOption
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartUpdateRequest });
-
-  try {
-    const response = await putInvoiceOption(invoiceOptionId, updateDetails);
-    const { data } = response;
-    dispatch({
-      type: BillingAction.UpdateOptionSuccess,
-      data: data.invoiceOption
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminUpdateInvoiceOption(invoiceOptionId, updateDetails);
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: BillingAction.UpdateOptionFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: BillingAction.UpdateOptionSuccess,
+      data: result.data
     });
   }
 }
@@ -78,18 +79,17 @@ export const deleteBillingAction = (
   invoiceOptionId: string,
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartDeleteRequest });
+  const result = await adminDeleteInvoiceOption(invoiceOptionId);
 
-  try {
-    await deleteInvoiceOption(invoiceOptionId);
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: BillingAction.DeleteOptionFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: BillingAction.DeleteOptionSuccess,
       data: invoiceOptionId
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: BillingAction.DeleteOptionFailure,
-      error: errorMessage
     });
   }
 }

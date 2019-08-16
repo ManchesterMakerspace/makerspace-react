@@ -3,10 +3,10 @@ import * as moment from "moment";
 import { connect } from "react-redux";
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import Grid from "@material-ui/core/Grid";
+import { Member, Rental } from "makerspace-ts-api-client";
 
-import { Rental, Properties } from "app/entities/rental";
+import { Properties } from "app/entities/rental";
 import { QueryParams, CollectionOf } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import { SortDirection } from "ui/common/table/constants";
@@ -27,7 +27,7 @@ import { rentalRenewalOptions } from "ui/rentals/constants";
 import RenewalForm from "ui/common/RenewalForm";
 
 interface OwnProps extends RouteComponentProps<{}> {
-  member?: MemberDetails;
+  member?: Member;
   fields?: Column<Rental>[];
 }
 interface DispatchProps {
@@ -180,11 +180,10 @@ class RentalsList extends React.Component<Props, State> {
   }
 
   private getRentals = (resetPage: boolean = false) => {
-    const { admin } = this.props;
     if (resetPage) {
       this.setState({ pageNum: 0 });
     }
-    this.props.getRentals(admin, this.getQueryParams());
+    this.props.getRentals(this.props.admin, this.getQueryParams());
   }
   private rowId = (row: Rental) => row.id;
 

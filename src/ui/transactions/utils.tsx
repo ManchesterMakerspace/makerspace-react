@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Transaction, TransactionStatus } from "app/entities/transaction";
+import { TransactionStatus } from "app/entities/transaction";
 import { Status } from "ui/constants";
 import StatusLabel from "ui/common/StatusLabel";
+import { Transaction } from "makerspace-ts-api-client";
 
 export const renderTransactionStatus = (transaction: Transaction) => {
   let label = "Pending";

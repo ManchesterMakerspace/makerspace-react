@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import { Subscription } from "app/entities/subscription";
+import { Subscription } from "makerspace-ts-api-client";
 
 export const defaultSubscription: Subscription = {
   id: "test-subscription",
@@ -7,13 +7,13 @@ export const defaultSubscription: Subscription = {
   memberName: "Some Member",
   resourceClass: "member",
   resourceId: "test_member",
-  amount: 65,
+  amount: "65",
   status: "active", // TODO these should be enums
   failureCount: 0,
   daysPastDue: 0,
-  billingDayOfMonth: 1,
-  firstBillingDate: new Date(moment().subtract(1, "months").valueOf()),
-  nextBillingDate: new Date(moment().add(1, "months").valueOf()),
+  billingDayOfMonth: "1",
+  firstBillingDate: new Date(moment().subtract(1, "months").valueOf()).toString(),
+  nextBillingDate: new Date(moment().add(1, "months").valueOf()).toString(),
   planId: "foo",
   paymentMethodToken: "test-payment-method-token",
 };

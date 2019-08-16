@@ -1,4 +1,4 @@
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 
 const membershipDetails = {
   none: {
@@ -33,7 +33,7 @@ const membershipDetails = {
   }
 }
 
-export const getDetailsForMember = (member: Partial<MemberDetails>) => {
+export const getDetailsForMember = (member: Partial<Member>) => {
   let details = membershipDetails.noSubscription;
   if (member.subscription && !member.subscriptionId) {
     details = membershipDetails.paypal;

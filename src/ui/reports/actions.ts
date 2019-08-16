@@ -5,8 +5,14 @@ import { QueryParams } from "app/interfaces";
 
 import { Action as ReportAction } from "ui/reports/constants";
 import { ReportsState } from "ui/reports/interfaces";
-import { getReports, postReport } from "api/earnedMemberships/transactions";
-import { Report, NewReport } from "app/entities/earnedMembership";
+import {
+  Report,
+  NewReport,
+  listEarnedMembershipReports,
+  adminListEarnedMembershipReports,
+  isApiErrorResponse,
+  createEarnedMembershipReport
+} from "makerspace-ts-api-client";
 
 
 export const readReportsAction = (
@@ -16,22 +22,23 @@ export const readReportsAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: ReportAction.StartReadRequest });
 
-  try {
-    const response = await getReports(membershipId, queryParams, isAdmin);
-    const { reports } = response.data;
-    const totalItems = response.headers[("total-items")];
+  const func = isAdmin ? adminListEarnedMembershipReports : listEarnedMembershipReports;
+  const result = await func(membershipId, queryParams);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: ReportAction.GetReportsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { data, response } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: ReportAction.GetReportsSuccess,
       data: {
-        reports,
+        reports: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: ReportAction.GetReportsFailure,
-      error: errorMessage
     });
   }
 };
@@ -41,16 +48,16 @@ export const createReportAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: ReportAction.StartCreateRequest });
 
-  try {
-    const response = await postReport(reportDetails);
-    dispatch({
-      type: ReportAction.CreateReportSuccess,
-    })
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await createEarnedMembershipReport(reportDetails.earnedMembershipId, reportDetails);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: ReportAction.CreateReportFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: ReportAction.CreateReportSuccess,
     });
   }
 };

@@ -1,8 +1,8 @@
 import { RequestStatus } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 
 export interface MemberState {
-  entity: MemberDetails;
+  entity: Member;
   read: RequestStatus;
   update: RequestStatus;
 }

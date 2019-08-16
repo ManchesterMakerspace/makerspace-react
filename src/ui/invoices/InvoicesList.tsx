@@ -4,9 +4,9 @@ import { push } from "connected-react-router";
 import Button from "@material-ui/core/Button";
 import pick from "lodash-es/pick";
 
-import { Invoice, Properties, InvoiceableResourceDisplay } from "app/entities/invoice";
+import { Properties, InvoiceableResourceDisplay, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { QueryParams, CollectionOf } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import { CrudOperation, Routing, Whitelists } from "app/constants";
 
 import { Action as CheckoutAction } from "ui/checkout/constants";
@@ -27,19 +27,19 @@ import StatusLabel from "ui/common/StatusLabel";
 import Form from "ui/common/Form";
 
 interface OwnProps {
-  member?: MemberDetails;
+  member?: Member;
 }
 
 interface DispatchProps {
   getInvoices: (queryParams: QueryParams, admin: boolean) => void;
   resetStagedInvoices: () => void;
-  stageInvoices: (invoices: CollectionOf<Invoice>) => void;
+  stageInvoices: (invoices: CollectionOf<MemberInvoice | RentalInvoice>) => void;
   goToCheckout: () => void;
 }
 interface StateProps {
   admin: boolean;
   allowCustomBilling: boolean;
-  invoices: CollectionOf<Invoice>;
+  invoices: CollectionOf<MemberInvoice | RentalInvoice>;
   totalItems: number;
   loading: boolean;
   error: string;
@@ -91,28 +91,28 @@ class InvoicesListComponent extends React.Component<Props, State> {
     };
   }
 
-  private getFields = (): Column<Invoice>[] => [
+  private getFields = (): Column<MemberInvoice | RentalInvoice>[] => [
     ...this.props.member ? [] : [{
       id: "member",
       label: "Member",
-      cell: (row: Invoice) => row.memberName,
+      cell: (row: MemberInvoice | RentalInvoice) => row.memberName,
       defaultSortDirection: SortDirection.Desc,
     }],
     {
       id: "resourceClass",
       label: "Type",
-      cell: (row: Invoice) => InvoiceableResourceDisplay[row.resourceClass]
+      cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass]
     },
     {
       id: "description",
       label: "Description",
-      cell: (row: Invoice) => row.description,
+      cell: (row: MemberInvoice | RentalInvoice) => row.description,
       defaultSortDirection: SortDirection.Desc,
     },
     {
       id: "dueDate",
       label: "Due Date",
-      cell: (row: Invoice) => {
+      cell: (row: MemberInvoice | RentalInvoice) => {
         const dueDate = timeToDate(row.dueDate);
         if (row.subscriptionId) {
           return `Automatic Payment on ${dueDate}`
@@ -129,13 +129,13 @@ class InvoicesListComponent extends React.Component<Props, State> {
     {
       id: "amount",
       label: "Amount",
-      cell: (row: Invoice) => numberAsCurrency(row.amount),
+      cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
       defaultSortDirection: SortDirection.Desc
     },
     ...this.props.admin ? [{
       id: "settled",
       label: "Paid?",
-      cell: (row: Invoice) => {
+      cell: (row: MemberInvoice | RentalInvoice) => {
         const settleInvoice = () => {
           this.onSelect(this.rowId(row), true);
           this.openSettleInvoice();
@@ -156,7 +156,7 @@ class InvoicesListComponent extends React.Component<Props, State> {
     {
       id: "status",
       label: "Status",
-      cell: (row: Invoice) => {
+      cell: (row: MemberInvoice | RentalInvoice) => {
         const statusColor = (row.pastDue && !row.settled) ? Status.Danger : Status.Success;
         const label = row.settled ? "Paid" : (row.pastDue ? "Past Due" : "Upcoming");
         return (
@@ -274,7 +274,7 @@ class InvoicesListComponent extends React.Component<Props, State> {
     }
     getInvoices(this.getQueryParams(), admin);
   }
-  private rowId = (row: Invoice) => row.id;
+  private rowId = (row: MemberInvoice | RentalInvoice) => row.id;
 
   private onSort = (prop: string) => {
     const orderBy = prop;

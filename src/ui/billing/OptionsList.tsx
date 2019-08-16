@@ -2,7 +2,8 @@ import * as React from "react";
 import { connect } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 
-import { InvoiceOption, InvoiceOperation, InvoiceableResource } from "app/entities/invoice";
+import { InvoiceOption } from "makerspace-ts-api-client";
+import { InvoiceOperation, InvoiceableResource, InvoiceOptionQueryParams } from "app/entities/invoice";
 import { CrudOperation } from "app/constants";
 import { CollectionOf } from "app/interfaces";
 
@@ -16,7 +17,6 @@ import ButtonRow from "ui/common/ButtonRow";
 import BillingForm from "ui/billing/BillingForm";
 import DeleteInvoiceOptionModal from "ui/billing/DeleteInvoiceOptionModal";
 import UpdateBillingContainer, { UpdateBillingRenderProps } from "ui/billing/UpdateBillingContainer";
-import { InvoiceOptionQueryParams } from "api/invoices/interfaces";
 import StatusLabel from "ui/common/StatusLabel";
 import { Status } from "ui/constants";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";

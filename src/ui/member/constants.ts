@@ -1,7 +1,8 @@
 import { emailValid } from "app/utils";
 import { FormFields } from "ui/common/Form";
-import { MemberStatus, MemberRole, MemberDetails } from "app/entities/member";
+import { MemberStatus, MemberRole } from "app/entities/member";
 import { dateToTime } from "ui/utils/timeToDate";
+import { Member } from "makerspace-ts-api-client";
 
 export enum Action {
   StartReadRequest = "MEMBER/START_READ_REQUEST",
@@ -13,7 +14,7 @@ export enum Action {
 }
 
 const formPrefix = "member-form";
-export const fields = (admin: boolean, member?: Partial<MemberDetails>): FormFields => ({
+export const fields = (admin: boolean, member?: Partial<Member>): FormFields => ({
   firstname: {
     label: "First Name",
     name: `${formPrefix}-firstname`,

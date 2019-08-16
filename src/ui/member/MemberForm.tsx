@@ -4,10 +4,10 @@ import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import FormLabel from "@material-ui/core/FormLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import { Checkbox, FormControlLabel } from "@material-ui/core";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 
 import FormModal from "ui/common/FormModal";
 import { fields as memberFormField, MemberStatusOptions, MemberRoleOptions } from "ui/member/constants";
@@ -15,7 +15,7 @@ import Form from "ui/common/Form";
 import { toDatePicker } from "ui/utils/timeToDate";
 
 interface OwnProps {
-  member: Partial<MemberDetails>;
+  member: Partial<Member>;
   isAdmin: boolean;
   isOpen: boolean;
   isRequesting: boolean;
@@ -57,10 +57,10 @@ class MemberForm extends React.Component<OwnProps, State> {
     this.setState({ memberContractOnFile: checked });
   }
 
-  public validate = async (form: Form): Promise<MemberDetails> => {
+  public validate = async (form: Form): Promise<Member> => {
     const { isAdmin, member } = this.props;
     const fields = memberFormField(isAdmin, member);
-    return (await form.simpleValidate<MemberDetails>(fields));
+    return (await form.simpleValidate<Member>(fields));
   }
 
   private renderFormContents = () => {

@@ -1,7 +1,5 @@
 import { FormFields } from "ui/common/Form";
-import { MemberDetails } from "app/entities/member";
-import { Requirement } from "app/entities/earnedMembership";
-import { isObject } from "lodash-es";
+import { Member } from "makerspace-ts-api-client";
 
 
 export enum Action {
@@ -29,7 +27,7 @@ export const earnedMembershipFields = {
     label: "Select a member",
     name: `${formPrefix}-member`,
     placeholder: `Search by name or email`,
-    transform: (val: MemberDetails) => val && val.id,
+    transform: (val: Member) => val && val.id,
     validate: (val: string) => !!val,
     error: "Member required"
   },

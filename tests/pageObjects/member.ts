@@ -2,8 +2,8 @@ import { Routing } from "app/constants";
 import utils from "./common";
 import { TablePageObject } from "./table";
 import { timeToDate } from "ui/utils/timeToDate"
-import { MemberDetails } from "app/entities/member";
 import { LoginMember } from "./auth";
+import { Member } from "makerspace-ts-api-client";
 
 const membersListTableId = "members-table";
 const membersListFields = ["lastname", "expirationTime", "status"];
@@ -12,7 +12,7 @@ export class MemberPageObject extends TablePageObject {
     id: "#welcome-modal",
   };
 
-  public fieldEvaluator = (member: Partial<MemberDetails>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member: Partial<Member>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "expirationTime") {
       expect(text).toEqual(timeToDate(member.expirationTime));
@@ -56,8 +56,8 @@ export class MemberPageObject extends TablePageObject {
     notificationModalSubmit: "#notification-modal-submit",
     notificationModalCancel: "#notification-modal-cancel",
   }
-  
-  public verifyProfileInfo = async (member: LoginMember) => { 
+
+  public verifyProfileInfo = async (member: LoginMember) => {
     const { firstname, lastname, email, expirationTime } = member;
     expect(await utils.getElementText(this.memberDetail.title)).toEqual(`${firstname} ${lastname}`);
     expect(await utils.getElementText(this.memberDetail.email)).toEqual(email);

@@ -1,5 +1,6 @@
-import { Invoice, InvoiceableResource, MemberInvoice } from "app/entities/invoice";
+import { InvoiceableResource, MemberInvoice } from "app/entities/invoice";
 import { Routing } from "app/constants";
+import { Invoice } from "makerspace-ts-api-client";
 
 import { basicUser, adminUser } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
@@ -52,10 +53,10 @@ describe("Invoicing and Dues", () => {
 
       const resourcedInvoices = initInvoices.map(invoice => ({
         ...invoice,
-        resource: {
+        member: {
           ...basicUser
         }
-      })) as any as MemberInvoice[]; // TODO: Ooops, I messed up my typings somewhere      
+      })) as MemberInvoice[]; // TODO: Ooops, I messed up my typings somewhere
 
       // Upcoming, non subscription and past due invoices are automatically selected on load
       // So 2 of initInvoices will be autoselected on load
@@ -76,7 +77,7 @@ describe("Invoicing and Dues", () => {
       await mock(mockRequests.transactions.post.ok(pastDueTransaction));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
-      const total = numberAsCurrency(defaultInvoice.amount + pastDueInvoice.amount);
+      const total = numberAsCurrency(Number(defaultInvoice.amount) + Number(pastDueInvoice.amount));
 
       expect(await utils.getElementText(checkout.total)).toEqual(`Total ${total}`);
       await utils.clickElement(checkout.submit);
@@ -126,7 +127,7 @@ describe("Invoicing and Dues", () => {
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(invoicePO.actionButtons.create);
       await utils.waitForVisible(submit);
-     
+
       await utils.selectDropdownByValue(invoicePO.invoiceForm.invoiceOption, defaultBillingOptions[0].id);
       // TODO: Test rest of form once custom billing is enabled
       // await utils.fillInput(description, defaultInvoice.description);
@@ -153,7 +154,7 @@ describe("Invoicing and Dues", () => {
       const updatedInvoice = {
         ...defaultInvoices[0],
         description: "bar",
-        amount: 500
+        amount: "500"
       }
       await loadInvoices(defaultInvoices, true);
       await invoicePO.selectRow(defaultInvoices[0].id);

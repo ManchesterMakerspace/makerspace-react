@@ -2,32 +2,41 @@ import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 import omit from "lodash-es/omit";
 
-import { getSubscriptions, deleteSubscription, getSubscription, SubscriptionQueryParams, putSubscription } from "api/subscriptions/transactions";
+import { SubscriptionQueryParams } from "app/entities/subscription";
 import { Action as SubscriptionsAction } from "ui/subscriptions/constants";
 import { SubscriptionsState } from "ui/subscriptions/interfaces";
-import { Subscription, SubscriptionUpdate } from "app/entities/subscription";
+import { SubscriptionUpdate } from "app/entities/subscription";
+import {
+  Subscription,
+  adminListSubscriptions,
+  isApiErrorResponse,
+  adminCancelSubscription,
+  getSubscription,
+  cancelSubscription,
+  updateSubscription
+} from "makerspace-ts-api-client";
 
 export const readSubscriptionsAction = (
   queryParams?: SubscriptionQueryParams
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: SubscriptionsAction.StartReadRequest });
 
-  try {
-    const response = await getSubscriptions(queryParams, true);
-    const {subscriptions} = response.data;
-    const totalItems = response.headers[("total-items")];
+  const result = await adminListSubscriptions();
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: SubscriptionsAction.GetSubscriptionsFailure,
+      error: result.error.message
+    });
+  } else {
+    const { data, response } = result;
+    const totalItems = response.headers["total-items"];
     dispatch({
       type: SubscriptionsAction.GetSubscriptionsSuccess,
       data: {
-        subscriptions,
+        subscriptions: data,
         totalItems: Number(totalItems)
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: SubscriptionsAction.GetSubscriptionsFailure,
-      error: errorMessage
     });
   }
 };
@@ -37,21 +46,19 @@ export const readSubscriptionAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: SubscriptionsAction.StartReadRequest });
 
-  try {
-    const response = await getSubscription(id);
-    const { subscription } = response.data;
+  const result = await getSubscription(id);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: SubscriptionsAction.GetSubscriptionsFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: SubscriptionsAction.GetSubscriptionsSuccess,
       data: {
-        subscriptions: [subscription],
-        totalItems: 1
+        subscriptions: [result.data],
       }
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: SubscriptionsAction.GetSubscriptionsFailure,
-      error: errorMessage
     });
   }
 };
@@ -62,17 +69,18 @@ export const deleteSubscriptionAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: SubscriptionsAction.StartDeleteRequest });
 
-  try {
-    await deleteSubscription(subscriptionId, admin);
+  const func = admin ? adminCancelSubscription : cancelSubscription;
+  const result = await func(subscriptionId);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: SubscriptionsAction.DeleteFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: SubscriptionsAction.DeleteSuccess,
       data: subscriptionId
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: SubscriptionsAction.DeleteFailure,
-      error: errorMessage
     });
   }
 }
@@ -83,20 +91,20 @@ export const updateSubscriptionAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: SubscriptionsAction.StartUpdateRequest });
 
-  try {
-    await putSubscription(subscriptionId, subscriptionUpdate);
+  const result = await updateSubscription(subscriptionId, subscriptionUpdate);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: SubscriptionsAction.UpdateFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: SubscriptionsAction.UpdateSuccess,
       data: subscriptionId
     });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: SubscriptionsAction.UpdateFailure,
-      error: errorMessage
-    });
   }
-}
+};
 
 const defaultState: SubscriptionsState = {
   entities: {},

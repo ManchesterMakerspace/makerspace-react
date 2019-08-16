@@ -1,7 +1,7 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
-import { Transaction } from "app/entities/transaction";
+import { Transaction } from "makerspace-ts-api-client";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";
@@ -59,11 +59,11 @@ class DeleteTransactionModal extends React.Component<OwnProps, {}> {
         <KeyValueItem label="Amount">
           <span id="refund-transaction-amount">{numberAsCurrency(Number(transaction.amount) - Number(transaction.discountAmount))}</span>
         </KeyValueItem>
-        { isAdmin && transaction.memberName && 
+        { isAdmin && transaction.memberName &&
           <KeyValueItem label="Member">
             <span id="refund-transaction-member">{transaction.memberName}</span>
           </KeyValueItem>}
-        { transaction.invoice && 
+        { transaction.invoice &&
           <KeyValueItem label="Description">
             <span id="refund-transaction-description">{transaction.invoice.description}</span>
           </KeyValueItem>

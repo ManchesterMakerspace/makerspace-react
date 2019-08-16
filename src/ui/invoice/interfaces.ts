@@ -1,9 +1,9 @@
 import { RequestStatus } from "app/interfaces";
-import { Invoice } from "app/entities/invoice";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 export interface InvoiceState {
-  entity: Invoice;
-  stagedEntity: Partial<Invoice>;
+  entity: MemberInvoice | RentalInvoice;
+  stagedEntity: Partial<MemberInvoice | RentalInvoice>;
   read: RequestStatus;
   update: RequestStatus;
   delete: RequestStatus;

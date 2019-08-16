@@ -1,17 +1,16 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { Invoice } from "app/entities/invoice";
+import { Subscription } from "makerspace-ts-api-client";
 import { CrudOperation } from "app/constants";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import Form from "ui/common/Form";
-import { Subscription } from "app/entities/subscription";
 import { Action as CheckoutAction } from "ui/checkout/constants";
-import DeleteSubscription from "ui/subscriptions/DeleteSubscriptionModal";
 import { deleteSubscriptionAction, updateSubscriptionAction } from "ui/subscriptions/actions";
 import CancelMembershipModal from "ui/membership/CancelMembershipModal";
 import { createInvoiceAction } from "ui/invoices/actions";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 
 export interface UpdateSubscriptionRenderProps extends Props {
@@ -20,7 +19,7 @@ export interface UpdateSubscriptionRenderProps extends Props {
 }
 interface OwnProps {
   subscription: Partial<Subscription>;
-  invoice: Partial<Invoice>;
+  invoice: Partial<MemberInvoice | RentalInvoice>;
   discountId?: string;
   membershipOptionId?: string;
   paymentMethodToken?: string;
@@ -106,12 +105,10 @@ const mapDispatchToProps = (
         case CrudOperation.Update:
           if (subscription) {
             await dispatch(updateSubscriptionAction(subscription.id, {
-              discountId,
               paymentMethodToken,
-              invoiceOptionId: membershipOptionId,
             }))
           } else {
-            const newInvoice = await dispatch(createInvoiceAction({ discountId, invoiceOptionId: membershipOptionId }, false));
+            const newInvoice = await dispatch(createInvoiceAction({ discountId, id: membershipOptionId }, false));
             dispatch({ type: CheckoutAction.StageInvoicesForPayment, data: [newInvoice] })
           }
           break;

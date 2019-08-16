@@ -1,30 +1,33 @@
 import * as moment from "moment";
-import { EarnedMembership, Report, Requirement, Term, ReportRequirement } from "app/entities/earnedMembership";
+import { EarnedMembership, Report, Requirement, ReportRequirement } from "makerspace-ts-api-client";
 import { MemberStatus } from "app/entities/member";
 
 export const basicRequirement: Requirement = {
   id: "test-requirement",
+  earnedMembershipId: "test-earned-membership",
   name: "Test Requirement",
   rolloverLimit: 0,
   termLength: 1,
   targetCount: 3,
-  strict: false,
-};
-
-
-export const basicTerm: Term = {
   currentCount: 0,
-  termStartDate: moment().toDate(),
-  termEndDate: moment().add(1, "months").toDate(),
-  satisfied: false,
+  strict: false,
+  termStartDate: moment().toString(),
+  termEndDate: moment().add(1, "months").toString(),
+  termId: "test-term-id",
+  satisfied: false
 };
+
 
 export const basicReportRequirement: ReportRequirement = {
   id: "test-report-requirement",
   requirementId: "test-requirement",
   reportedCount: 1,
   memberIds: [],
-  termId: "test-term-id",
+  appliedCount: 1,
+  currentCount: 1,
+  termStartDate: moment().toString(),
+  termEndDate: moment().add(1, "months").toString(),
+  satisfied: false
 };
 
 export const basicEarnedMembership: EarnedMembership = {
@@ -38,7 +41,7 @@ export const basicEarnedMembership: EarnedMembership = {
 
 export const basicReport: Report = {
   id: "test-report",
-  date: moment().toDate(),
+  date: moment().toDate().toString(),
   earnedMembershipId: "test-earned-membership",
   reportRequirements: [basicReportRequirement]
 };
@@ -88,6 +91,6 @@ export const defaultReports: Report[] = new Array(20).fill(undefined).map((_, in
   return {
     ...basicReport,
     id: `test_report_${index}`,
-    date
+    date: date.toString()
   }
 })

@@ -1,5 +1,5 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { EarnedMembership } from "app/entities/earnedMembership";
+import { EarnedMembership } from "makerspace-ts-api-client";
 
 export interface EarnedMembershipsState {
   entities: CollectionOf<EarnedMembership>;

@@ -1,18 +1,14 @@
 import * as React from "react";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
-
-import { Rental } from "app/entities/rental";
+import FormLabel from "@material-ui/core/FormLabel";
 
 import FormModal from "ui/common/FormModal";
 import { fields } from "ui/rentals/constants";
 import Form from "ui/common/Form";
 import { toDatePicker } from "ui/utils/timeToDate";
-import { getMember } from "api/members/transactions";
-import { getMembers } from "api/members/transactions";
-import { MemberDetails } from "app/entities/member";
-import FormLabel from "@material-ui/core/FormLabel";
 import AsyncSelectFixed from "ui/common/AsyncSelect";
+import { Rental, getMember, listMembers, isApiErrorResponse } from "makerspace-ts-api-client";
 
 interface OwnProps {
   rental: Partial<Rental>;
@@ -54,14 +50,13 @@ class RentalForm extends React.Component<OwnProps, State> {
     const { rental } = this.props;
     this.setState({ member: { value: rental.memberId, label: rental.memberName, id: rental.memberId } })
     if (rental && rental.memberId) {
-      try {
-        const { data } = await getMember(rental.memberId);
-        const { member } = data;
-        if (member) {
-          this.updateMemberValue({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
-        }
-      } catch (e) {
-        console.log(e);
+
+      const result = await getMember(rental.memberId);
+      if (isApiErrorResponse(result)) {
+        console.log(result.error);
+      } else {
+        const member = result.data;
+        this.updateMemberValue({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
       }
     } else {
       this.updateMemberValue({ value: "", label: "None", id: undefined });
@@ -75,13 +70,13 @@ class RentalForm extends React.Component<OwnProps, State> {
   }
 
   private memberOptions = async (searchValue: string) => {
-    try {
-      const membersResponse = await getMembers({ search: searchValue });
-      const members: MemberDetails[] = membersResponse.data ? membersResponse.data.members : [];
+    const result = await listMembers({ search: searchValue });
+    if (isApiErrorResponse(result)) {
+      console.log(result.error);
+    } else {
+      const members = result.data;
       const memberOptions = members.map(member => ({ value: member.email, label: `${member.firstname} ${member.lastname}`, id: member.id }));
       return memberOptions;
-    } catch (e) {
-      console.log(e);
     }
   }
 

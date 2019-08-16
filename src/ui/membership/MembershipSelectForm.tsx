@@ -1,18 +1,21 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import isUndefined from "lodash-es/isUndefined";
+import Button from "@material-ui/core/Button";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 
 import { CollectionOf } from "app/interfaces";
-import { InvoiceOption, InvoiceableResource } from "app/entities/invoice";
+import { InvoiceableResource } from "app/entities/invoice";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import ErrorMessage from "ui/common/ErrorMessage";
 import TableContainer from "ui/common/table/TableContainer";
 import { Column } from "ui/common/table/Table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { Button, FormControlLabel, Checkbox } from "@material-ui/core";
 import { readOptionsAction } from "ui/billing/actions";
 import { Action as InvoiceOptionAction } from "ui/billing/constants";
+import { InvoiceOption } from "makerspace-ts-api-client";
 
 interface OwnProps {
   title?: string;
@@ -35,13 +38,13 @@ interface StateProps {
 interface Props extends OwnProps, DispatchProps, StateProps { }
 
 class MembershipSelectComponent extends React.Component<Props> {
-
   private selectMembershipOption = (event: React.MouseEvent<HTMLTableElement>) => {
     const { discountId } = this.props;
     const optionId = event.currentTarget.id;
     const option = this.getOption(optionId);
     let optionDiscount;
-    if (discountId) { // Only want to update discount if already selected
+    if (discountId) {
+      // Only want to update discount if already selected
       optionDiscount = option.discountId;
     }
     this.props.selectMembershipOption(optionId, optionDiscount);
@@ -59,17 +62,17 @@ class MembershipSelectComponent extends React.Component<Props> {
     {
       id: "name",
       label: "Name",
-      cell: (row: InvoiceOption) => row.name,
+      cell: (row: InvoiceOption) => row.name
     },
     {
       id: "description",
       label: "Description",
-      cell: (row: InvoiceOption) => row.description,
+      cell: (row: InvoiceOption) => row.description
     },
     {
       id: "amount",
       label: "Amount",
-      cell: (row: InvoiceOption) => numberAsCurrency(row.amount),
+      cell: (row: InvoiceOption) => numberAsCurrency(row.amount)
     },
     {
       id: "select",
@@ -80,27 +83,32 @@ class MembershipSelectComponent extends React.Component<Props> {
         const label = selected ? "Selected" : "Select";
 
         return (
-          <Button id={row.id} variant={variant} color="primary" onClick={this.selectMembershipOption}>{label}</Button>
-        )
+          <Button id={row.id} variant={variant} color="primary" onClick={this.selectMembershipOption}>
+            {label}
+          </Button>
+        );
       }
     }
-  ]
+  ];
 
   private toggleDiscount = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const { membershipOptionId, membershipOptions, selectMembershipOption } = this.props;
     let discountId;
-    if (checked) { // Apply discount
-      if (membershipOptionId) { // If option is already selected, find related discount and apply
+    if (checked) {
+      // Apply discount
+      if (membershipOptionId) {
+        // If option is already selected, find related discount and apply
         const membershipOption = membershipOptions[membershipOptionId];
         discountId = membershipOption.discountId;
-      } else { // Otherwise just make it truthy to be updated when membership is actually selected
+      } else {
+        // Otherwise just make it truthy to be updated when membership is actually selected
         discountId = "apply";
       }
     }
     selectMembershipOption(membershipOptionId, discountId);
   };
 
-  private byAmount = (a: InvoiceOption, b: InvoiceOption) =>  a.amount - b.amount;
+  private byAmount = (a: InvoiceOption, b: InvoiceOption) => Number(a.amount) - Number(b.amount);
 
   public render(): JSX.Element {
     const {
@@ -164,7 +172,7 @@ const mapStateToProps = (
   const createInvoiceError = state.invoices.create.error;
 
   const discountId = selectedOption && selectedOption.discountId;
-  const membershipOptionId = selectedOption && selectedOption.invoiceOptionId;
+  const membershipOptionId = selectedOption && selectedOption.id;
 
   return {
     membershipOptions,
@@ -185,7 +193,7 @@ const mapDispatchToProps = (
     getMembershipOptions: () => dispatch(readOptionsAction({ subscriptionOnly, types: [InvoiceableResource.Membership] })),
     selectMembershipOption: (membershipOptionId, discountId) => dispatch({
       type: InvoiceOptionAction.SelectOption,
-      data: { invoiceOptionId: membershipOptionId, discountId }
+      data: { id: membershipOptionId, discountId }
     })
   };
 }

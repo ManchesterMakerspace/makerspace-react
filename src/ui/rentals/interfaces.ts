@@ -1,5 +1,5 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { Rental } from "app/entities/rental";
+import { Rental } from "makerspace-ts-api-client";
 
 export interface RentalsState {
   entities: CollectionOf<Rental>;

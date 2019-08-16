@@ -1,5 +1,5 @@
 import { RequestStatus, CollectionOf } from "app/interfaces";
-import { Report } from "app/entities/earnedMembership";
+import { Report } from "makerspace-ts-api-client";
 
 export interface ReportsState {
   entities: CollectionOf<Report>;

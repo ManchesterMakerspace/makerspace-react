@@ -5,9 +5,8 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 
-import { Transaction, TransactionStatus } from "app/entities/transaction";
+import { TransactionStatus } from "app/entities/transaction";
 import { QueryParams, CollectionOf } from "app/interfaces";
-import { MemberDetails } from "app/entities/member";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import { SortDirection } from "ui/common/table/constants";
@@ -20,14 +19,14 @@ import UpdateTransactionContainer, { UpdateTransactionRenderProps } from "ui/tra
 import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import Form from "ui/common/Form";
-import { TransactionSearchCriteria } from "api/transactions/interfaces";
+import { TransactionSearchCriteria } from "app/entities/transaction";
 import AsyncSelectFixed, { SelectOption } from "ui/common/AsyncSelect";
-import { getMembers } from "api/members/transactions";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { renderTransactionStatus } from "ui/transactions/utils";
+import { listMembers, isApiErrorResponse, Member, Transaction } from "makerspace-ts-api-client";
 
 interface OwnProps extends RouteComponentProps<{}> {
-  member?: MemberDetails;
+  member?: Member;
   fields?: Column<Transaction>[];
 }
 interface DispatchProps {
@@ -74,7 +73,7 @@ class TransactionsList extends React.Component<Props, State> {
 
         const totalAsText = numberAsCurrency(total);
         if (row.refundedTransactionId) {
-          return `(${totalAsText})`; 
+          return `(${totalAsText})`;
         }
         return totalAsText;
       },
@@ -159,7 +158,7 @@ class TransactionsList extends React.Component<Props, State> {
           disabled = !!transaction.refundedTransactionId;
         } else {
           label = "Request Refund";
-          disabled = !!transaction.refundedTransactionId || 
+          disabled = !!transaction.refundedTransactionId ||
                      !!(transaction.invoice && transaction.invoice.refundRequested)
         }
       }
@@ -256,13 +255,17 @@ class TransactionsList extends React.Component<Props, State> {
   }
 
   private memberOptions = async (searchValue: string) => {
-    try {
-      const membersResponse = await getMembers({ search: searchValue });
-      const members: MemberDetails[] = membersResponse.data ? membersResponse.data.members : [];
-      const memberOptions = members.map(member => ({ value: member.email, label: `${member.firstname} ${member.lastname}`, id: member.id }));
+    const result = await listMembers({ search: searchValue });
+    if (isApiErrorResponse(result)) {
+      console.log(result.error);
+    } else {
+      const members = result.data;
+      const memberOptions = members.map(member => ({
+        value: member.email,
+        label: `${member.firstname} ${member.lastname}`,
+        id: member.id
+      }));
       return memberOptions;
-    } catch (e) {
-      console.log(e);
     }
   }
 

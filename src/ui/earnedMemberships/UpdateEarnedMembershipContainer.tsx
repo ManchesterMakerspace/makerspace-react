@@ -2,16 +2,14 @@ import * as React from "react";
 import { connect } from "react-redux";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
-import { MemberDetails } from "app/entities/member";
+import { Member, EarnedMembership, NewEarnedMembership } from "makerspace-ts-api-client";
 import { CrudOperation } from "app/constants";
 
 import Form from "ui/common/Form";
 import EarnedMembershipForm from "ui/earnedMemberships/EarnedMembershipForm"
-import { EarnedMembership, NewEarnedMembership } from "app/entities/earnedMembership";
 import {
   createMembershipAction,
   updateMembershipAction,
-  deleteMembershipAction
 } from "ui/earnedMemberships/actions";
 
 export interface UpdateMembershipRenderProps extends Props {
@@ -20,7 +18,7 @@ export interface UpdateMembershipRenderProps extends Props {
 }
 interface OwnProps {
   membership: Partial<EarnedMembership>;
-  member?: Partial<MemberDetails>;
+  member?: Partial<Member>;
   isOpen: boolean;
   operation: CrudOperation;
   closeHandler: () => void;
@@ -128,15 +126,12 @@ const mapDispatchToProps = (
             }, []);
 
           action = (updateMembershipAction(membership.id, {
-            ...membershipDetails,
+            ...membershipDetails as EarnedMembership,
             requirements: mergedRequirements,
           }));
           break;
         case CrudOperation.Create:
           action = (createMembershipAction(membershipDetails));
-          break;
-        case CrudOperation.Delete:
-          action = (deleteMembershipAction(membership.id));
           break;
       }
       return dispatch(action);

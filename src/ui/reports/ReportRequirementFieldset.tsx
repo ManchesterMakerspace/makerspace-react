@@ -4,19 +4,23 @@ import range from "lodash-es/range";
 import Grid from "@material-ui/core/Grid";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormLabel from "@material-ui/core/FormLabel";
-
-import { getMembers, getMember } from "api/members/transactions";
-
-import { MemberDetails } from "app/entities/member";
-import { Requirement, ReportRequirement, Report, NewReportRequirement } from "app/entities/earnedMembership";
+import Select from "@material-ui/core/Select";
 
 import Form from "ui/common/Form";
 import { reportRequirementFields, formPrefix } from "ui/reports/constants";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import { mapValues } from "lodash-es";
 import { AsyncCreatableSelect } from "ui/common/AsyncSelect";
-import { Select } from "@material-ui/core";
 import { mongoIdRegex } from "ui/constants";
+import {
+  Requirement,
+  ReportRequirement,
+  NewReportRequirement,
+  getMember,
+  isApiErrorResponse,
+  Member,
+  listMembers
+} from "makerspace-ts-api-client";
 
 interface OwnProps {
   requirement: Requirement;
@@ -58,8 +62,10 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
                 // Only request if its a Mongo ID
                 // It could be name or email if not a member
                 if (id.match(mongoIdRegex)) {
-                  const response = await getMember(id);
-                  member = response.data.member;
+                  const result = await getMember(id);
+                  if (!isApiErrorResponse(result)) {
+                    member = result.data;
+                  }
                 }
               } catch (e) {
                 if (!(e && e.response && e.response.status === 404)) {
@@ -76,7 +82,7 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
               if (member && this.state.loadingMembersRequestId === requestId) {
                 const option = {
                   value: member.id,
-                  label: member.firstname ? `${member.firstname} ${member.lastname || ""}` : member.id,
+                  label: (member as Member).firstname ? `${(member as Member).firstname} ${(member as Member).lastname || ""}` : member.id,
                   id: member.id,
                 };
                 const fieldName = this.getMemberInputName(index);
@@ -117,7 +123,6 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
       requirementId: id,
       reportedCount: undefined,
       memberIds: [],
-      termId: requirement.termId
     };
     const formErrors = {}
     const fields = reportRequirementFields(requirement, index);
@@ -226,13 +231,13 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
   }
 
   private memberOptions = async (searchValue: string) => {
-    try {
-      const membersResponse = await getMembers({ search: searchValue });
-      const members: MemberDetails[] = membersResponse.data ? membersResponse.data.members : [];
+    const result = await listMembers({ search: searchValue });
+    if (isApiErrorResponse(result)) {
+      console.log(result.error);
+    } else {
+      const members = result.data;
       const memberOptions = members.map(member => ({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id }));
       return memberOptions;
-    } catch (e) {
-      console.log(e);
     }
   }
 

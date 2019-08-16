@@ -7,11 +7,10 @@ import Form from "ui/common/Form";
 import * as Braintree from "braintree-web";
 import { PaymentMethodType } from "app/entities/paymentMethod";
 
-import { getClientToken } from "api/paymentMethods/transactions";
-
 import CreditCardForm from "ui/checkout/CreditCardForm";
 import PaypalButton from "ui/checkout/PaypalButton";
 import FormModal from "ui/common/FormModal";
+import { getNewPaymentMethod, isApiErrorResponse } from "makerspace-ts-api-client";
 
 
 interface OwnProps {
@@ -68,11 +67,11 @@ class PaymentMethodForm extends React.Component<Props, State> {
 
     let token;
     let error = "";
-    try {
-      const response = await getClientToken();
-      token = response.data.clientToken;
-    } catch (e) {
-      error = e.errorMessage;
+    const result = await getNewPaymentMethod();
+    if (isApiErrorResponse(result)) {
+      error = result.error.message;
+    } else {
+      token = result.data;
     }
     this.setState({
       requestingClientToken: false,

@@ -1,19 +1,4 @@
-export interface MemberDetails {
-  id: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  expirationTime: number;
-  status: MemberStatus;
-  cardId: string;
-  groupName: string;
-  role: MemberRole;
-  customerId: string;
-  subscriptionId: string;
-  subscription: boolean;
-  memberContractOnFile: boolean;
-  earnedMembershipId: string;
-}
+import { Member } from "makerspace-ts-api-client";
 
 export enum Properties {
   Id = "id",
@@ -38,4 +23,4 @@ export enum MemberRole {
   Member = "member"
 }
 
-export const isMember = (entity: any): entity is MemberDetails => entity.hasOwnProperty(Properties.Expiration) && entity.hasOwnProperty(Properties.Firstname);
+export const isMember = (entity: any): entity is Member => entity.hasOwnProperty(Properties.Expiration) && entity.hasOwnProperty(Properties.Firstname);

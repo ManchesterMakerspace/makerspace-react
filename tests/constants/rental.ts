@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import { Rental } from "app/entities/rental";
+import { Rental } from "makerspace-ts-api-client";
 
 export const defaultRental: Rental = {
   id: "test-rental",

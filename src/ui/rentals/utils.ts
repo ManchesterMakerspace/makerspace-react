@@ -1,4 +1,5 @@
-import { Rental, Properties } from "app/entities/rental";
+import { Properties } from "app/entities/rental";
+import { Rental } from "makerspace-ts-api-client";
 
 export const rentalToRenewal = (rental: Partial<Rental>) => ({
   id: rental[Properties.Id],

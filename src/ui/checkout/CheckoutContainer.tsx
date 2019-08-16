@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import isEmpty from "lodash-es/isEmpty";
 
-import { Invoice } from "app/entities/invoice";
+import { RentalInvoice, MemberInvoice } from "app/entities/invoice";
 import { Routing } from "app/constants";
 import { CollectionOf, RequestStatus } from "app/interfaces";
 
@@ -13,12 +13,12 @@ import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import CheckoutPage from "ui/checkout/CheckoutPage";
 
 import { buildProfileRouting } from "ui/member/utils";
-import { Transaction } from "app/entities/transaction";
+import { Transaction } from "makerspace-ts-api-client";
 import { Action } from "ui/checkout/constants";
 
 interface OwnProps {}
 interface StateProps {
-  invoices: CollectionOf<Invoice>;
+  invoices: CollectionOf<MemberInvoice | RentalInvoice>;
   transactions: CollectionOf<Transaction & RequestStatus>;
   userId: string;
   error: string;
@@ -27,7 +27,7 @@ interface StateProps {
   transactionsError: { [key: string]: string }; // Keys are invoice keys too
 }
 interface DispatchProps {
-  submitCheckout: (invoices: Invoice[], paymentMethodId: string) => void;
+  submitCheckout: (invoices: (MemberInvoice | RentalInvoice)[], paymentMethodId: string) => void;
   pushLocation: (location: string) => void;
   resetCheckoutState: () => void;
 }

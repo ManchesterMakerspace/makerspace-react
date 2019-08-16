@@ -1,13 +1,22 @@
 import * as React from "react";
-import range from "lodash-es/range";
 import Grid from "@material-ui/core/Grid";
-import { Card, CardContent, Typography } from "@material-ui/core";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
 
-import { MemberDetails } from "app/entities/member";
+import {
+  Member,
+  EarnedMembership,
+  Requirement,
+  ReportRequirement,
+  Report,
+  NewReport,
+  NewReportRequirement,
+} from "makerspace-ts-api-client";
 
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
-import { EarnedMembership, Requirement, ReportRequirement, Report, NewReport, isReportRequirement, NewReportRequirement, Term } from "app/entities/earnedMembership";
+import { isReportRequirement } from "app/entities/earnedMembership";
 import ReportRequirementFieldset from "ui/reports/ReportRequirementFieldset";
 import KeyValueItem from "ui/common/KeyValueItem";
 import { timeToDate } from "ui/utils/timeToDate";
@@ -20,12 +29,11 @@ interface OwnProps {
   onClose: () => void;
   onSubmit?: (form: Form) => void;
   membership: EarnedMembership;
-  member: Partial<MemberDetails>;
+  member: Partial<Member>;
   report?: Report;
   disabled?: boolean;
 }
 type SelectOption = { label: string, value: string, id?: string };
-interface ItemWithTerm extends Partial<Term> {};
 
 export class ReportForm extends React.Component<OwnProps> {
   public formRef: Form;
@@ -72,10 +80,11 @@ export class ReportForm extends React.Component<OwnProps> {
   private isPassLimit = (requirement: Requirement | ReportRequirement): boolean => {
     if (isReportRequirement(requirement)) {
       return false;
+    } else {
+      return requirement.rolloverLimit &&
+        requirement.rolloverLimit > 0 &&
+        requirement.currentCount >= requirement.rolloverLimit;
     }
-    return requirement.rolloverLimit &&
-      requirement.rolloverLimit > 0 &&
-      requirement.currentCount >= requirement.rolloverLimit;
   };
 
   private renderRequirementForm = (requirement: Requirement | ReportRequirement, index: number) => {

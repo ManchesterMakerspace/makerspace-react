@@ -1,53 +1,64 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
 
-import { getMember, putMember } from "api/members/transactions";
 import { Action as MemberAction } from "ui/member/constants";
 import { MemberState } from "ui/member/interfaces";
-import { MemberDetails } from "app/entities/member";
+import { getMember, isApiErrorResponse, adminUpdateMember, updateMember, Member } from "makerspace-ts-api-client";
 
 export const readMemberAction = (
   memberId: string
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MemberAction.StartReadRequest });
 
-  try {
-    const response = await getMember(memberId);
-    const { data } = response;
-    dispatch({
-      type: MemberAction.GetMemberSuccess,
-      data: data.member
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await getMember(memberId);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MemberAction.GetMemberFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: MemberAction.GetMemberSuccess,
+      data: result.data
     });
   }
 };
 
+type SelfUpdate = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  signature: string;
+}
 export const updateMemberAction = (
   memberId: string,
-  updateDetails: Partial<MemberDetails>,
+  updateDetails: Member | SelfUpdate,
   isAdmin: boolean = false
-): ThunkAction<Promise<MemberDetails>, {}, {}, AnyAction > => async (dispatch) => {
+): ThunkAction<Promise<Member>, {}, {}, AnyAction > => async (dispatch) => {
   dispatch({ type: MemberAction.StartUpdateRequest });
-  try {
-    const response = await putMember(memberId, updateDetails, isAdmin);
-    const { member } = response.data;
-    dispatch({
-      type: MemberAction.UpdateMemberSuccess,
-      data: member
-    });
-    return member;
-  } catch (e) {
-    const { errorMessage } = e;
+
+  let updatedMember: Member;
+  let result;
+  if (isAdmin) {
+    result = await adminUpdateMember(memberId, updateDetails as Member);
+  } else {
+    result = await updateMember(memberId, updateDetails as SelfUpdate);
+  }
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: MemberAction.UpdateMemberFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    updatedMember = result.data;
+    dispatch({
+      type: MemberAction.UpdateMemberSuccess,
+      data: updatedMember
     });
   }
+  return updatedMember;
 }
 
 const defaultState: MemberState = {

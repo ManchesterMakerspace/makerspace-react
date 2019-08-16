@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { InvoiceOption } from "app/entities/invoice";
+import { InvoiceOption } from "makerspace-ts-api-client";
 import { CrudOperation } from "app/constants";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";

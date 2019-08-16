@@ -1,17 +1,16 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
-import { Rental } from "app/entities/rental";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import Form from "ui/common/Form";
-import { Subscription } from "app/entities/subscription";
-import { Invoice } from "app/entities/invoice";
+import { Subscription } from "makerspace-ts-api-client";
 import { timeToDate } from "ui/utils/timeToDate";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 interface OwnProps {
   subscription: Partial<Subscription>;
-  invoice: Partial<Invoice>;
+  invoice: Partial<MemberInvoice | RentalInvoice>;
   isOpen: boolean;
   isRequesting: boolean;
   error: string;
@@ -43,7 +42,7 @@ class CancelMembershipModal extends React.Component<OwnProps, {}> {
         <Typography gutterBottom>
           Are you sure you want to cancel your recurring membership?  This action cannot be undone.
         </Typography>
-        { invoice && 
+        { invoice &&
           <>
             <KeyValueItem label="Name">
               <span id="cancel-subscription-name">{invoice.name}</span>
@@ -53,7 +52,7 @@ class CancelMembershipModal extends React.Component<OwnProps, {}> {
             </KeyValueItem>
           </>
         }
-        
+
         <KeyValueItem label="Status">
           <span id="cancel-subscription-status">{`${subscription.status}`}</span>
         </KeyValueItem>

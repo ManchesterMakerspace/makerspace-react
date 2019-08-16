@@ -1,5 +1,5 @@
 import { FormFields } from "ui/common/Form";
-import { Requirement } from "app/entities/earnedMembership";
+import { Requirement } from "makerspace-ts-api-client";
 import isObject from "lodash-es/isObject";
 import { SelectOption } from "ui/common/RenewalForm";
 

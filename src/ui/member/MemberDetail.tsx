@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import { displayMemberExpiration } from "ui/member/utils";
@@ -17,7 +17,6 @@ import MemberStatusLabel from "ui/member/MemberStatusLabel";
 import UpdateMemberContainer, { UpdateMemberRenderProps } from "ui/member/UpdateMemberContainer";
 import { memberToRenewal } from "ui/member/utils";
 import { membershipRenewalOptions } from "ui/members/constants";
-import AccessCardForm from "ui/accessCards/AccessCardForm";
 import InvoicesList from "ui/invoices/InvoicesList";
 import RentalsList from "ui/rentals/RentalsList";
 import { Routing, CrudOperation } from "app/constants";
@@ -26,7 +25,7 @@ import NotificationModal, { Notification } from "ui/member/NotificationModal";
 import { Whitelists } from "app/constants";
 import SignDocuments from "ui/auth/SignDocuments";
 import { getDetailsForMember } from "ui/membership/constants";
-import AccessCardContainer, { CreateAccessCardProps } from "ui/accessCards/AccessCardContainer";
+import AccessCardForm from "ui/accessCards/AccessCardForm";
 import ReportList from "ui/reports/ReportList";
 import { readMembershipAction } from "ui/earnedMemberships/actions";
 import TransactionsList from "ui/transactions/TransactionsList";
@@ -42,7 +41,7 @@ interface StateProps {
   isRequestingMember: boolean;
   isUpdatingMember: boolean;
   updateMemberError: string;
-  member: MemberDetails,
+  member: Member,
   currentUserId: string;
   subscriptionId: string;
   billingEnabled: boolean;
@@ -86,7 +85,7 @@ class MemberDetail extends React.Component<Props, State> {
   }
 
   public componentDidMount() {
-    this.props.getMember();
+    this.props.getMember()
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -290,16 +289,6 @@ class MemberDetail extends React.Component<Props, State> {
         onSubmit={renderProps.submit}
         />
     )
-    const accessCardForm = (renderProps:CreateAccessCardProps) => (
-      <AccessCardForm
-        isOpen={renderProps.isOpen}
-        member={renderProps.member}
-        isRequesting={renderProps.isRequesting}
-        error={renderProps.error}
-        onClose={renderProps.onClose}
-        createAccessCard={renderProps.createAccessCard}
-      />
-    )
 
     return (admin &&
       <>
@@ -317,12 +306,10 @@ class MemberDetail extends React.Component<Props, State> {
           closeHandler={this.closeEditModal}
           render={editForm}
         />
-        <AccessCardContainer
-          isOpen={isCardOpen}
+        {isCardOpen && <AccessCardForm
           member={member}
-          closeHandler={this.closeCardModal}
-          render={accessCardForm}
-        />
+          onClose={this.closeCardModal}
+        />}
       </>
     )
   }
@@ -345,7 +332,7 @@ class MemberDetail extends React.Component<Props, State> {
 
 const mapStateToProps = (
   state: ReduxState,
-  _ownProps: OwnProps
+  ownProps: OwnProps
 ): StateProps => {
   const { isRequesting, error: requestingError } = state.member.read;
   const { isRequesting: isUpdating, error: updateError } = state.member.update
@@ -354,7 +341,7 @@ const mapStateToProps = (
   const { update: { isRequesting: invoiceUpdating, error: invoiceError } } = state.invoice;
 
   return {
-    admin: admin,
+    admin,
     member,
     requestingError,
     currentUserId,

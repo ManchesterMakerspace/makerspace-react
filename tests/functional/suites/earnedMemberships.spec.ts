@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { timeToDate } from "ui/utils/timeToDate";
-import { EarnedMembership, Report, Requirement, ReportRequirement } from "app/entities/earnedMembership";
-import auth, { LoginMember } from "../../pageObjects/auth";
+import { EarnedMembership, Report, Requirement, ReportRequirement } from "makerspace-ts-api-client";
+import { LoginMember } from "../../pageObjects/auth";
 import { adminUser, defaultMembers, basicUser } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
 import { defaultMemberships, basicEarnedMembership, basicRequirement, defaultReports, basicReport, basicReportRequirement } from "../../constants/earnedMembership";

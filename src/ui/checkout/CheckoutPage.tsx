@@ -7,7 +7,6 @@ import Button from "@material-ui/core/Button";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 
-import { Invoice } from "app/entities/invoice";
 import { CollectionOf } from "app/interfaces";
 
 import TableContainer from "ui/common/table/TableContainer";
@@ -20,9 +19,10 @@ import LoginForm from "ui/auth/LoginForm";
 import { BillingContext, Context } from "ui/billing/BillingContextContainer";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 interface Props {
-  invoices: CollectionOf<Invoice>;
+  invoices: CollectionOf<MemberInvoice | RentalInvoice>;
   error: string | { [key: string]: string };
   isRequesting: boolean;
   onSubmit: (paymentMethodId: string) => void;
@@ -56,16 +56,16 @@ class CheckoutPage extends React.Component<PropsWithContext, State> {
     });
   }
 
-  private getFields = (errorState: boolean = false): Column<Invoice>[] => [
+  private getFields = (errorState: boolean = false): Column<MemberInvoice | RentalInvoice>[] => [
     {
       id: "name",
       label: "Name",
-      cell: (row: Invoice) => row.name,
+      cell: (row: MemberInvoice | RentalInvoice) => row.name,
     },
     ...errorState ? []: [{
       id: "description",
       label: "Description",
-      cell: (row: Invoice) => {
+      cell: (row: MemberInvoice | RentalInvoice) => {
         const discounts = row.discountId && this.props.context.discounts.data;
         const discount = discounts && discounts.find(discount => discount.id === row.discountId);
         return (
@@ -84,13 +84,13 @@ class CheckoutPage extends React.Component<PropsWithContext, State> {
     {
       id: "amount",
       label: "Amount",
-      cell: (row: Invoice) => numberAsCurrency(row.amount),
+      cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
     },
     ...errorState ? [{
       id: "error",
       label: "Error",
-      cell: (row: Invoice) => {
-        const error = typeof this.props.error === 'object' ? 
+      cell: (row: MemberInvoice | RentalInvoice) => {
+        const error = typeof this.props.error === 'object' ?
                       this.props.error[row.id]
                       : this.props.error;
 
@@ -199,7 +199,7 @@ class CheckoutPage extends React.Component<PropsWithContext, State> {
       </Dialog>
     );
   }
-  private rowId = (row: Invoice) => row.id;
+  private rowId = (row: MemberInvoice | RentalInvoice) => row.id;
   public render(): JSX.Element {
     const { isRequesting, error } = this.props;
 

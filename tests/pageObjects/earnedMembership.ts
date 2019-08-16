@@ -1,7 +1,7 @@
 import { TablePageObject } from "./table";
 import { Routing } from "app/constants";
 import { timeToDate } from "ui/utils/timeToDate";
-import { EarnedMembership } from "app/entities/earnedMembership";
+import { EarnedMembership } from "makerspace-ts-api-client";
 
 const tableId = "memberships-table";
 const emListFields = ["lastname", "expirationTime", "status"];

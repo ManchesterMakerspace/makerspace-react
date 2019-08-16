@@ -1,76 +1,55 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { Invoice } from "app/entities/invoice";
-import { getInvoice, putInvoice, deleteInvoice } from "api/invoices/transactions";
 import { Action as InvoiceAction } from "ui/invoice/constants";
 import { Action as InvoicesAction } from "ui/invoices/constants";
 import { InvoiceState } from "ui/invoice/interfaces";
-
-export const readInvoiceAction = (
-  invoiceId: string
-): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
-  dispatch({ type: InvoiceAction.StartReadRequest });
-
-  try {
-    const { data } = await getInvoice(invoiceId);
-    dispatch({
-      type: InvoiceAction.GetInvoiceSuccess,
-      data: data.invoice
-    })
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: InvoiceAction.GetInvoiceFailure,
-      error: errorMessage
-    });
-  }
-};
+import { adminUpdateInvoice, isApiErrorResponse, adminDeleteInvoice } from "makerspace-ts-api-client";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 
 export const updateInvoiceAction = (
   invoiceId: string,
-  updateDetails: Partial<Invoice>
+  updateDetails: MemberInvoice | RentalInvoice
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: InvoiceAction.StartUpdateRequest });
 
-  try {
-    const response = await putInvoice(invoiceId, updateDetails);
-    const { invoice } = response.data;
-    dispatch({
-      type: InvoiceAction.UpdateInvoiceSuccess,
-      data: invoice
-    });
-    dispatch({
-      type: InvoicesAction.UpdateInvoiceSuccess,
-      data: invoice
-    });
-  } catch (e) {
-    const { errorMessage } = e;
+  const result = await adminUpdateInvoice(invoiceId, updateDetails);
+
+  if (isApiErrorResponse(result)) {
     dispatch({
       type: InvoiceAction.UpdateInvoiceFailure,
-      error: errorMessage
+      error: result.error.message
+    });
+  } else {
+    dispatch({
+      type: InvoicesAction.UpdateInvoiceSuccess,
+      data: result.data
+    });
+    dispatch({
+      type: InvoiceAction.UpdateInvoiceSuccess,
+      data: result.data
     });
   }
-}
+};
 
 export const deleteInvoiceAction = (
   invoiceId: string,
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: InvoiceAction.StartDeleteRequest });
 
-  try {
-    await deleteInvoice(invoiceId);
+  const result = await adminDeleteInvoice(invoiceId);
+
+  if (isApiErrorResponse(result)) {
+    dispatch({
+      type: InvoiceAction.DeleteInvoiceFailure,
+      error: result.error.message
+    });
+  } else {
     dispatch({
       type: InvoiceAction.DeleteInvoiceSuccess,
     });
     dispatch({
       type: InvoicesAction.DeleteInvoiceSuccess,
       data: invoiceId
-    });
-  } catch (e) {
-    const { errorMessage } = e;
-    dispatch({
-      type: InvoiceAction.DeleteInvoiceFailure,
-      error: errorMessage
     });
   }
 }

@@ -1,12 +1,14 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import { Invoice,
+import {
   InvoiceableResource,
   isInvoiceOptionSelection,
   InvoiceOptionSelection,
-  InvoiceOption
+  MemberInvoice,
+  RentalInvoice
 } from "app/entities/invoice";
+import { InvoiceOption } from "makerspace-ts-api-client";
 import { CrudOperation } from "app/constants";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
@@ -26,7 +28,7 @@ export interface UpdateInvoiceRenderProps extends Props {
   setRef: (ref: InvoiceForm | SettleInvoiceModal | DeleteInvoiceModal) => void;
 }
 interface OwnProps {
-  invoice?: Partial<Invoice>;
+  invoice?: Partial<MemberInvoice | RentalInvoice>;
   customBillingEnabled: boolean;
   isOpen: boolean;
   operation: CrudOperation;
@@ -42,7 +44,7 @@ interface StateProps {
   optionsError: string;
 }
 interface DispatchProps {
-  dispatchInvoice: (updatedInvoice: Invoice) => void;
+  dispatchInvoice: (updatedInvoice: MemberInvoice | RentalInvoice) => void;
   getInvoiceOptions: (type: InvoiceableResource) => void;
   dispatchInvoiceOptionSelect: (invoiceOption: InvoiceOptionSelection) => void;
 }
@@ -62,12 +64,12 @@ class UpdateInvoice extends React.Component<Props, {}> {
 
   private submit = async (form: Form): Promise<boolean> => {
     const { invoice } = this.props;
-    let validUpdate: Invoice;
+    let validUpdate: MemberInvoice | RentalInvoice;
     if (this.formRef.validate) {
       validUpdate = this.formRef.validate && await this.formRef.validate(form);
     }
     if (!form.isValid()) return;
-    
+
     if (validUpdate && isInvoiceOptionSelection(validUpdate)) {
       await this.props.dispatchInvoiceOptionSelect(validUpdate);
     } else {

@@ -7,7 +7,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import isUndefined from "lodash-es/isUndefined";
 
-import { MemberDetails, MemberStatus, MemberRole } from "app/entities/member";
+import { MemberStatus, MemberRole } from "app/entities/member";
 import { QueryParams, CollectionOf } from "app/interfaces";
 
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
@@ -27,15 +27,17 @@ import { memberToRenewal } from "ui/member/utils";
 import UpdateMemberContainer, { UpdateMemberRenderProps } from "ui/member/UpdateMemberContainer";
 import { CrudOperation } from "app/constants";
 
+import { Member } from "makerspace-ts-api-client";
+
 interface OwnProps extends RouteComponentProps<{}> {}
 interface DispatchProps {
   getMembers: (queryParams?: QueryParams) => void;
-  updateMember: (id: string, details: Partial<MemberDetails>, isAdmin: boolean) => void;
+  updateMember: (id: string, details: Member, isAdmin: boolean) => void;
   goToMemberProfile: (id: string) => void;
 }
 interface StateProps {
   admin: boolean;
-  members: CollectionOf<MemberDetails>;
+  members: CollectionOf<Member>;
   totalItems: number;
   loading: boolean;
   error: string;
@@ -56,11 +58,11 @@ interface State {
   openCreateForm: boolean;
 }
 
-const fields: Column<MemberDetails>[] = [
+const fields: Column<Member>[] = [
   {
     id: "lastname",
     label: "Name",
-    cell: (row: MemberDetails) => <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>,
+    cell: (row: Member) => <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>,
     defaultSortDirection: SortDirection.Desc,
   },
   {
@@ -72,7 +74,7 @@ const fields: Column<MemberDetails>[] = [
   {
     id: "status",
     label: "Status",
-    cell: (row: MemberDetails) => <MemberStatusLabel member={row}/>
+    cell: (row: Member) => <MemberStatusLabel member={row}/>
   },
 ];
 
@@ -154,7 +156,7 @@ class MembersList extends React.Component<Props, State> {
         />
         <UpdateMemberContainer
           isOpen={openCreateForm}
-          member={{ status: MemberStatus.Active, role: MemberRole.Member } as Partial<MemberDetails>}
+          member={{ status: MemberStatus.Active, role: MemberRole.Member } as Partial<Member>}
           closeHandler={this.closeCreateForm}
           render={createForm}
           operation={CrudOperation.Create}
@@ -227,7 +229,7 @@ class MembersList extends React.Component<Props, State> {
     this.setState({ selectedId: undefined });
     this.props.getMembers(this.getQueryParams());
   }
-  private rowId = (row: MemberDetails) => row.id;
+  private rowId = (row: Member) => row.id;
 
   private onSort = (prop: string) => {
     const orderBy = prop;
@@ -366,7 +368,7 @@ const mapDispatchToProps = (
 ): DispatchProps => {
   return {
     getMembers: (queryParams) => dispatch(readMembersAction(queryParams)),
-    updateMember: (id, memberDetails, admin) => dispatch(updateMemberAction(id, memberDetails, admin)),
+    updateMember: (id, Member, admin) => dispatch(updateMemberAction(id, Member, admin)),
     goToMemberProfile: (id) => dispatch(push(buildProfileRouting(id))),
   }
 }

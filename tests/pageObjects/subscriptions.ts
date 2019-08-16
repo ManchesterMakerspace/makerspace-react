@@ -1,7 +1,6 @@
 import { TablePageObject } from "./table";
 import { Routing } from "app/constants";
-import { Subscription } from "app/entities/subscription";
-import { MemberDetails } from "app/entities/member";
+import { Member, Subscription } from "makerspace-ts-api-client";
 import { timeToDate } from "ui/utils/timeToDate";
 
 const tableId = "subscriptions-table";
@@ -10,7 +9,7 @@ const fields = ["nextBilling", "resourceClass", "memberName", "amount", "status"
 class SubscriptionsPageObject extends TablePageObject {
   public listUrl = Routing.Billing
 
-  public fieldEvaluator = (member?: Partial<MemberDetails>) => (subscription: Partial<Subscription>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member?: Partial<Member>) => (subscription: Partial<Subscription>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "nextBilling") {
       expect(text).toEqual(timeToDate(subscription.nextBillingDate));

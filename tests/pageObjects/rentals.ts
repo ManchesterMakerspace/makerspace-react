@@ -1,7 +1,6 @@
 import { TablePageObject } from "./table";
 import { Routing } from "app/constants";
-import { Rental } from "app/entities/rental";
-import { MemberDetails } from "app/entities/member";
+import { Member, Rental } from "makerspace-ts-api-client";
 import { timeToDate } from "ui/utils/timeToDate";
 
 const tableId = "rentals-table";
@@ -11,7 +10,7 @@ const rentalsListFields = ["number", "description", "expiration", "status"];
 class RentalsPageObject extends TablePageObject {
   public listUrl = Routing.Rentals
 
-  public fieldEvaluator = (member?: Partial<MemberDetails>) => (rental: Partial<Rental>) => (fieldContent: { field: string, text: string }) => {
+  public fieldEvaluator = (member?: Partial<Member>) => (rental: Partial<Rental>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "expiration") {
       expect(text).toEqual(rental.expiration ? timeToDate(rental.expiration) : "N/A");

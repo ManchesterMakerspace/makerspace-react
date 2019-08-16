@@ -1,12 +1,3 @@
-  export interface AccessCard {
-    id: string;
-    uid: string;
-    holder: string;
-    expiry: number;
-    validity: CardStatus | CardLocation;
-    cardLocation: CardLocation
-  }
-
   export enum Properties {
     Id = "id",
     Uid = "uid",

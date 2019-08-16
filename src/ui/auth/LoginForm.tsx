@@ -16,7 +16,7 @@ import { AuthForm } from "ui/auth/interfaces";
 import ErrorMessage from "ui/common/ErrorMessage";
 import Form from "ui/common/Form";
 import FormModal from "ui/common/FormModal";
-import { requestNewPassword } from "api/auth/transactions";
+import { requestPasswordReset, isApiErrorResponse } from "makerspace-ts-api-client";
 
 const formPrefix = "request-password-reset";
 const passwordFields = {
@@ -93,12 +93,11 @@ class LoginForm extends React.Component<Props, State> {
     if (!form.isValid()) return;
 
     this.setState({ requestingPassword: true}, async () => {
-      try {
-        await requestNewPassword(email);
+      const response = await requestPasswordReset({ email });
+      if (isApiErrorResponse(response)) {
+        this.setState({ requestingPassword: false, passwordError: response.error.message });
+      } else {
         this.setState({ requestingPassword: false, passwordError: "", email });
-      } catch (e) {
-        const { errorMessage } = e;
-        this.setState({ requestingPassword: false, passwordError: errorMessage });
       }
     });
   }

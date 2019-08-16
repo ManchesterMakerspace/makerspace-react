@@ -1,8 +1,8 @@
 import { Routing } from "app/constants";
-import { MemberDetails } from "app/entities/member";
+import { Member } from "makerspace-ts-api-client";
 import utils from "./common";
 
-export interface LoginMember extends Partial<MemberDetails> {
+export interface LoginMember extends Partial<Member> {
   email: string;
   password: string;
   expirationTime: any;

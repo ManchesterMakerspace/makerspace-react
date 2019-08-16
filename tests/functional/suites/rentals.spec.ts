@@ -7,7 +7,7 @@ import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import rentalsPO from "../../pageObjects/rentals";
 import renewPO from "../../pageObjects/renewalForm";
-import { Rental } from "app/entities/rental";
+import { Rental } from "makerspace-ts-api-client";
 import { defaultRental, defaultRentals } from "../../constants/rental";
 import { autoLogin } from "../autoLogin";
 

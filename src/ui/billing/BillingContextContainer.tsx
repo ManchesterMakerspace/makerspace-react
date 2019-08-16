@@ -1,13 +1,18 @@
 import * as React from "react";
 
-import { BillingPlan, Discount } from "app/entities/billingPlan";
-import { getDiscounts, getPlans } from "api/billingPlans/transactions";
 import { InvoiceableResource } from "app/entities/invoice";
+import {
+  Plan,
+  Discount,
+  adminListBillingPlans,
+  adminListBillingPlanDiscounts,
+  isApiErrorResponse
+} from "makerspace-ts-api-client";
 
 export interface Context {
   plans: {
     loading: boolean;
-    data: BillingPlan[];
+    data: Plan[];
     error: string;
     refresh: (types?: InvoiceableResource[]) => void;
   };
@@ -62,14 +67,14 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
         loading: true,
       },
     }), async () => {
-      let data: BillingPlan[];
+      let data: Plan[];
       let error: string;
-      try {
-        const response = await getPlans({ types });
-        data = response.data.plans;
-      } catch (e) {
-        const { errorMessage } = e;
-        error = errorMessage;
+      const result = await adminListBillingPlans({ types });
+
+      if (isApiErrorResponse(result)) {
+        error = result.error.message;
+      } else {
+        data = result.data;
       }
       this.setState((state) => ({
         plans: {
@@ -91,12 +96,12 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
     }), async () => {
       let data: Discount[];
       let error: string;
-      try {
-        const response = await getDiscounts();
-        data = response.data.discounts;
-      } catch (e) {
-        const { errorMessage } = e;
-        error = errorMessage;
+
+      const result = await adminListBillingPlanDiscounts();
+      if (isApiErrorResponse(result)) {
+        error = result.error.message;
+      } else {
+        data = result.data;
       }
       this.setState((state) => ({
         discounts: {

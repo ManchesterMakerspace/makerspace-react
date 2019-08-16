@@ -7,8 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import MembershipSelectForm from "ui/membership/MembershipSelectForm";
 import Form from "ui/common/Form";
-import { Subscription } from "app/entities/subscription";
-import { readSubscriptionAction, deleteSubscriptionAction, updateSubscriptionAction } from "ui/subscriptions/actions";
+import { readSubscriptionAction } from "ui/subscriptions/actions";
 import KeyValueItem from "ui/common/KeyValueItem";
 import { displayMemberExpiration } from "ui/member/utils";
 import LoadingOverlay from "ui/common/LoadingOverlay";
@@ -20,12 +19,12 @@ import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import UpdateMembershipContainer, { UpdateSubscriptionRenderProps } from "ui/membership/UpdateMembershipContainer";
 import CancelMembershipModal from "ui/membership/CancelMembershipModal";
 import { CrudOperation, Routing } from "app/constants";
-import { Invoice, InvoiceOptionSelection } from "app/entities/invoice";
+import { InvoiceOptionSelection, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import PaymentMethodsContainer from "ui/checkout/PaymentMethodsContainer";
 import { push } from "connected-react-router";
-import { MemberDetails } from "app/entities/member";
 import { readMemberAction } from "ui/member/actions";
+import { Member, Subscription} from "makerspace-ts-api-client";
 
 /*
 View Current Membership Info
@@ -63,11 +62,11 @@ interface DispatchProps {
 }
 interface OwnProps {
   subscriptionId: string;
-  member: MemberDetails;
+  member: Member;
 }
 interface StateProps {
   subscription: Subscription;
-  invoice: Invoice;
+  invoice: MemberInvoice | RentalInvoice;
   isRequesting: boolean;
   error: string;
   selectedOption: InvoiceOptionSelection;
@@ -210,7 +209,7 @@ class UpdateMembershipForm extends React.Component<Props, State> {
           isOpen={openMembershipSelect}
           subscription={subscription}
           discountId={selectedOption && selectedOption.discountId}
-          membershipOptionId={selectedOption && selectedOption.invoiceOptionId}
+          membershipOptionId={selectedOption && selectedOption.id}
           invoice={invoice}
           closeHandler={this.closeMembershipSelect}
           render={membershipSelectForm}
@@ -304,10 +303,10 @@ class UpdateMembershipForm extends React.Component<Props, State> {
           <Typography>{details.description}</Typography>
         </Grid>
         <Grid item xs={12}>
-          <Button 
+          <Button
             id="settings-create-membership-button"
-            variant="contained" 
-            disabled={!details.allowMod} 
+            variant="contained"
+            disabled={!details.allowMod}
             onClick={this.openMembershipSelect}
           >
             {member.expirationTime ? "Update Membership" : "Create Membership"}
