@@ -2,14 +2,14 @@ import { Key, WebElement } from "selenium-webdriver";
 import { toDatePicker } from "ui/utils/timeToDate";
 import { matchPath } from "react-router";
 
-export const rootURL = `http://${process.env.APP_DOMAIN || 'localhost'}:${process.env.PORT || 3035}`;
+export const rootURL = `http://${process.env.APP_DOMAIN}${process.env.PORT ? `:${process.env.PORT}` : ""}`;
 
 export class PageUtils {
   private waitUntilTime = 10 * 1000;
 
   // programatically set timeout for locating functions
-  public setLocatorTimeout = (number: number) => {
-    this.waitUntilTime = number;
+  public setLocatorTimeout = (num: number) => {
+    this.waitUntilTime = num;
   }
 
   public buildUrl = (path?: string) => `${rootURL}${path ? path : ""}`;
