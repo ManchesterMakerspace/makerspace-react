@@ -15,7 +15,7 @@
     "connected-react-router": "^6.4.0",
     "history": "^4.7.2",
     "lodash-es": "^4.17.11",
-    "makerspace-ts-api-client": "^0.3.5",
+    "makerspace-ts-api-client": "^0.3.7",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "paypal-checkout": "^4.0.217",
@@ -88,8 +88,8 @@
     "build": "$(npm bin)/webpack",
     "test": "$(npm bin)/jest --no-cache",
     "test-watch": "yarn test --watch",
-    "test-functional": "yarn test --testRegex='/tests/functional/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/functional/setup.js'",
-    "test-integration": "yarn test --testRegex='/tests/integration/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/integration/setup.js'"
+    "test-functional": "yarn test --testRegex='/tests/functional/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/reporters/setup.js'",
+    "test-integration": "yarn test --testRegex='/tests/integration/runner.spec.ts' --setupTestFrameworkScriptFile='<rootDir>/tests/reporters/setup.js'"
   },
   "jest": {
     "collectCoverage": false,

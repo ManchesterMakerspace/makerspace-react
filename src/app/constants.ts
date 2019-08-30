@@ -54,7 +54,6 @@ export namespace Url {
       Transaction: `${baseAdminPath}/billing/transactions/${PathPlaceholder.TransactionId}`,
     },
     Permissions: `${baseAdminPath}/permissions`,
-    Permission: `${baseAdminPath}/permissions/${PathPlaceholder.MemberId}`,
 
     EarnedMemberships: `${baseAdminPath}/earned_memberships`,
     EarnedMembership: `${baseAdminPath}/earned_memberships/${PathPlaceholder.MembershipId}`,

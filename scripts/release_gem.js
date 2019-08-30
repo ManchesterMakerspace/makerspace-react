@@ -4,7 +4,7 @@ const simpleGit = require("simple-git/promise");
 const exec = require("child_process").exec;
 
 const gemName = "makerspace-react-rails";
-const gemFolder = path.join(process.cwd(), gemName);
+const gemFolder = path.join(process.cwd(), "tmp", gemName);
 
 const gemRepo = {
   url: "https://github.com/ManchesterMakerspace/makerspace-react-rails.git",
@@ -34,7 +34,7 @@ const packageGem = async (newVersion) => {
   let git = simpleGit();
 
   if (!fs.existsSync(gemFolder)) {
-    await git.clone(gemRepo.url);
+    await git.clone(gemRepo.url, gemFolder);
   }
 
   // Read current version
