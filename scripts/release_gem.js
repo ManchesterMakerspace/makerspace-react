@@ -4,7 +4,7 @@ const simpleGit = require("simple-git/promise");
 const exec = require("child_process").exec;
 
 const gemName = "makerspace-react-rails";
-export const tmp = path.join(process.cwd(), "tmp");
+const tmp = path.join(process.cwd(), "tmp");
 const gemFolder = path.join(process.cwd(), "tmp", gemName);
 
 const gemRepo = {
