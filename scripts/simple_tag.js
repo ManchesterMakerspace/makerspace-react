@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const os = require("os");
 const remote = (repo) => `https://${process.env.USERNAME}:${process.env.PASSPHRASE}@github.com/ManchesterMakerspace/${repo}.git`
+const tmp = path.join(process.cwd(), "tmp");
 
 const patchRegex = /#(patch)\b/m;
 const minorRegex = /#(minor)\b/m;
@@ -13,11 +14,15 @@ module.exports.tagRepo = async (repo, forceTag) => {
   let git = simpleGit();
   let nextTag = forceTag;
 
+  if (!fs.existsSync(tmp)) {
+    fs.mkdirSync(tmp);
+  }
+
   let repoRemote = remote(repo);
-  const repoPath = path.join(process.cwd(), repo);
+  const repoPath = path.join(process.cwd(), "tmp", repo);
 
   if (!fs.existsSync(repoPath)) {
-    await git.clone(repoRemote);
+    await git.clone(repoRemote, repoPath);
   }
   git = simpleGit(repoPath);
   await git.silent(true); // Silence any errors to prevent logging of credentials
