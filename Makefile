@@ -5,12 +5,13 @@ DC_INTEGRATION=docker-compose -f Docker/docker-compose/integration.yml -p $(PROJ
 
 start: dev-up
 test: clean-test test-up functional-up
-upload_screenshots: 
+upload_screenshots:
 	node tests/uploadScreenshots.js
-deploy: 
+deploy:
 	yarn build
 	node scripts/release.js
-
+integration:
+	APP_DOMAIN=$(APP_DOMAIN) ${MAKE} start-int
 
 start-func: clean-test functional-up
 start-func-dev: clean-test functional-up-interactive

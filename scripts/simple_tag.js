@@ -14,7 +14,7 @@ module.exports.tagRepo = async (repo, forceTag) => {
   let nextTag = forceTag;
 
   let repoRemote = remote(repo);
-  const repoPath = path.join(process.cwd(), repo);
+  const repoPath = path.join(process.cwd(), "tmp", repo);
 
   if (!fs.existsSync(repoPath)) {
     await git.clone(repoRemote);

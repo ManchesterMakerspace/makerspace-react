@@ -9,6 +9,11 @@ if [ "${LOCAL}" == "TRUE" ]; then
   MOCKSERVER_DOMAIN=0.0.0.0
 fi
 
+  app="http://${APP_DOMAIN}:${PORT}"
+if [ -z "${PORT}" ]; then
+  app="http://${APP_DOMAIN}"
+fi
+
 echo "Waiting.."
 if [ ${SELENIUM_ADDRESS} ]; then
   echo "Waiting for selenium to start..."
@@ -26,11 +31,11 @@ if [ ${SELENIUM_ADDRESS} ]; then
 fi
 
 echo "Waiting for application to start..."
-while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://${APP_DOMAIN}:${PORT})" != "200" ]]; do 
-    sleep 5; 
+while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' ${app})" != "200" ]]; do
+    sleep 5;
     ((max_wait_seconds-=5))
-    ((max_wait_seconds%15==0)) && echo "...waiting for application at http://${APP_DOMAIN}:${PORT}"
-    ((max_wait_seconds == 0)) && echo "FAILED waiting for application at http://${APP_DOMAIN}:${PORT}" && exit 1
+    ((max_wait_seconds%15==0)) && echo "...waiting for application at ${app}"
+    ((max_wait_seconds == 0)) && echo "FAILED waiting for application at ${app}" && exit 1
 done
 echo "Application ready"
 
@@ -38,7 +43,7 @@ echo "# All containers ready."
 if [ "${INTERACTIVE}" == "TRUE" ]; then
   echo "Dev available"
   echo "Selenium: 0.0.0.0:4444/wd/hub"
-  echo "App: 0.0.0.0:${PORT}"
+  echo "App: ${app}"
   /bin/bash
 else
   echo "Interactive: ${INTERACTIVE}"

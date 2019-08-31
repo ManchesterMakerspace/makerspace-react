@@ -368,18 +368,6 @@ export const mockRequests = {
         }
       })
     },
-    put: {
-      ok: (memberId: string, permissions: CollectionOf<Permission>) => ({
-        httpRequest: {
-          method: Method.Put,
-          path: `/${Url.Admin.Permissions}/${memberId}`,
-        },
-        httpResponse: {
-          statusCode: 200,
-          body: JSON.stringify({ permissions })
-        }
-      })
-    },
   },
   rejectionCard: {
     get: {

@@ -143,6 +143,7 @@ class SignDocuments extends React.Component<Props, State>{
 
   // Verify signature and call submit callback
   private completeDocuments = async (form: Form) => {
+    const { currentUser: { firstname, lastname, email } } = this.props;
     const documentField = this.documents()[Documents.memberContract];
 
     await form.simpleValidate({ [Documents.memberContract]: documentField });
@@ -153,10 +154,11 @@ class SignDocuments extends React.Component<Props, State>{
       this.setState({ documentError: "Signature required to proceed" });
       return;
     }
-    const signature = this.signatureRef.toDataURL();
+    const signature: string = this.signatureRef.toDataURL();
     try {
       this.setState({ signatureUploading: true });
-      await updateMember(this.props.currentUser && this.props.currentUser.id, signature);
+      // TODO: Forcing firstname, lastname & email kinda sucks
+      await updateMember(this.props.currentUser && this.props.currentUser.id, { firstname, lastname, email, signature: signature });
       this.setState({ signatureUploading: false, signatureUploadError: "" });
     } catch (e) {
       this.setState({ signatureUploading: false, signatureUploadError: e });

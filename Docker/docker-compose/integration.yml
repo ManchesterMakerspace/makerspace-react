@@ -1,41 +1,30 @@
 version: '2'
 services:
-  react:
-    extends:
-      file: app.yml
-      service: react
-    environment:
-      - INTERACTIVE
-      - LOCAL
-      - API_DOMAIN=http://react:3002
-      - BILLING_ENABLED=true
-    command: bash -c "RAILS_ENV=test bundle exec rake db:db_reset && /bin/start_dev.sh"
   tester:
+    network_mode: "host"
     build:
       context: ../..
-      dockerfile: Docker/Dockerfiles/tester
-    volumes_from:
-      - react
+      dockerfile: Docker/Dockerfiles/integration
+    volumes:
+      - ../..:/usr/src/app
+      - '/usr/src/app/node_modules'
     links:
       - selenium
-      - react
-    depends_on:
-      - react
     environment:
       - LOCAL
       - INTERACTIVE
-      - APP_DOMAIN=react
-      - PORT=3035
+      - APP_DOMAIN
+      - PORT
+      - CONFIG=integration
       - SELENIUM_ADDRESS=http://selenium:4444/wd/hub
       - BILLING_ENABLED=true
     tty: true
   selenium:
+    network_mode: "host"
     image: selenium/standalone-chrome:latest
     ports:
     - 4444:4444
     - 5900
-    links:
-      - react
     tty: false
     logging:
       driver: "none"
