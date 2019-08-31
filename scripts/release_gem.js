@@ -4,6 +4,7 @@ const simpleGit = require("simple-git/promise");
 const exec = require("child_process").exec;
 
 const gemName = "makerspace-react-rails";
+export const tmp = path.join(process.cwd(), "tmp");
 const gemFolder = path.join(process.cwd(), "tmp", gemName);
 
 const gemRepo = {
@@ -31,6 +32,10 @@ const packageGem = async (newVersion) => {
     console.error("Cannot update gem, no version provided");
     return;
   }
+  if (!fs.existsSync(tmp)) {
+    fs.mkdirSync(tmp);
+  }
+
   let git = simpleGit();
 
   if (!fs.existsSync(gemFolder)) {
@@ -58,6 +63,10 @@ const packageGem = async (newVersion) => {
   cssFiles.forEach(writeFileToFolder(gemRepo.cssFolder));
 
   await publishGem(newVersion);
+
+  if (fs.existsSync(tmp)) {
+    fs.rmdirSync((tmp));
+  }
 }
 
 const publishGem = async (version) => {
