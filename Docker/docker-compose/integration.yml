@@ -8,15 +8,13 @@ services:
     volumes:
       - ../..:/usr/src/app
       - '/usr/src/app/node_modules'
-    links:
-      - selenium
     environment:
       - LOCAL
       - INTERACTIVE
       - APP_DOMAIN
       - PORT
       - CONFIG=integration
-      - SELENIUM_ADDRESS=http://selenium:4444/wd/hub
+      - SELENIUM_ADDRESS=http://localhost:4444/wd/hub
       - BILLING_ENABLED=true
     tty: true
   selenium:

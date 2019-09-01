@@ -13,7 +13,7 @@ beforeEach(() => {
 });
 
 // Initialize browser context
-fit('initialises the context', async () => {
+it('initialises the context', async () => {
   await browser.manage().window().setPosition(0, 0);
   await browser.manage().window().setSize(1280, 1024);
   await browser.get(rootURL);
