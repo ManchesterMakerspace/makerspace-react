@@ -26,7 +26,7 @@ describe("Member management", () => {
       return browser.get(utils.buildUrl());
     });
     // TODO customers should be able to skip picking a membership type (PayPal/ cash payments)
-    test("Customers can register from home page", async () => {
+    it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
       await memberPO.verifyProfileInfo({
@@ -69,9 +69,9 @@ describe("Member management", () => {
       // TODO: Verify new member, subscription & receipt emails
     });
   
-    test("Admins can register a customer manually", async () => {
+    it("Admins can register a customer manually", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
-      const cardId = "1819234";
+      const cardIds = ["0001", "0002", "0000"];
 
       await auth.goToLogin();
       await auth.signInUser(getAdminUserLogin());
@@ -103,10 +103,9 @@ describe("Member management", () => {
       expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
       await utils.clickElement(memberPO.memberDetail.openCardButton);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
-      await createRejectCard(cardId);
       await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
-      expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId);
+      expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPo.accessCardForm.error)).toBeFalsy();
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
