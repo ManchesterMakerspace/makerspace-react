@@ -1,17 +1,20 @@
 import * as moment from "moment";
+import { WebElement, By } from "selenium-webdriver";
+import { Routing } from "app/constants";
+import { getAdminUserLogin, creditCardNumbers } from "../../constants/api_seed_data";
+import { basicMembers } from "../../constants/member";
+import { takeScreenshot } from "../../helpers/screenshotHelper";
 import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
-import { basicMembers } from "../../constants/member";
 import header from "../../pageObjects/header";
 import memberPo from "../../pageObjects/member";
 import renewalPO from "../../pageObjects/renewalForm";
 import invoicePO from "../../pageObjects/invoice";
+import signup from "../../pageObjects/signup";
 import { checkout } from "../../pageObjects/checkout";
-import { Routing } from "app/constants";
-import { getAdminUserLogin, createRejectCard, creditCardNumbers } from "../../constants/api_seed_data";
-import { selfRegisterMember } from "../utils/auth";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
+import { selfRegisterMember } from "../utils/auth";
 
 const newVisa = {
   number: creditCardNumbers.visa,
@@ -19,8 +22,9 @@ const newVisa = {
   csv: "123",
   postalCode: "90210",
 }
+const cardIds = ["0001", "0002", "0000"];
 
-describe("Member management", () => {
+fdescribe("Member management", () => {
   describe("Registering", () => {
     beforeEach(() => {
       return browser.get(utils.buildUrl());
@@ -66,12 +70,61 @@ describe("Member management", () => {
       await utils.waitForPageLoad(Routing.Receipt);
       await utils.clickElement(checkout.backToProfileButton);
       await utils.waitForPageToMatch(Routing.Profile);
+      await utils.waitForNotVisible(memberPO.memberDetail.loading);
+      await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
+
+      // Verify no expiration set from user POV
+      await memberPO.verifyProfileInfo({
+        ...newMember,
+        expirationTime: undefined
+      });
+
       // TODO: Verify new member, subscription & receipt emails
-    });
+      
+      // Logout
+      await header.navigateTo(header.links.logout);
+      await utils.waitForVisible(header.loginLink);
+
+      // Login as Admin
+      await auth.goToLogin();
+      await auth.signInUser(getAdminUserLogin());
+      await utils.waitForPageToMatch(Routing.Profile);
+      await utils.waitForNotVisible(memberPO.memberDetail.loading);
+
+      // Search for newly created member
+      await header.navigateTo(header.links.members);
+      await utils.waitForPageLoad(memberPo.membersListUrl);
+      await utils.waitForNotVisible(memberPo.membersList.loading);
+      await utils.fillSearchInput(memberPo.membersList.searchInput, newMember.email);
+      await utils.waitForNotVisible(memberPo.getLoadingId());
+      const link: WebElement = await memberPO.getColumnByIndex(0, "lastname");
+      await link.findElement(By.css("a")).click();
+      await utils.waitForPageToMatch(Routing.Profile);
+      await utils.waitForNotVisible(memberPO.memberDetail.loading);
+
+      // Verify no expiration set from admin POV
+      await memberPO.verifyProfileInfo({
+        ...newMember,
+        expirationTime: undefined
+      });
+      expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
+      await utils.clickElement(memberPO.memberDetail.openCardButton);
+      await utils.waitForVisible(memberPO.accessCardForm.submit);
+      await utils.clickElement(memberPO.accessCardForm.importButton);
+      await utils.waitForNotVisible(memberPO.accessCardForm.loading);
+      expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      await utils.clickElement(memberPO.accessCardForm.submit);
+      expect(await utils.isElementDisplayed(memberPo.accessCardForm.error)).toBeFalsy();
+      await utils.waitForNotVisible(memberPO.accessCardForm.submit);
+
+      await memberPO.verifyProfileInfo({ // Verify registering card activates the membership
+        ...newMember,
+        expirationTime: moment().add(1, 'M').valueOf()
+      });
+    }, 300000);
   
     it("Admins can register a customer manually", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
-      const cardIds = ["0001", "0002", "0000"];
 
       await auth.goToLogin();
       await auth.signInUser(getAdminUserLogin());

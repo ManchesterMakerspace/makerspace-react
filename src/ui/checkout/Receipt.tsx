@@ -17,7 +17,7 @@ import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import { CollectionOf } from "app/interfaces";
 import { InvoiceableResourceDisplay, isMemberInvoice, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { isEmpty } from "lodash-es";
-import { buildProfileRouting } from "ui/member/utils";
+import { buildProfileRouting, displayMemberExpiration } from "ui/member/utils";
 import { Routing } from "app/constants";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { timeToDate } from "ui/utils/timeToDate";
@@ -87,7 +87,7 @@ class Receipt extends React.Component<Props> {
               <TableRow>
                 <TableCell>{invoiceType} expiration</TableCell>
                 <TableCell>
-                  {isMemberInvoice(invoice) ? String(invoice.member.expirationTime) : invoice.rental.expiration}
+                  {isMemberInvoice(invoice) ? displayMemberExpiration(invoice.member) : invoice.rental.expiration}
                 </TableCell>
               </TableRow>
 
