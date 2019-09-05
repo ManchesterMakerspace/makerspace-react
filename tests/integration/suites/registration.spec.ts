@@ -3,7 +3,6 @@ import { WebElement, By } from "selenium-webdriver";
 import { Routing } from "app/constants";
 import { getAdminUserLogin, creditCardNumbers } from "../../constants/api_seed_data";
 import { basicMembers } from "../../constants/member";
-import { takeScreenshot } from "../../helpers/screenshotHelper";
 import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
@@ -11,7 +10,6 @@ import header from "../../pageObjects/header";
 import memberPo from "../../pageObjects/member";
 import renewalPO from "../../pageObjects/renewalForm";
 import invoicePO from "../../pageObjects/invoice";
-import signup from "../../pageObjects/signup";
 import { checkout } from "../../pageObjects/checkout";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { selfRegisterMember } from "../utils/auth";
@@ -24,7 +22,7 @@ const newVisa = {
 }
 const cardIds = ["0001", "0002", "0000"];
 
-fdescribe("Member management", () => {
+describe("Member management", () => {
   describe("Registering", () => {
     beforeEach(() => {
       return browser.get(utils.buildUrl());
@@ -110,12 +108,12 @@ fdescribe("Member management", () => {
       expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
       await utils.clickElement(memberPO.memberDetail.openCardButton);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
-      await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
       expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPo.accessCardForm.error)).toBeFalsy();
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
+      await utils.waitForNotVisible(memberPO.memberDetail.loading);
 
       await memberPO.verifyProfileInfo({ // Verify registering card activates the membership
         ...newMember,
