@@ -25,9 +25,12 @@ interface Props extends OwnProps {}
 interface State {
   hostedFieldsInstance: any;
   braintreeError: Braintree.BraintreeError | string;
+  inputErrors: { [key: string]: string };
 }
 
 class CreditCardForm extends React.Component<Props, State> {
+  private formRef: Form;
+  private setFormRef = (ref: Form) => this.formRef = ref;
 
   constructor(props: Props) {
     super(props);
@@ -35,6 +38,7 @@ class CreditCardForm extends React.Component<Props, State> {
     this.state = {
       hostedFieldsInstance: undefined,
       braintreeError: undefined,
+      inputErrors: {}
     }
   }
 
@@ -57,26 +61,31 @@ class CreditCardForm extends React.Component<Props, State> {
       await Braintree.hostedFields.create({
         client: braintreeInstance,
         styles: {},
-        fields: {
-          number: {
-            selector: `#${CreditCardFields.cardNumber.name}`,
-            placeholder: CreditCardFields.cardNumber.placeholder
-          },
-          cvv: {
-            selector: `#${CreditCardFields.csv.name}`,
-            placeholder: CreditCardFields.csv.placeholder
-          },
-          expirationDate: {
-            selector: `#${CreditCardFields.expirationDate.name}`,
-            placeholder: CreditCardFields.expirationDate.placeholder,
-          },
-          postalCode: {
-            selector: `#${CreditCardFields.postalCode.name}`,
-            placeholder: CreditCardFields.postalCode.placeholder,
-          },
-        }
-      }, (err, hostedFieldsInstance) => {
+        fields: Object.entries(CreditCardFields).reduce((fields, [key, field]) => {
+          fields[key] = {
+            selector: `#${field.name}`,
+            placeholder: field.placeholder
+          }
+          return fields;
+        }, {} as Braintree.HostedFieldFieldOptions),
+      }, (err, hostedFieldsInstance: Braintree.HostedFields) => {
         if (err) throw err;
+        hostedFieldsInstance.on("validityChange",(event) => {
+          const { emittedBy, fields } = event;
+          const { isValid, isPotentiallyValid } = fields[emittedBy];
+          let error: string;
+          if (!isValid && !isPotentiallyValid && CreditCardFields[emittedBy]) {
+            error = "Invalid value";
+          }
+          this.setState(prevState => ({
+            ...prevState,
+            inputErrors: {
+              ...prevState.inputErrors,
+              [emittedBy]: error
+            }
+          }))
+        });
+
         this.setState({ hostedFieldsInstance: hostedFieldsInstance });
       });
     } catch (err) {
@@ -112,39 +121,52 @@ class CreditCardForm extends React.Component<Props, State> {
   }
 
   public render(): JSX.Element {
-    const { braintreeError } = this.state;
+    const { braintreeError, inputErrors } = this.state;
     const error = braintreeError && (isString(braintreeError) ? braintreeError : braintreeError.message);
 
     return (
       <>
         <Form
+          ref={this.setFormRef}
           onSubmit={this.requestPaymentMethod}
           onCancel={this.props.closeHandler}
           id="credit-card-form"
           title="Enter your credit or debit card information"
         >
           <HostedInput
-            label={CreditCardFields.cardNumber.label}
-            id={CreditCardFields.cardNumber.name}
+            label={CreditCardFields.number.label}
+            id={CreditCardFields.number.name}
           />
+          {inputErrors["number"] && 
+            <ErrorMessage error={inputErrors["number"]}/>
+          }
           <Grid container spacing={24}>
             <Grid item xs={6}>
               <HostedInput
                 label={CreditCardFields.expirationDate.label}
                 id={CreditCardFields.expirationDate.name}
               />
+              {inputErrors["expirationDate"] && 
+                <ErrorMessage error={inputErrors["expirationDate"]}/>
+              }
             </Grid>
             <Grid item xs={6}>
               <HostedInput
-                label={CreditCardFields.csv.label}
-                id={CreditCardFields.csv.name}
+                label={CreditCardFields.cvv.label}
+                id={CreditCardFields.cvv.name}
               />
+              {inputErrors["cvv"] && 
+                <ErrorMessage error={inputErrors["cvv"]}/>
+              }
             </Grid>
           </Grid>
           <HostedInput
             label={CreditCardFields.postalCode.label}
             id={CreditCardFields.postalCode.name}
           />
+          {inputErrors["postalCode"] && 
+            <ErrorMessage error={inputErrors["postalCode"]}/>
+          }
           {error && <ErrorMessage error={error} id="credit-card-error"/>}
         </Form>
       </>

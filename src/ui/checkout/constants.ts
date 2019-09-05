@@ -17,13 +17,13 @@ export enum Action {
 
 const formPrefix = "credit-card-form";
 export const CreditCardFields: FormFields = {
-  cardNumber: {
+  number: {
     label: "Credit or debit card number",
     name: `${formPrefix}-cardNumber`,
     placeholder: "4111 1111 1111 1111",
     validate: (val) => !!val
   },
-  csv: {
+  cvv: {
     label: "Security code",
     name: `${formPrefix}-csv`,
     placeholder: "123"

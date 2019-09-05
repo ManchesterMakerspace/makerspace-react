@@ -109,19 +109,7 @@ class Form extends React.Component<FormModalProps, State> {
   }
 
   public resetForm = () => {
-    this.setState(state => {
-      const defaultState = this.getDefaultState(this.props, true);
-      const oldValues = state.values;
-      const values = Object.entries(defaultState.values).reduce((values, [key, val]) => {
-        const oldVal = oldValues[key];
-        values[key] = oldVal || val;
-        return values;
-      }, {})
-     return {
-       ...defaultState,
-       values
-      };
-    });
+    this.setState(this.getDefaultState(this.props, true));
   }
 
   public getValues = (): CollectionOf<string> => {

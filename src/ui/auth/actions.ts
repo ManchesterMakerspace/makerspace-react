@@ -1,7 +1,7 @@
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { AnyAction } from "redux";
 
-import { AuthState, AuthForm, SignUpForm } from "ui/auth/interfaces";
+import { AuthState, AuthForm, SignUpForm, AuthMember } from "ui/auth/interfaces";
 import { Action as AuthAction } from "ui/auth/constants";
 import { Action as CheckoutAction } from "ui/checkout/constants";
 import { memberIsAdmin } from "ui/member/utils";
@@ -91,7 +91,7 @@ const defaultState: AuthState = {
     email: undefined,
     expirationTime: undefined,
     isAdmin: false,
-  },
+  } as AuthMember,
   permissions: {},
   isRequesting: false,
   error: ""
