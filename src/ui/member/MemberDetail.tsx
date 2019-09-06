@@ -74,18 +74,20 @@ const allowedResources = new Set(["dues", "rentals"]);
 class MemberDetail extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    const { member, currentUserId } = this.props;
-    const ownProfile = member && currentUserId === member.id;
-
     this.state = {
       ...defaultState,
-      displayNotification: ownProfile && !member.memberContractOnFile ? Notification.Welcome : undefined,
     };
   }
 
   public componentDidMount() {
-    this.props.getMember()
+    const { member, currentUserId, getMember } = this.props;
+    const ownProfile = member && currentUserId === member.id;
+
+    getMember();
+    this.setState(state => ({
+      ...state,
+      displayNotification: ownProfile && !member.memberContractOnFile ? Notification.Welcome : undefined,
+    }));
   }
 
   public componentDidUpdate(prevProps: Props) {
@@ -102,9 +104,10 @@ class MemberDetail extends React.Component<Props, State> {
         if (resource) {
           !allowedResources.has(resource) && history.push(Routing.Profile.replace(Routing.PathPlaceholder.MemberId, currentUserId))
         }
-        if (ownProfile && !member.memberContractOnFile) {
-          this.setState({ displayNotification: Notification.Welcome  });
-        }
+        this.setState(state => ({
+          ...state,
+          displayNotification: ownProfile && !member.memberContractOnFile ? Notification.Welcome : undefined,
+        }));
         if (member.earnedMembershipId && (ownProfile || admin)) {
           this.props.getEarnedMembership(member.earnedMembershipId);
         }
@@ -125,7 +128,10 @@ class MemberDetail extends React.Component<Props, State> {
   private openEditModal = () => this.setState({ isEditOpen: true });
   private closeEditModal = () => this.setState({ isEditOpen: false });
   private openCardModal = () => this.setState({ isCardOpen: true });
-  private closeCardModal = () => this.setState({ isCardOpen: false });
+  private closeCardModal = () => {
+    this.props.getMember();
+    this.setState({ isCardOpen: false });
+  };
 
   private renderMemberInfo = (): JSX.Element => {
     const { member, billingEnabled } = this.props;
