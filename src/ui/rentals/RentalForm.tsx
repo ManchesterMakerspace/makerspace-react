@@ -7,8 +7,8 @@ import FormModal from "ui/common/FormModal";
 import { fields } from "ui/rentals/constants";
 import Form from "ui/common/Form";
 import { toDatePicker } from "ui/utils/timeToDate";
-import AsyncSelectFixed from "ui/common/AsyncSelect";
-import { Rental, getMember, listMembers, isApiErrorResponse } from "makerspace-ts-api-client";
+import { Rental } from "makerspace-ts-api-client";
+import MemberSearchInput from "../common/MemberSearchInput";
 
 interface OwnProps {
   rental: Partial<Rental>;
@@ -19,66 +19,12 @@ interface OwnProps {
   onSubmit: (form: Form) => void;
   title?: string;
 }
-interface State {
-  member: SelectOption;
-}
-type SelectOption = { label: string, value: string, id?: string };
 
-class RentalForm extends React.Component<OwnProps, State> {
+class RentalForm extends React.Component<OwnProps> {
   public formRef: Form;
   private setFormRef = (ref: Form) => this.formRef = ref;
 
-  public constructor(props: OwnProps) {
-    super(props);
-    this.state = {
-      member: undefined,
-    }
-  }
-
-  public componentDidUpdate(prevProps: OwnProps) {
-    const { isOpen: wasOpen } = prevProps;
-    const { isOpen } = this.props;
-    if (isOpen === !wasOpen) {
-      this.initRentalMember();
-    }
-  }
-
-
   public validate = (form: Form): Promise<Rental> => form.simpleValidate<Rental>(fields);
-
-  private initRentalMember = async () => {
-    const { rental } = this.props;
-    this.setState({ member: { value: rental.memberId, label: rental.memberName, id: rental.memberId } })
-    if (rental && rental.memberId) {
-
-      const result = await getMember(rental.memberId);
-      if (isApiErrorResponse(result)) {
-        console.log(result.error);
-      } else {
-        const member = result.data;
-        this.updateMemberValue({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
-      }
-    } else {
-      this.updateMemberValue({ value: "", label: "None", id: undefined });
-    }
-  }
-
-  // Need to update internal state and set form value since input is otherwise a controlled input
-  private updateMemberValue = (newMember: SelectOption) => {
-    this.setState({ member: newMember });
-    this.formRef && this.formRef.setValue(fields.memberId.name, newMember);
-  }
-
-  private memberOptions = async (searchValue: string) => {
-    const result = await listMembers({ search: searchValue });
-    if (isApiErrorResponse(result)) {
-      console.log(result.error);
-    } else {
-      const members = result.data;
-      const memberOptions = members.map(member => ({ value: member.email, label: `${member.firstname} ${member.lastname}`, id: member.id }));
-      return memberOptions;
-    }
-  }
 
   public render(): JSX.Element {
     const { isOpen, onClose, isRequesting, error, onSubmit, rental } = this.props;
@@ -134,15 +80,11 @@ class RentalForm extends React.Component<OwnProps, State> {
           )}
           <Grid item xs={12}>
             <FormLabel component="legend">{fields.memberId.label}</FormLabel>
-            <AsyncSelectFixed
-              isClearable
+            <MemberSearchInput
               name={fields.memberId.name}
-              isDisabled={rental && !!rental.memberId}
-              value={this.state.member}
-              onChange={this.updateMemberValue}
               placeholder={fields.memberId.placeholder}
-              id={fields.memberId.name}
-              loadOptions={this.memberOptions}
+              getFormRef={() => this.formRef}
+              initialSelection={rental && { value: rental.memberId, label: rental.memberName, id: rental.memberId }}
             />
           </Grid>
         </Grid>

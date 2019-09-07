@@ -9,7 +9,7 @@ import Select from "@material-ui/core/Select";
 import Radio from "@material-ui/core/Radio";
 import Grid from "@material-ui/core/Grid";
 
-import { InvoiceOption, adminListRentals, isApiErrorResponse, getMember, Member, listMembers, Rental } from "makerspace-ts-api-client";
+import { InvoiceOption, adminListRentals, isApiErrorResponse, Rental } from "makerspace-ts-api-client";
 
 import { InvoiceableResource, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
@@ -17,7 +17,7 @@ import Form from "ui/common/Form";
 import { fields } from "ui/invoice/constants";
 import { toDatePicker } from "ui/utils/timeToDate";
 import { CollectionOf } from "app/interfaces";
-import AsyncSelectFixed from "ui/common/AsyncSelect";
+import MemberSearchInput from "../common/MemberSearchInput";
 
 interface OwnProps {
   invoice?: Partial<MemberInvoice | RentalInvoice>;
@@ -35,7 +35,6 @@ interface OwnProps {
 
 interface State {
   invoiceType: InvoiceableResource | string;
-  member: SelectOption;
   rentals: Rental[];
   rentalsLoading: boolean;
   rentalsError: string;
@@ -53,7 +52,6 @@ export class InvoiceForm extends React.Component<Props, State> {
     const { invoice } = props;
     this.state = {
       invoiceType: invoice && invoice.resourceClass || InvoiceableResource.Membership,
-      member: undefined,
       rentals: [],
       rentalsLoading: false,
       rentalsError: "",
@@ -66,7 +64,6 @@ export class InvoiceForm extends React.Component<Props, State> {
     // Determine invoice type on open
     if (isOpen === !wasOpen) {
       this.resetInvoiceType();
-      this.initInvoiceMember();
       this.getRentals();
       this.props.getInvoiceOptions(invoice.resourceClass || this.state.invoiceType);
     }
@@ -92,10 +89,12 @@ export class InvoiceForm extends React.Component<Props, State> {
 
   public validate = async (form: Form): Promise<MemberInvoice | RentalInvoice> => {
     const updatedInvoice = await form.simpleValidate<MemberInvoice | RentalInvoice>(fields);
-    const { member } = this.state;
+    const {
+      [fields.member.name]: memberId
+    } = form.getValues();
 
     if (updatedInvoice.resourceClass === InvoiceableResource.Membership) {
-      updatedInvoice.resourceId = member.id;
+      updatedInvoice.resourceId = memberId;
     } else {
       updatedInvoice.resourceId = (updatedInvoice as any).rentalId;
     }
@@ -106,7 +105,7 @@ export class InvoiceForm extends React.Component<Props, State> {
 
     return {
       ...updatedInvoice,
-      memberId: member.id || null,
+      memberId: memberId || null,
     }
   }
 
@@ -116,36 +115,6 @@ export class InvoiceForm extends React.Component<Props, State> {
 
   private updateType = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ invoiceType: event.currentTarget.value as InvoiceableResource });
-  }
-
-  private initInvoiceMember = async () => {
-    const { invoice } = this.props;
-    if (invoice && invoice.memberId) {
-      this.setState({ member: { value: invoice.memberId, label: invoice.memberName } });
-      const result = await getMember(invoice.memberId);
-      if (!isApiErrorResponse(result)) {
-        this.updateContactValue(this.memberToOption(result.data));
-      }
-    }
-  }
-
-  private memberToOption = (member: Member) => ({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id });
-
-  // Need to update internal state and set form value since input is otherwise a controleld input
-  private updateContactValue = (newMember: SelectOption) => {
-    this.setState({ member: newMember });
-    this.formRef && this.formRef.setValue(fields.member.name, newMember);
-  }
-
-  private memberOptions = async (searchValue: string) => {
-    const result = await listMembers({ search: searchValue });
-    if (isApiErrorResponse(result)) {
-      console.log(result.error);
-    } else {
-      const members = result.data;
-      const memberOptions = members.map(this.memberToOption);
-      return memberOptions;
-    }
   }
 
   public render(): JSX.Element {
@@ -209,15 +178,12 @@ export class InvoiceForm extends React.Component<Props, State> {
           </Grid>
           <Grid item xs={12}>
             <FormLabel component="legend">{fields.member.label}</FormLabel>
-            <AsyncSelectFixed
-              isClearable
+            <MemberSearchInput
               name={fields.member.name}
-              value={this.state.member}
-              isDisabled={invoice && !!invoice.memberId}
-              onChange={this.updateContactValue}
               placeholder={fields.member.placeholder}
-              id={fields.member.name}
-              loadOptions={this.memberOptions}
+              initialSelection={invoice && { value: invoice.memberId, label: invoice.memberName, id: invoice.memberId }}
+              getFormRef={() => this.formRef}
+              disabled={invoice && !!invoice.memberId}
             />
           </Grid>
           {this.state.invoiceType === InvoiceableResource.Rental && <Grid item xs={12}>

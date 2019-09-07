@@ -9,5 +9,4 @@ test.env
 yarn-debug.log*
 .yarn-integrity
 yarn-error.log*
-makerspace-react
-makerspace-react-rails
+.vscode

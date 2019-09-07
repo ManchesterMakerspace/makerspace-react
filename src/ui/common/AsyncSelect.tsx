@@ -1,5 +1,4 @@
 import * as React from "react";
-import debounce from "lodash-es/debounce";
 import { ActionMeta, ValueType } from "react-select/lib/types";
 import AsyncSelect, { Props as AsyncProps } from "react-select/lib/Async";
 import Createable, { Props as CreateableProps } from "react-select/lib/Creatable";
@@ -16,9 +15,9 @@ interface Props extends AsyncProps<any> {
   getFormRef?: () => Form;
 }
 
-type AsyncSelectProps<OptionType> = AsyncProps<OptionType> & Props;
-type CreateableSelectProps<OptionType> = CreateableProps<OptionType> & Props;
-type AsyncCreateableSelectProps<OptionType> = AsyncSelectProps<OptionType> & CreateableSelectProps<OptionType>;
+export type AsyncSelectProps<OptionType> = AsyncProps<OptionType> & Props;
+export type CreateableSelectProps<OptionType> = CreateableProps<OptionType> & Props;
+export type AsyncCreateableSelectProps<OptionType> = AsyncSelectProps<OptionType> & CreateableSelectProps<OptionType>;
 
 function ModifiedSelect<
   OptionType,
@@ -40,20 +39,20 @@ function ModifiedSelect<
     ...formDialog && {
       menuPortalTarget: formDialog as HTMLElement
     },
-    onChange: debounce(onChange, 250)
+    onChange
   }
   return <props.element {...modifiedProps } />;
 }
 
-export function AsyncCreatableSelect<OptionType>(props: AsyncCreateableSelectProps<OptionType>) {
+export function AsyncCreatableSelect<OptionType>(props: AsyncCreateableSelectProps<OptionType>): React.ReactElement<AsyncCreateableSelectProps<OptionType>> {
   return <ModifiedSelect {...props} element={AsyncCreatable} />;
 }
 
-export function AsyncSelectFixed<OptionType>(props: AsyncSelectProps<OptionType>) {
+export function AsyncSelectFixed<OptionType>(props: AsyncSelectProps<OptionType>): React.ReactElement<AsyncSelectProps<OptionType>> {
   return <ModifiedSelect {...props} element={AsyncSelect} />;
 }
 
-export function CreateableSelect<OptionType>(props: CreateableSelectProps<OptionType>) {
+export function CreateableSelect<OptionType>(props: CreateableSelectProps<OptionType>): React.ReactElement<CreateableSelectProps<OptionType>> {
   return <ModifiedSelect {...props} element={Createable} />;
 }
 
