@@ -2,7 +2,7 @@ import * as React from "react";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 interface LoadingProps {
-  id: string;
+  id?: string;
   contained?: boolean;
 }
 // TODO: This is weird that it mutates an 'id' prop

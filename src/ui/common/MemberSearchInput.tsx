@@ -81,7 +81,7 @@ const MemberSearchInput: React.FC<Props> = ({
     }
 
     initialSelection && initialSelection.id && fetchMember();
-  }, [initialSelection, setSelection]);
+  }, [JSON.stringify(initialSelection), setSelection]);
 
   const updateSelection = React.useCallback((newSelection: SelectOption) => {
     setSelection(newSelection);

@@ -33,7 +33,7 @@ export const readMembershipsAction = (
     });
   } else {
     const { response, data } = result;
-    const totalItems = response.headers["total-items"];
+    const totalItems = response.headers.get("total-items");
     dispatch({
       type: MembershipAction.GetMembershipsSuccess,
       data: {

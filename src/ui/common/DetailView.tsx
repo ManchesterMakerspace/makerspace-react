@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 
 interface Resource {
@@ -16,7 +16,7 @@ interface OwnProps {
   title: string,
   basePath: string,
   information: JSX.Element,
-  actionButtons: ActionButton[],
+  actionButtons: ActionButtonProps[],
   resources?: Resource[]
   activeResourceName?: string,
 }

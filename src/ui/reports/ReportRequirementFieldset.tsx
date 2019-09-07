@@ -8,7 +8,7 @@ import Select from "@material-ui/core/Select";
 
 import Form from "ui/common/Form";
 import { reportRequirementFields, formPrefix } from "ui/reports/constants";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import { mapValues } from "lodash-es";
 import { AsyncCreatableSelect } from "ui/common/AsyncSelect";
 import { mongoIdRegex } from "ui/constants";
@@ -292,7 +292,7 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
                     onClick: this.removeMemberRow,
                     label: "Remove Member",
                   }] : []
-                ] as ActionButton[]}
+                ] as ActionButtonProps[]}
               />
             </Grid >
           )}

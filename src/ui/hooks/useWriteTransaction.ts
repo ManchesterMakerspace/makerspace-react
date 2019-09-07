@@ -1,34 +1,45 @@
 import * as React from "react";
-import { ApiErrorResponse, ApiDataResponse } from "makerspace-ts-api-client";
+import { ApiErrorResponse, ApiDataResponse, isApiErrorResponse } from "makerspace-ts-api-client";
 
 import { TransactionState, ApiFunction } from "ui/hooks/types";
 
 interface CallTransactionState<Args, Data> extends TransactionState<Data> {
-  called: boolean;
   call: ApiFunction<Args, Data>;
+  reset: () => void;
 }
 
 const useWriteTransaction = <Args, Resp>(
-  transaction: ApiFunction<Args, Resp>
+  transaction: ApiFunction<Args, Resp>,
+  onSuccess?: (data: Resp) => void
 ): CallTransactionState<Args, Resp> => {
-  const [state, setState] = React.useState({ loading: false, error: "", data: undefined, called: false });
-  const call = React.useCallback(async (args: Args) => {
-    setState(prevState => ({ ...prevState, loading: true, called: true }));
+  const [state, setState] = React.useState({ isRequesting: false, error: "", data: undefined, called: false, response: undefined });
 
-    const result = await transaction(args);
-    const error = (result as ApiErrorResponse).error;
+  const reset = React.useCallback(() => {
+    setState({ isRequesting: false, error: "", data: undefined, called: false, response: undefined });
+  }, [setState]);
+
+  const call = React.useCallback(async (...args: Args[]) => {
+    setState(prevState => ({ ...prevState, isRequesting: true, called: true }));
+
+    const response = await transaction(...args);
+    const error = (response as ApiErrorResponse).error;
+
+    if (!isApiErrorResponse(response)) {
+      onSuccess && onSuccess(response.data);
+    }
 
     setState(prevState => ({
       ...prevState,
-      loading: false,
+      response,
+      isRequesting: false,
       error: error && error.message,
-      data: (result as ApiDataResponse<Resp>).data
+      data: (response as ApiDataResponse<Resp>).data
     }));
 
-    return result;
+    return response;
   }, []);
 
-  return { ...state, call };
+  return { ...state, call, reset };
 };
 
 export default useWriteTransaction;;

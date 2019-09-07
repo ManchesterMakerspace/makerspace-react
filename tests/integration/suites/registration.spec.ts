@@ -35,7 +35,6 @@ describe("Member management", () => {
         ...newMember,
         expirationTime: null
       });
-      // TODO: pay for selected membership
       await utils.clickElement(invoicePO.actionButtons.payNow);
       await utils.waitForPageLoad(checkout.checkoutUrl);
 
@@ -57,11 +56,9 @@ describe("Member management", () => {
       await utils.waitForNotVisible(creditCard.creditCardForm.loading);
       await utils.waitForNotVisible(creditCard.creditCardForm.submit);
 
-      // Select the payment method
-      // TODO: new payment methods should be auto selected
+      // Assert the payment method
       await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
       expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
-      await paymentMethods.selectPaymentMethodByIndex(0);
 
       // Submit payment, view receipt & return to profile
       await utils.clickElement(checkout.submit);

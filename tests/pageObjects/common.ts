@@ -289,7 +289,12 @@ export class PageUtils {
     try {
       await element.clear();
       await element.sendKeys(searchVal);
-      await element.sendKeys(Key.ENTER);
+      return new Promise(resolve => {
+        setTimeout(async () => {
+          await element.sendKeys(Key.ENTER);
+          resolve();
+        }, 500);
+      })
     } catch (e) {
       throw new Error(`Unable to enter keys: ${searchVal} in input: ${elementLocator}`);
     }

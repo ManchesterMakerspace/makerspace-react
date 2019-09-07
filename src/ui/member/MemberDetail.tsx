@@ -17,10 +17,10 @@ import MemberStatusLabel from "ui/member/MemberStatusLabel";
 import UpdateMemberContainer, { UpdateMemberRenderProps } from "ui/member/UpdateMemberContainer";
 import { memberToRenewal } from "ui/member/utils";
 import { membershipRenewalOptions } from "ui/members/constants";
-import InvoicesList from "ui/invoices/InvoicesList";
+import InvoicesList from "ui/invoice/InvoicesList";
 import RentalsList from "ui/rentals/RentalsList";
 import { Routing, CrudOperation } from "app/constants";
-import { ActionButton } from "ui/common/ButtonRow";
+import { ActionButtonProps } from "ui/common/ButtonRow";
 import NotificationModal, { Notification } from "ui/member/NotificationModal";
 import { Whitelists } from "app/constants";
 import SignDocuments from "ui/auth/SignDocuments";
@@ -45,8 +45,6 @@ interface StateProps {
   currentUserId: string;
   subscriptionId: string;
   billingEnabled: boolean;
-  invoiceUpdating: boolean;
-  invoiceError: string;
 }
 interface OwnProps extends RouteComponentProps<any> {
 }
@@ -92,7 +90,7 @@ class MemberDetail extends React.Component<Props, State> {
 
   public componentDidUpdate(prevProps: Props) {
     const oldMemberId = prevProps.match.params.memberId;
-    const { isRequestingMember: wasRequesting, invoiceUpdating: invoiceWasUpdating, isUpdatingMember: wasUpdating } = prevProps;
+    const { isRequestingMember: wasRequesting, isUpdatingMember: wasUpdating } = prevProps;
     const { currentUserId, admin, isRequestingMember, match, getMember, member, history, match: { params: { resource } } } = this.props;
     const { memberId } = match.params;
     if (oldMemberId !== memberId && !isRequestingMember) {
@@ -117,7 +115,6 @@ class MemberDetail extends React.Component<Props, State> {
     }
 
     if (
-      (invoiceWasUpdating && !this.props.invoiceUpdating && !this.props.invoiceError) ||
       (wasUpdating && !this.props.isUpdatingMember && !this.props.updateMemberError) ){
       getMember();
     }
@@ -181,7 +178,7 @@ class MemberDetail extends React.Component<Props, State> {
               disabled: loading,
               label: "Account Settings",
               onClick: goToSettings
-            } as ActionButton] : [],
+            } as ActionButtonProps] : [],
             ...admin ? [{
               id: "member-detail-open-edit-modal",
               color: "primary",
@@ -204,7 +201,7 @@ class MemberDetail extends React.Component<Props, State> {
                 disabled: loading,
                 label: member && member.cardId ? "Replace Fob" : "Register Fob",
                 onClick: this.openCardModal
-              }] as ActionButton[]: []
+              }] as ActionButtonProps[]: []
           ]}
           information={this.renderMemberInfo()}
           activeResourceName={resource}
@@ -219,7 +216,7 @@ class MemberDetail extends React.Component<Props, State> {
             ...billingEnabled ?
             [{
               name: "dues",
-              content: <InvoicesList member={member} />
+              content: <InvoicesList />
             }] : [],
             {
               name: "rentals",
@@ -344,7 +341,6 @@ const mapStateToProps = (
   const { isRequesting: isUpdating, error: updateError } = state.member.update
   const { entity: member } = state.member;
   const { permissions, currentUser: { isAdmin: admin, id: currentUserId, subscriptionId } } = state.auth;
-  const { update: { isRequesting: invoiceUpdating, error: invoiceError } } = state.invoice;
 
   return {
     admin,
@@ -355,8 +351,6 @@ const mapStateToProps = (
     isUpdatingMember: isUpdating,
     updateMemberError: updateError,
     subscriptionId,
-    invoiceUpdating,
-    invoiceError,
     billingEnabled: !!permissions[Whitelists.billing] || false,
   }
 }

@@ -1,40 +1,57 @@
 import * as React from "react";
 import stringifyArgs from "ui/utils/stringifyArgs";
 import { TransactionState, ApiFunction } from "ui/hooks/types";
-import { ApiErrorResponse, ApiDataResponse } from "makerspace-ts-api-client";
+import { isApiErrorResponse } from "makerspace-ts-api-client";
+import { useApiState, getApiState } from "../reducer/hooks";
+import { buildQueryString } from "../reducer/functions";
+import { TransactionAction, } from "../reducer";
+import { getStore } from "src/app/main";
 
-interface ReadTransaction<T> extends TransactionState<T> {
+interface ReadTransaction<Args, T> extends TransactionState<T> {
   refresh: () => void;
 }
 
 const useReadTransaction = <Args, Resp>(
   transaction: ApiFunction<Args, Resp>,
   args: Args
-): ReadTransaction<Resp> => {
-  const [state, setState] = React.useState({ loading: false, error: "", data: undefined });
+): ReadTransaction<Args, Resp> => {
+  const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, args))
   const [force, setForce] = React.useState(false);
   const refresh = React.useCallback(() => setForce(prevState => !prevState), []);
 
-   React.useEffect(() => {
-    let aborted = false;
+  const getCurrentState = React.useCallback(() => {
+    const key = buildQueryString(transaction, args);
+    return getApiState(key, getStore().getState());
+  }, [transaction, stringifyArgs(args)]);
 
-     const callTransaction = async () => {
-      !aborted && setState(prevState => ({ ...prevState, loading: true }));
+  React.useEffect(() => {
 
-       const result = await transaction(args);
+    const callTransaction = async () => {
+      const currentState = getCurrentState();
+      if (!currentState || !currentState.isRequesting) {
+        dispatch({ type: TransactionAction.Start });
 
-       const error = (result as ApiErrorResponse).error;
-
-       !aborted && setState({
-        loading: false,
-        error: error && error.message,
-        data: (result as ApiDataResponse<Resp>).data
-      });
+        const response = await transaction(args);
+ 
+        if (isApiErrorResponse(response)) {
+          dispatch({
+            response,
+            type: TransactionAction.Failure,
+            error: response.error.message,
+            data: undefined
+          });
+        } else {
+          dispatch({
+            response,
+            type: TransactionAction.Success,
+            data: response.data,
+            error: ""
+          });
+        }
+       }
     };
 
-     callTransaction();
-
-     return () => { aborted = true; };
+    callTransaction();
   }, [stringifyArgs(args), force]);
 
    return { ...state, refresh };

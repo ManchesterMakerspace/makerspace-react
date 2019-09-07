@@ -14,7 +14,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 import { formPrefix, requirementFields, earnedMembershipFields, RequirementNames } from "ui/earnedMemberships/constants";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import {
   Member,
   EarnedMembership,
@@ -315,7 +315,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
                 onClick: this.removeRequirement,
                 label: "Remove Requirement",
               }] : []
-            ] as ActionButton[]}
+            ] as ActionButtonProps[]}
           />
         </Grid >
       </Grid >

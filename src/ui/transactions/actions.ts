@@ -22,7 +22,7 @@ export const readTransactionsAction = (
     });
   } else {
     const { response, data } = result;
-    const totalItems = response.headers["total-items"];
+    const totalItems = response.headers.get("total-items");
     dispatch({
       type: TransactionsAction.GetTransactionsSuccess,
       data: {

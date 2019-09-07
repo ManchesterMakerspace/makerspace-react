@@ -208,7 +208,9 @@ class EnhancedTable<T> extends React.Component<Props<T>, {}> {
   }
 
   public render() {
-    const { error, loading, id } = this.props;
+    const { error, loading, id, data } = this.props;
+
+    const loadingNoData = loading && !(Array.isArray(data) && data.length);
 
     return (
       <>
@@ -217,7 +219,7 @@ class EnhancedTable<T> extends React.Component<Props<T>, {}> {
           {this.getHeaderRow()}
           <TableBody>
             {
-              !loading && (error ?
+              !loadingNoData && (error ?
                 this.getErrorRow()
                 : this.getBodyRows())
             }

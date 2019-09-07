@@ -5,43 +5,34 @@ import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormLabel from "@material-ui/core/FormLabel";
 import RadioGroup from "@material-ui/core/RadioGroup";
-import Select from "@material-ui/core/Select";
 import Radio from "@material-ui/core/Radio";
 import Grid from "@material-ui/core/Grid";
 
-import { InvoiceOption, adminListRentals, isApiErrorResponse, Rental } from "makerspace-ts-api-client";
+import { adminListRentals, listInvoiceOptions } from "makerspace-ts-api-client";
 
 import { InvoiceableResource, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 import { fields } from "ui/invoice/constants";
 import { toDatePicker } from "ui/utils/timeToDate";
-import { CollectionOf } from "app/interfaces";
 import MemberSearchInput from "../common/MemberSearchInput";
+import OptionsList from "../common/OptionsList";
 
 interface OwnProps {
+  memberId: string;
   invoice?: Partial<MemberInvoice | RentalInvoice>;
   isOpen: boolean;
   isRequesting: boolean;
   error: string;
   allowCustomBilling: boolean;
-  invoiceOptions: CollectionOf<InvoiceOption>;
-  optionsLoading: boolean;
-  optionsError: string;
-  getInvoiceOptions: (type: InvoiceableResource | string) => void;
   onClose: () => void;
   onSubmit: (form: Form) => void;
 }
 
 interface State {
   invoiceType: InvoiceableResource | string;
-  rentals: Rental[];
-  rentalsLoading: boolean;
-  rentalsError: string;
 }
 interface Props extends OwnProps {}
-
-type SelectOption = { label: string, value: string, id?: string };
 
 export class InvoiceForm extends React.Component<Props, State> {
   public formRef: Form;
@@ -52,46 +43,27 @@ export class InvoiceForm extends React.Component<Props, State> {
     const { invoice } = props;
     this.state = {
       invoiceType: invoice && invoice.resourceClass || InvoiceableResource.Membership,
-      rentals: [],
-      rentalsLoading: false,
-      rentalsError: "",
     }
   }
 
   public componentDidUpdate(prevProps: OwnProps, prevState: State){
     const { isOpen: wasOpen } = prevProps;
-    const { isOpen, invoice } = this.props;
+    const { isOpen } = this.props;
     // Determine invoice type on open
     if (isOpen === !wasOpen) {
       this.resetInvoiceType();
-      this.getRentals();
-      this.props.getInvoiceOptions(invoice.resourceClass || this.state.invoiceType);
     }
 
-    // Fetch new options on type change
+    // Clear invoice option on type change
     if (prevState.invoiceType !== this.state.invoiceType) {
-      this.props.getInvoiceOptions(this.state.invoiceType);
-      this.formRef && this.formRef.setValue(fields.invoiceOptionId.name, undefined);
+      this.formRef && this.formRef.setValue(fields.id.name, undefined);
     }
   }
 
-  private getRentals = async () => {
-    this.setState({ rentalsLoading: true });
-
-    const result = await adminListRentals();
-
-    if (isApiErrorResponse(result)) {
-      this.setState({ rentalsLoading: false, rentalsError: result.error.message });
-    } else {
-      this.setState({ rentalsLoading: false, rentals: result.data });
-    }
-  }
 
   public validate = async (form: Form): Promise<MemberInvoice | RentalInvoice> => {
     const updatedInvoice = await form.simpleValidate<MemberInvoice | RentalInvoice>(fields);
-    const {
-      [fields.member.name]: memberId
-    } = form.getValues();
+    const { memberId } = updatedInvoice;
 
     if (updatedInvoice.resourceClass === InvoiceableResource.Membership) {
       updatedInvoice.resourceId = memberId;
@@ -120,34 +92,11 @@ export class InvoiceForm extends React.Component<Props, State> {
   public render(): JSX.Element {
     const {
       isOpen, onClose, isRequesting, error,
-      onSubmit, invoice, allowCustomBilling,
-      invoiceOptions, optionsError, optionsLoading } = this.props;
-    const { rentals, rentalsError, rentalsLoading } = this.state;
-
-    const rental = invoice && invoice.resourceId && invoice.resourceClass === InvoiceableResource.Rental &&
-      (rentals || []).find(r => r.id === invoice.resourceId);
+      onSubmit, invoice, allowCustomBilling, memberId } = this.props;
 
     if (!invoice) {
       return null;
     }
-
-    const optionsList = Object.values(invoiceOptions);
-    const invoiceOptionsList =
-      [<option id={`${fields.invoiceOptionId.name}-option-none`} key="none" value={null}>
-        {optionsLoading ? "Loading..." :
-          optionsError ? "Error loading options" :
-           optionsList.length ? "None" : "No options"}
-      </option>,
-        [...optionsList.map(
-        (invoiceOption) =>
-          <option
-            id={`${fields.invoiceOptionId.name}-option-${invoiceOption.id}`}
-            key={invoiceOption.id}
-            value={invoiceOption.id}>
-              {invoiceOption.name}
-          </option>)
-        ]]
-
 
     return (
       <FormModal
@@ -156,7 +105,7 @@ export class InvoiceForm extends React.Component<Props, State> {
         loading={isRequesting}
         isOpen={isOpen}
         closeHandler={onClose}
-        title={(invoice && invoice.id) ? "Edit Invoice" : "Create Invoice"}
+        title={invoice && invoice.id ? "Edit Invoice" : "Create Invoice"}
         onSubmit={onSubmit}
         submitText="Save"
         error={error}
@@ -177,95 +126,93 @@ export class InvoiceForm extends React.Component<Props, State> {
             </FormControl>
           </Grid>
           <Grid item xs={12}>
-            <FormLabel component="legend">{fields.member.label}</FormLabel>
+            <FormLabel component="legend">{fields.memberId.label}</FormLabel>
             <MemberSearchInput
-              name={fields.member.name}
-              placeholder={fields.member.placeholder}
+              name={fields.memberId.name}
+              placeholder={fields.memberId.placeholder}
               initialSelection={invoice && { value: invoice.memberId, label: invoice.memberName, id: invoice.memberId }}
               getFormRef={() => this.formRef}
               disabled={invoice && !!invoice.memberId}
             />
           </Grid>
-          {this.state.invoiceType === InvoiceableResource.Rental && <Grid item xs={12}>
-            <FormLabel component="legend">{fields.rentalId.label}</FormLabel>
-            <Select
-              name={fields.rentalId.name}
-              value={rental && rental.id || invoice.resourceId}
-              fullWidth
-              required
-              native
-              placeholder={fields.rentalId.placeholder}
-            >
-              {[
-                <option id={`${fields.rentalId.name}-option-none`} key="none" value={null}>
-                  {rentalsLoading ? "Loading..." :
-                    rentalsError ? "Error loading options" :
-                      rentals.length ? "None" : "No options"}
-                </option>,
-                [...rentals.length ?
-                  rentals.map(
-                    (rental) => <option id={`${fields.rentalId.name}-option-${rental.id}`} key={rental.id} value={rental.id}>{rental.number}</option>)
-                  : invoice && [<option id={`${fields.rentalId.name}-option-${invoice.resourceId}`} key={invoice.id} value={invoice.resourceClass}>{invoice.resourceId}</option>]
-                ]]}
-            </Select>
-          </Grid>}
+          {this.state.invoiceType === InvoiceableResource.Rental && (
+            <Grid item xs={12}>
+              <FormLabel component="legend">{fields.rentalId.label}</FormLabel>
+              <OptionsList
+                getFormRef={() => this.formRef}
+                fieldname={fields.rentalId.name}
+                initialValue={invoice.resourceId}
+                placeholder={fields.rentalId.placeholder}
+                apiFunction={adminListRentals}
+                args={{ ...(memberId && { memberId }) }}
+                mapOption={rental => ({
+                  id: `${fields.rentalId.name}-option-${rental.id}`,
+                  value: rental.id,
+                  label: rental.number
+                })}
+              />
+            </Grid>
+          )}
           <Grid item xs={12}>
-            <FormLabel component="legend">{fields.invoiceOptionId.label}</FormLabel>
-            <Select
-              name={fields.invoiceOptionId.name}
-              fullWidth
-              required
-              native
-              disabled={!optionsList.length}
-              value={invoice && invoice.planId}
-              placeholder={fields.invoiceOptionId.placeholder}
-            >
-              {invoiceOptionsList}
-            </Select>
+            <FormLabel component="legend">{fields.id.label}</FormLabel>
+            <OptionsList
+              getFormRef={() => this.formRef}
+              fieldname={fields.id.name}
+              initialValue={invoice && invoice.planId}
+              placeholder={fields.id.placeholder}
+              apiFunction={listInvoiceOptions}
+              args={{ types: [this.state.invoiceType] }}
+              mapOption={invoice => ({
+                id: `${fields.id.name}-option-${invoice.id}`,
+                value: invoice.id,
+                label: invoice.name
+              })}
+            />
           </Grid>
-        {/* Who's it for - Member search */}
-        {/* If can find resource, ask how long to renew for
+          {/* Who's it for - Member search */}
+          {/* If can find resource, ask how long to renew for
         Else, display sub form to create the resource */}
-          {allowCustomBilling &&
-          <>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                value={invoice && invoice.description}
-                label={fields.description.label}
-                name={fields.description.name}
-                placeholder={fields.description.placeholder}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                value={invoice && invoice.amount}
-                label={fields.amount.label}
-                name={fields.amount.name}
-                placeholder={fields.amount.placeholder}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                required
-                value={invoice && toDatePicker(invoice.dueDate)}
-                label={fields.dueDate.label}
-                name={fields.dueDate.name}
-                placeholder={fields.dueDate.placeholder}
-                type="date"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
-          </>}
+          {allowCustomBilling && (
+            <>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  value={invoice && invoice.description}
+                  label={fields.description.label}
+                  name={fields.description.name}
+                  placeholder={fields.description.placeholder}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  value={invoice && invoice.amount}
+                  label={fields.amount.label}
+                  name={fields.amount.name}
+                  placeholder={fields.amount.placeholder}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  value={invoice && toDatePicker(invoice.dueDate)}
+                  label={fields.dueDate.label}
+                  name={fields.dueDate.name}
+                  placeholder={fields.dueDate.placeholder}
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true
+                  }}
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
       </FormModal>
-    )
+    );
   }
 }
 

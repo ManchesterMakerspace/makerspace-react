@@ -1,5 +1,6 @@
 import { FormFields } from "ui/common/Form";
 import { Member } from "makerspace-ts-api-client";
+import { SelectOption } from "ui/common/AsyncSelect";
 
 
 export enum Action {
@@ -27,7 +28,7 @@ export const earnedMembershipFields = {
     label: "Select a member",
     name: `${formPrefix}-member`,
     placeholder: `Search by name or email`,
-    transform: (val: Member) => val && val.id,
+    transform: (val: SelectOption) => val && val.value,
     validate: (val: string) => !!val,
     error: "Member required"
   },

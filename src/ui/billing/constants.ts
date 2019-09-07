@@ -26,7 +26,7 @@ export const fields = {
     label: "Type",
     name: `${formPrefix}-type`,
     placeholder: "Enter Name",
-    validate: (val: string) => Object.values(InvoiceableResource).includes(val),
+    validate: (val: string) => Object.values(InvoiceableResource).includes(val as InvoiceableResource),
     error: "Invalid type"
   },
   [Properties.Name]: {

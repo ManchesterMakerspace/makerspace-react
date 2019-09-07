@@ -20,7 +20,7 @@ import { CrudOperation } from "app/constants";
 import RentalForm from "ui/rentals/RentalForm";
 import UpdateRentalContainer, { UpdateRentalRenderProps } from "ui/rentals/UpdateRentalContainer";
 import DeleteRentalModal from "ui/rentals/DeleteRentalModal";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import Form from "ui/common/Form";
 import { rentalToRenewal } from "ui/rentals/utils";
 import { rentalRenewalOptions } from "ui/rentals/constants";
@@ -119,8 +119,15 @@ class RentalsList extends React.Component<Props, State> {
 
   private getActionButtons = () => {
     const { selectedId } = this.state;
-    const { admin } = this.props;
-    const actionButtons: ActionButton[] = [
+    const { admin, rentals } = this.props;
+    const selectedRental = selectedId && rentals[selectedId];
+
+    const onDelete = () => {
+      this.setState({ selectedId: undefined, pageNum: 0 },
+        this.getRentals);
+    }
+
+    const actionButtons: ActionButtonProps[] = [
       ...admin ? [{
         id: "rentals-list-create",
         variant: "contained",
@@ -141,20 +148,16 @@ class RentalsList extends React.Component<Props, State> {
         disabled: !selectedId,
         onClick: this.openRenewalModal,
         label: "Renew Rental"
-      }, {
-        id: "rentals-list-delete",
-        variant: "contained",
-        color: "secondary",
-        disabled: !selectedId,
-          onClick: this.openDeleteModal,
-        label: "Delete Rental"
-      }] as ActionButton[] : [],
+      }] as ActionButtonProps[] : [],
     ];
 
     return (
-      <ButtonRow
-        actionButtons={actionButtons}
-      />
+      <>
+        <ButtonRow
+          actionButtons={actionButtons}
+        />
+          <DeleteRentalModal rental={selectedRental} onDelete={onDelete}/>
+      </>
     )
   }
 
@@ -257,27 +260,6 @@ class RentalsList extends React.Component<Props, State> {
       />
     )
 
-    const deleteModal = (renderProps: UpdateRentalRenderProps) => {
-      const submit = async (form: Form) => {
-        const success = await renderProps.submit(form);
-        if (success) {
-          this.setState({ selectedId: undefined, pageNum: 0 },
-            this.getRentals);
-        }
-      }
-      return (
-        <DeleteRentalModal
-          ref={renderProps.setRef}
-          rental={renderProps.rental}
-          isOpen={renderProps.isOpen}
-          isRequesting={renderProps.isRequesting}
-          error={renderProps.error}
-          onClose={renderProps.closeHandler}
-          onSubmit={submit}
-        />
-      );
-    }
-
     const selectedRental = rentals[selectedId];
 
     return (admin &&
@@ -297,13 +279,6 @@ class RentalsList extends React.Component<Props, State> {
               rental={rentals[selectedId]}
               closeHandler={this.closeRenewalModal}
               render={renewForm}
-            />
-            <UpdateRentalContainer
-              operation={CrudOperation.Delete}
-              isOpen={openRentalForm && modalOperation === CrudOperation.Delete}
-              rental={rentals[selectedId]}
-              closeHandler={this.closeRentalModal}
-              render={deleteModal}
             />
           </>
         )}

@@ -2,7 +2,7 @@ import * as React from "react";
 import Button, { ButtonProps } from "@material-ui/core/Button";
 import kebabCase from "lodash-es/kebabCase";
 
-export interface ActionButton {
+export interface ActionButtonProps {
   color: ButtonProps["color"];
   variant: ButtonProps["variant"];
   disabled?: boolean;
@@ -12,21 +12,25 @@ export interface ActionButton {
   style?: { [key: string]: string }
 }
 
-const ButtonRow: React.SFC<{ actionButtons: ActionButton[] }> = (props) => {
+
+export const ActionButton: React.FC<ActionButtonProps> = (props) => (
+  <Button
+    id={props.id}
+    style={{ marginRight: ".25em", ...props.style }}
+    color={props.color}
+    variant={props.variant}
+    disabled={props.disabled}
+    onClick={props.onClick}
+  >
+    {props.label}
+  </Button>
+)
+
+const ButtonRow: React.SFC<{ actionButtons: ActionButtonProps[] }> = (props) => {
   return (
     <>
       {Array.isArray(props.actionButtons) && props.actionButtons.map((action, index) => (
-        <Button
-          id={action.id}
-          key={`${kebabCase(action.label)}-${index}`}
-          style={{ marginRight: ".25em", ...action.style }}
-          color={action.color}
-          variant={action.variant}
-          disabled={action.disabled}
-          onClick={action.onClick}
-        >
-          {action.label}
-        </Button>
+        <ActionButton {...action} key={`${kebabCase(action.label)}-${index}`} />
       ))}
     </>
   )
