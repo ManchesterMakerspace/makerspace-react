@@ -57,12 +57,12 @@ Changing methods renders PaymentMethodsContainer w/ managing methods false
 interface DispatchProps {
   getSubscription: (id: string) => void;
   getInvoices: () => void;
-  getMember: () => void;
   goToCheckout: () => void;
 }
 interface OwnProps {
   subscriptionId: string;
   member: Member;
+  getMember: () => void;
 }
 interface StateProps {
   subscription: Subscription;
@@ -361,7 +361,6 @@ const mapDispatchToProps = (
   const { member, subscriptionId } = ownProps;
   return {
     getSubscription: () => dispatch(readSubscriptionAction(subscriptionId)),
-    getMember: () => dispatch(readMemberAction(member.id)),
     getInvoices: () => dispatch(readInvoicesAction(false, { resourceId: member.id })),
     goToCheckout: () => dispatch(push(Routing.Checkout)),
   }

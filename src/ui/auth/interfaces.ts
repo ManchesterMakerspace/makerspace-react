@@ -22,13 +22,7 @@ export interface SignUpForm {
   password: string;
 }
 
-export type AuthMember = Pick<Member,
-                        MemberProperties.Id |
-                        MemberProperties.Email |
-                        MemberProperties.Lastname |
-                        MemberProperties.Firstname |
-                        MemberProperties.Expiration
-                      > & Partial<Member> & {
+export type AuthMember = Member & {
   isAdmin: boolean;
 };
 

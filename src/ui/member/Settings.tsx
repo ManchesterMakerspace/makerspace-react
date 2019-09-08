@@ -56,7 +56,7 @@ class SettingsContainer extends React.Component<Props, State> {
 
   private renderForm = () => {
     const { selectedIndex } = this.state;
-    const { member, billingEnabled, isReading, readError } = this.props;
+    const { member, getMember, billingEnabled, isReading, readError } = this.props;
     let form: JSX.Element;
     if (!member) {
       return;
@@ -86,7 +86,7 @@ class SettingsContainer extends React.Component<Props, State> {
         />
       )
     } else if (selectedIndex === 1 && billingEnabled) {
-      form = <UpdateMembershipForm subscriptionId={member.subscriptionId} member={member}/>;
+      form = <UpdateMembershipForm subscriptionId={member.subscriptionId} member={member} getMember={getMember}/>;
     } else if (selectedIndex === 2 && billingEnabled) {
       form = (<PaymentMethodsContainer
         title="Manage Payment Methods"
@@ -178,6 +178,8 @@ const mapStateToProps = (
 ): StateProps => {
   const { currentUser: currentMember, permissions } = state.auth;
   const { entity: member, read: { isRequesting, error } } = state.member;
+
+  console.log(member);
   return {
     currentMember,
     member,
