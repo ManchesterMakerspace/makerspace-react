@@ -70,7 +70,7 @@ class Header extends React.Component<Props, State> {
   private renderLoginLink = () => {
     return (
       <Link to={Routing.Login} style={{ outline: 'none', textDecoration: 'none', color: 'unset' }}>
-        <MenuItem component={Typography}>
+        <MenuItem component={Typography as any}>
           Already a member? Login
         </MenuItem>
       </Link>

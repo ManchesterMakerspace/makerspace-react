@@ -20,10 +20,11 @@ import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
 import Form from "ui/common/Form";
 import { TransactionSearchCriteria } from "app/entities/transaction";
-import AsyncSelectFixed, { SelectOption } from "ui/common/AsyncSelect";
+import { SelectOption } from "ui/common/AsyncSelect";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { renderTransactionStatus } from "ui/transactions/utils";
 import { listMembers, isApiErrorResponse, Member, Transaction } from "makerspace-ts-api-client";
+import MemberSearchInput from "../common/MemberSearchInput";
 
 interface OwnProps extends RouteComponentProps<{}> {
   member?: Member;
@@ -254,21 +255,6 @@ class TransactionsList extends React.Component<Props, State> {
     this.setState({ member: newMember }, () => this.getTransactions(true));
   }
 
-  private memberOptions = async (searchValue: string) => {
-    const result = await listMembers({ search: searchValue });
-    if (isApiErrorResponse(result)) {
-      console.log(result.error);
-    } else {
-      const members = result.data;
-      const memberOptions = members.map(member => ({
-        value: member.email,
-        label: `${member.firstname} ${member.lastname}`,
-        id: member.id
-      }));
-      return memberOptions;
-    }
-  }
-
   private renderInvoiceForms = () => {
     const { selectedId, openTransactionForm, modalOperation } = this.state;
     const { transactions, member, admin } = this.props;
@@ -371,14 +357,10 @@ class TransactionsList extends React.Component<Props, State> {
           </span>
 
           {!member && <span style={{ width: "200px", display: "inline-block" }}>
-            <AsyncSelectFixed
-              isClearable
+            <MemberSearchInput
               name="member-filter"
-              value={this.state.member}
+              placeholder="Search by name or email"
               onChange={this.updateMemberValue}
-              placeholder="Filter by Member"
-              id="member-filter"
-              loadOptions={this.memberOptions}
             />
           </span>}
 

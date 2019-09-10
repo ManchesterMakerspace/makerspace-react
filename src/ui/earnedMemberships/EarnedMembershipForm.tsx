@@ -15,15 +15,12 @@ import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 import { formPrefix, requirementFields, earnedMembershipFields, RequirementNames } from "ui/earnedMemberships/constants";
 import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
-import AsyncSelectFixed from "ui/common/AsyncSelect";
 import {
-  getMember,
-  isApiErrorResponse,
-  listMembers,
   Member,
   EarnedMembership,
   Requirement
 } from "makerspace-ts-api-client";
+import MemberSearchInput from "../common/MemberSearchInput";
 
 interface OwnProps {
   isOpen: boolean;
@@ -41,7 +38,6 @@ type SelectOption = { label: string, value: string, id?: string };
 
 interface State {
   requirementCount: number;
-  member: SelectOption;
   strictMap: boolean[];
   requirementNames: string[]
 }
@@ -55,36 +51,9 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     super(props);
     this.state = {
       requirementCount: 1,
-      member: undefined,
       strictMap: [],
       requirementNames: [],
     }
-  }
-
-  private initMember = async () => {
-    const { membership } = this.props;
-    if (membership && membership.memberId) {
-      this.setState({ member: { value: membership.memberId, label: membership.memberName, id: membership.memberId } })
-      const result = await getMember(membership.memberId);
-
-      if (isApiErrorResponse(result)) {
-        console.log(result.error);
-      } else {
-        const member = result.data;
-        this.updateMemberValue({
-          value: member.id,
-          label: `${member.firstname} ${member.lastname}`,
-          id: member.id
-        });
-      }
-    } else {
-      this.updateMemberValue({ value: "", label: "None", id: undefined });
-    }
-  }
-
-  // Need to update internal state and set form value since input is otherwise a controlled input
-  private updateMemberValue = (newMember: SelectOption) => {
-    this.setState({ member: newMember });
   }
 
   private addRequirement = () => {
@@ -103,17 +72,13 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
 
   public componentDidUpdate(prevProps: OwnProps) {
     const { isOpen: wasOpen } = prevProps;
-    const { isOpen, member, membership } = this.props;
+    const { isOpen, membership } = this.props;
     if (isOpen === !wasOpen) {
-      this.initMember();
       this.setState({
         requirementCount: membership && Array.isArray(membership.requirements) ? membership.requirements.length : 1,
         strictMap: membership ? (membership.requirements || []).map(req => req.strict) : [],
         requirementNames: membership ? (membership.requirements || []).map(req => req.name) : [],
       });
-    }
-    if (member && member !== prevProps.member) {
-      this.formRef && this.formRef.resetForm();
     }
   }
 
@@ -193,7 +158,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     const strict = strictMap[index] || false;
 
     const requirementName = requirementNames[index];
-    const displayOther = requirementName !== undefined && (requirementName === RequirementNames.Other || !Object.values(RequirementNames).includes(requirementName));
+    const displayOther = requirementName !== undefined && (requirementName === RequirementNames.Other || !Object.values(RequirementNames).includes(requirementName as RequirementNames));
 
     return (
       <Card>
@@ -306,22 +271,6 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     )
   }
 
-  private memberOptions = async (searchValue: string) => {
-    const membersResponse = await listMembers({ search: searchValue });
-
-    if (isApiErrorResponse(membersResponse)) {
-      console.log(membersResponse.error);
-    } else {
-      const members = membersResponse.data;
-      const memberOptions = members.map(member => ({
-        value: member.email,
-        label: `${member.firstname} ${member.lastname}`,
-        id: member.id
-      }));
-      return memberOptions;
-    }
-  }
-
   private renderFormContents = () => {
     const { membership } = this.props;
 
@@ -332,16 +281,12 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
       <Grid container spacing={24}>
         <Grid item xs={12}>
           <FormLabel component="legend">{earnedMembershipFields.memberId.label}</FormLabel>
-          <AsyncSelectFixed
-            isClearable
+          <MemberSearchInput
             name={earnedMembershipFields.memberId.name}
-            value={this.state.member}
-            onChange={this.updateMemberValue}
-            isDisabled={membership && !!membership.id}
             placeholder={earnedMembershipFields.memberId.placeholder}
-            id={earnedMembershipFields.memberId.name}
-            loadOptions={this.memberOptions}
+            initialSelection={membership && { value: membership.memberId, label: membership.memberName, id: membership.memberId }}
             getFormRef={() => this.formRef}
+            disabled={membership && !!membership.id}
           />
         </Grid>
         <Grid item xs={12}>
