@@ -141,7 +141,7 @@ describe("Paid Subscriptions", () => {
       } as LoginMember, undefined, { billing: true });
 
       const subscriptionInvoice = {
-        defaultInvoice,
+        ...defaultInvoice,
         subscriptionId: initSubscription.id,
       };
       await mock(mockRequests.subscription.get.ok(initSubscription))
@@ -159,7 +159,7 @@ describe("Paid Subscriptions", () => {
       await utils.waitForVisible(subscriptionsPO.cancelSubscriptionModal.submit);
       expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).toEqual(defaultSubscriptions[0].status);
 
-      await mock(mockRequests.subscription.delete.ok(defaultSubscriptions[0].id));
+      await mock(mockRequests.subscription.delete.ok(initSubscription.id));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
 
       await utils.clickElement(subscriptionsPO.cancelSubscriptionModal.submit);

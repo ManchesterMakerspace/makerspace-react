@@ -166,6 +166,7 @@ class Form extends React.Component<FormModalProps, State> {
     const validatedForm: Partial<T> = {};
     Object.entries(fields).forEach(([key, field]) => {
       const value = field.transform ? field.transform(values[field.name]) : values[field.name];
+      console.warn(key, value);
       if (field.validate && !field.validate(value)) {
         errors[field.name] = field.error;
       } else {

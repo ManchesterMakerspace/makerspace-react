@@ -3,65 +3,96 @@ import Typography from "@material-ui/core/Typography";
 
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
-import Form from "ui/common/Form";
-import { Subscription } from "makerspace-ts-api-client";
+import { getSubscription, listInvoices, adminListInvoices, adminCancelSubscription, cancelSubscription } from "makerspace-ts-api-client";
 import { timeToDate } from "ui/utils/timeToDate";
-import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
+import useReadTransaction from "../hooks/useReadTransaction";
+import { useAuthState } from "../reducer/hooks";
+import useWriteTransaction from "../hooks/useWriteTransaction";
+import { ActionButton } from "../common/ButtonRow";
+import useModal from "../hooks/useModal";
 
-interface OwnProps {
-  subscription: Partial<Subscription>;
-  invoice: Partial<MemberInvoice | RentalInvoice>;
-  isOpen: boolean;
-  isRequesting: boolean;
-  error: string;
-  onClose: () => void;
-  onSubmit: (form: Form) => void;
+interface Props {
+  subscriptionId: string;
+  memberId: string;
+  getMember: () => void;
 }
 
+const CancelMembershipModal: React.FC<Props> = ({ subscriptionId, memberId, getMember }) => {
+  const { currentUser: { isAdmin } } = useAuthState();
+  const { isOpen, openModal, closeModal } = useModal();
 
-class CancelMembershipModal extends React.Component<OwnProps, {}> {
-  public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
-
-  public render(): JSX.Element {
-    const { isOpen, onClose, isRequesting, error, onSubmit, subscription, invoice } = this.props;
-
-    return subscription ? (
-      <FormModal
-        formRef={this.setFormRef}
-        id="cancel-subscription"
-        loading={isRequesting}
-        isOpen={isOpen}
-        closeHandler={onClose}
-        title="Cancel Membership"
-        onSubmit={onSubmit}
-        submitText="Submit"
-        cancelText="Close"
-        error={error}
-      >
-        <Typography gutterBottom>
-          Are you sure you want to cancel your recurring membership?  This action cannot be undone.
-        </Typography>
-        { invoice &&
-          <>
-            <KeyValueItem label="Name">
-              <span id="cancel-subscription-name">{invoice.name}</span>
-            </KeyValueItem>
-            <KeyValueItem label="Description">
-              <span id="cancel-subscription-description">{invoice.description}</span>
-            </KeyValueItem>
-          </>
-        }
-
-        <KeyValueItem label="Status">
-          <span id="cancel-subscription-status">{`${subscription.status}`}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Next Payment">
-          <span id="cancel-subscription-next-payment">{timeToDate(subscription.nextBillingDate)}</span>
-        </KeyValueItem>
-      </FormModal>
-    ) : null;
+  let data;
+  if (isAdmin) {
+    const result = useReadTransaction(adminListInvoices, { resourceId: memberId });
+    data = result.data || [];
+  } else {
+    const result = useReadTransaction(listInvoices, {});
+    data = result.data || [];
   }
-}
+  const invoice = data.find(invoice => invoice.subscriptionId === subscriptionId);
+  const { isRequesting: loading, error: loadingError, data: subscription } = useReadTransaction(getSubscription, subscriptionId);
+  const { isRequesting, error, call } = useWriteTransaction(isAdmin ? adminCancelSubscription : cancelSubscription, () => {
+    closeModal();
+    getMember();
+  });
+
+  const onSubmit = React.useCallback(() => {
+    call(subscriptionId);
+  }, [call, subscriptionId]);
+
+  if (!subscriptionId) {
+    return null;
+  }
+
+  const isLoading = loading || isRequesting;
+  const apiError = error || loadingError;
+
+  return (
+    <>
+     <ActionButton 
+        id="subscription-option-cancel"
+        color="secondary"
+        variant="outlined"
+        disabled={isLoading || !!apiError}
+        label="Cancel Membership"
+        onClick={openModal}
+      />
+      {isOpen && (
+        <FormModal
+          id="cancel-subscription"
+          loading={isLoading}
+          isOpen={isOpen}
+          closeHandler={closeModal}
+          title="Cancel Membership"
+          onSubmit={onSubmit}
+          submitText="Submit"
+          cancelText="Close"
+          error={apiError}
+        >
+          <Typography gutterBottom>
+            Are you sure you want to cancel your recurring membership?  This action cannot be undone.
+          </Typography>
+          { invoice &&
+            <>
+              <KeyValueItem label="Name">
+                <span id="cancel-subscription-name">{invoice.name}</span>
+              </KeyValueItem>
+              <KeyValueItem label="Description">
+                <span id="cancel-subscription-description">{invoice.description}</span>
+              </KeyValueItem>
+            </>
+          }
+
+          <KeyValueItem label="Status">
+            <span id="cancel-subscription-status">{`${subscription.status}`}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Next Payment">
+            <span id="cancel-subscription-next-payment">{timeToDate(subscription.nextBillingDate)}</span>
+          </KeyValueItem>
+        </FormModal>
+      )}
+    </>
+  );
+};
 
 export default CancelMembershipModal;

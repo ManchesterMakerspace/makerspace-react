@@ -1,16 +1,4 @@
-export enum Action {
-  StartReadRequest = "INVOICE/START_READ_REQUEST",
-  GetInvoiceSuccess = "INVOICE/GET_INVOICE_SUCCESS",
-  GetInvoiceFailure = "INVOICE/GET_INVOICE_FAILURE",
-
-  StartUpdateRequest = "INVOICE/START_UPDATE_REQUEST",
-  UpdateInvoiceSuccess = "INVOICE/UPDATE_INVOICE_SUCCESS",
-  UpdateInvoiceFailure = "INVOICE/UPDATE_INVOICE_FAILURE",
-
-  StartDeleteRequest = "INVOICE/START_DELETE_REQUEST",
-  DeleteInvoiceSuccess = "INVOICE/DELETE_INVOICE_SUCCESS",
-  DeleteInvoiceFailure = "INVOICE/DELETE_INVOICE_FAILURE",
-}
+import { SelectOption } from "ui/common/AsyncSelect";
 
 const formPrefix = "invoice-form";
 export const fields = {
@@ -21,10 +9,11 @@ export const fields = {
     error: "Description required",
     // validate: (val: string) => !!val,
   },
-  member: {
+  memberId: {
     label: "Select a member",
     name: `${formPrefix}-member`,
     placeholder: `Search by name or email`,
+    transform: (option: SelectOption) => option && option.value,
     validate: (val: string) => !!val,
     error: "Member required"
   },
@@ -54,7 +43,7 @@ export const fields = {
     placeholder: "Select a rental",
     error: "Please select an associated rental to apply invoice to"
   },
-  invoiceOptionId: {
+  id: {
     label: "Billing Option",
     name: `${formPrefix}-option`,
     placeholder: "Select an option",

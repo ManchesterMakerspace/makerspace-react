@@ -1,6 +1,5 @@
 import { SelectOption } from "ui/common/RenewalForm";
 import { dateToTime } from "ui/utils/timeToDate";
-import { Member } from "makerspace-ts-api-client";
 
 export enum Action {
   StartReadRequest = "RENTALS/START_READ_REQUEST",
@@ -70,6 +69,6 @@ export const fields = {
     label: "Select a member",
     name: `${formPrefix}-member`,
     placeholder: `Search by name or email`,
-    transform: (val: Member) => val && val.id,
+    transform: (val: SelectOption) => val && val.value,
   },
 }

@@ -1,55 +1,76 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
+import { adminDeleteRental } from "makerspace-ts-api-client";
 
-import { Rental } from "makerspace-ts-api-client";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
-import Form from "ui/common/Form";
+import { Rental } from "makerspace-ts-api-client";
+import useModal from "../hooks/useModal";
+import useWriteTransaction from "../hooks/useWriteTransaction";
+import { ActionButton } from "ui/common/ButtonRow";
 
-interface OwnProps {
-  rental: Partial<Rental>;
-  isOpen: boolean;
-  isRequesting: boolean;
-  error: string;
-  onClose: () => void;
-  onSubmit: (form: Form) => void;
+
+interface Props {
+  rental: Rental;
+  onDelete?: () => void;
 }
 
+const DeleteRentalModal: React.FC<Props> = ({ rental, onDelete }) => {
+  const { isOpen, openModal, closeModal } = useModal();
 
-class DeleteRentalModal extends React.Component<OwnProps, {}> {
-  public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
+  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteRental, onDelete);
+  const onSubmit = React.useCallback(() => {
+    rental && call(rental.id);
+  }, [rental, call]);
 
-  public render(): JSX.Element {
-    const { isOpen, onClose, isRequesting, error, onSubmit, rental } = this.props;
+  React.useEffect(() => {
+    if (isOpen && response && !isRequesting && !error) {
+      closeModal();
+      reset();
+    }
+  }, [isRequesting, error, response, isOpen, closeModal]);
 
-    return rental ? (
-      <FormModal
-        formRef={this.setFormRef}
-        id="delete-rental"
-        loading={isRequesting}
-        isOpen={isOpen}
-        closeHandler={onClose}
-        title="Delete Rental"
-        onSubmit={onSubmit}
-        submitText="Delete"
-        error={error}
-      >
-        <Typography gutterBottom>
-          Are you sure you want to delete this rental?
-        </Typography>
-        <KeyValueItem label="Contact">
-          <span id="delete-rental-member">{rental.memberName}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Number">
-          <span id="delete-rental-number">{rental.number}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Description">
-          <span id="delete-rental-description">{rental.description}</span>
-        </KeyValueItem>
-      </FormModal>
-    ) : null;
+  if (!rental) {
+    return null;
   }
+
+  return (
+    <>
+      <ActionButton
+        id="rentals-list-delete"
+        variant="contained"
+        color="secondary"
+        disabled={!rental}
+        onClick={openModal}
+        label="Delete Rental"
+      />
+      {isOpen && (
+        <FormModal
+          id="delete-rental"
+          loading={isRequesting}
+          isOpen={isOpen}
+          closeHandler={closeModal}
+          title="Delete Rental"
+          onSubmit={onSubmit}
+          submitText="Delete"
+          error={error}
+        >
+          <Typography gutterBottom>
+            Are you sure you want to delete this rental?
+          </Typography>
+          <KeyValueItem label="Contact">
+            <span id="delete-rental-member">{rental.memberName}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Number">
+            <span id="delete-rental-number">{rental.number}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Description">
+            <span id="delete-rental-description">{rental.description}</span>
+          </KeyValueItem>
+        </FormModal>
+      )}
+    </>
+  );
 }
 
 export default DeleteRentalModal;

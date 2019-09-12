@@ -15,9 +15,9 @@ interface Props {
 
 const AccessCardForm: React.FC<Props> = ({ member, onClose }) => {
   const [error, setError] = React.useState();
-  const { loading: createLoading, error: createError, call: createCard, data: newCard } = useWriteTransaction(adminCreateCard);
+  const { isRequesting: createLoading, error: createError, call: createCard, data: newCard } = useWriteTransaction(adminCreateCard);
   const {
-    loading: newCardLoading,
+    isRequesting: newCardLoading,
     error: newCardError,
     refresh: getNewCard,
     data: rejectionCard

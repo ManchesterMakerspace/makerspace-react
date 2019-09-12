@@ -17,10 +17,6 @@ import { MemberState } from "ui/member/interfaces";
 import { memberReducer } from "ui/member/actions";
 import { CheckoutState } from "ui/checkout/interfaces";
 import { checkoutReducer } from "ui/checkout/actions";
-import { InvoiceState } from "ui/invoice/interfaces";
-import { invoiceReducer } from "ui/invoice/actions";
-import { InvoicesState } from "ui/invoices/interfaces";
-import { invoicesReducer } from "ui/invoices/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
 import { earnedMembershipsReducer } from "ui/earnedMemberships/actions";
 import { ReportsState } from "ui/reports/interfaces";
@@ -28,7 +24,7 @@ import { reportsReducer } from "ui/reports/actions";
 import { TransactionsState } from "ui/transactions/interfaces";
 import { transactionsReducer } from "ui/transactions/actions";
 import { RequestStatus } from "app/interfaces";
-import { ApiErrorResponse } from "makerspace-ts-api-client";
+import { ApiErrorResponse, ApiDataResponse } from "makerspace-ts-api-client";
 
 export type ScopedThunkDispatch = ThunkDispatch<State, {}, Action>
 export type ScopedThunkAction<T> = ThunkAction<T, State, {}, AnyAction>;
@@ -43,8 +39,6 @@ export interface State  {
   billing: BillingState;
   subscriptions: SubscriptionsState;
   checkout: CheckoutState;
-  invoice: InvoiceState;
-  invoices: InvoicesState;
   earnedMemberships: EarnedMembershipsState;
   reports: ReportsState;
   transactions: TransactionsState;
@@ -60,20 +54,20 @@ export const getRootReducer = (history: History) => combineReducers({
   billing: billingReducer,
   subscriptions: subscriptionsReducer,
   checkout: checkoutReducer,
-  invoice: invoiceReducer,
-  invoices: invoicesReducer,
   earnedMemberships: earnedMembershipsReducer,
   reports: reportsReducer,
   transactions: transactionsReducer,
 });
 
-type Transaction<T extends object> = RequestStatus & {
-  data: T
+export type Transaction<T> = RequestStatus & {
+  data: T;
+  response: ApiErrorResponse | ApiDataResponse<T>;
 }
 export interface ReducerAction<T> {
   type: string;
   key: string;
   data?: T;
+  response?: ApiErrorResponse | ApiDataResponse<T>;
   error?: ApiErrorResponse;
 }
 
@@ -83,7 +77,7 @@ export enum TransactionAction {
   Failure = "failure",
 }
 
-const baseReducer = <T extends object>(state: { [key: string]: Transaction<any> } = {}, action: AnyAction) => {
+const baseReducer = <T>(state: { [key: string]: Transaction<T> } = {}, action: AnyAction) => {
   let key;
   switch (action.type) {
     case TransactionAction.Start:
@@ -98,13 +92,14 @@ const baseReducer = <T extends object>(state: { [key: string]: Transaction<any> 
       };
 
     case TransactionAction.Success:
-      const { data } = action;
+      const { data, response } = action;
       key = action.key;
       return {
         ...state,
         [key]: {
           ...state[key],
           data,
+          response,
           isRequesting: false,
           error: undefined,
         }

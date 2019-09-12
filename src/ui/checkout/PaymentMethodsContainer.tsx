@@ -13,7 +13,7 @@ import FormModal from "ui/common/FormModal";
 import ErrorMessage from "ui/common/ErrorMessage";
 import { AnyPaymentMethod } from "app/entities/paymentMethod";
 import Form from "ui/common/Form";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import PaymentMethodComponent from "ui/checkout/PaymentMethod";
 import { Subscription, listPaymentMethods, isApiErrorResponse, deletePaymentMethod } from "makerspace-ts-api-client";
 
@@ -72,6 +72,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   private onAddSuccess = (nonce: string) => {
     this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(nonce);
+    this.setState({ selectedPaymentMethodId: nonce });
     this.fetchPaymentMethods();
     this.closeAddPaymentMethod();
   }
@@ -79,7 +80,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
   private selectPaymentMethod = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedPaymentMethodId = event.currentTarget.value;
     this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethodId);
-    this.setState({ selectedPaymentMethodId })
+    this.setState({ selectedPaymentMethodId });
   }
 
   private renderDeletePaymentModal = () => {
@@ -170,7 +171,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
         onClick: this.addNewPaymentMethod,
         label: "Add New Payment Method"
       }
-    ] as ActionButton[])
+    ] as ActionButtonProps[])
   }
 
 

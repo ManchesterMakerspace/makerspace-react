@@ -53,6 +53,7 @@ describe("Invoicing and Dues", () => {
 
       const resourcedInvoices = initInvoices.map(invoice => ({
         ...invoice,
+        memberId: basicUser.id,
         member: {
           ...basicUser
         }
@@ -119,11 +120,11 @@ describe("Invoicing and Dues", () => {
        memberId: basicUser.id,
        memberName: `${basicUser.firstname} ${basicUser.lastname}`
      }
+      await mock(mockRequests.invoiceOptions.get.ok(defaultBillingOptions, { types: [InvoiceableResource.Membership] }));
       await loadInvoices([], true);
       const { submit, description, amount, dueDate } = invoicePO.invoiceForm;
       expect(await utils.isElementDisplayed(invoicePO.getErrorRowId())).toBeFalsy();
       expect(await utils.isElementDisplayed(invoicePO.getNoDataRowId())).toBeTruthy();
-      await mock(mockRequests.invoiceOptions.get.ok(defaultBillingOptions, { types: [InvoiceableResource.Membership] }));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(invoicePO.actionButtons.create);
       await utils.waitForVisible(submit);

@@ -17,7 +17,7 @@ import { timeToDate, toDatePicker, dateToTime } from "ui/utils/timeToDate";
 import { CrudOperation } from "app/constants";
 import UpdateTransactionContainer, { UpdateTransactionRenderProps } from "ui/transactions/UpdateTransactionContainer";
 import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import Form from "ui/common/Form";
 import { TransactionSearchCriteria } from "app/entities/transaction";
 import { SelectOption } from "ui/common/AsyncSelect";
@@ -165,7 +165,7 @@ class TransactionsList extends React.Component<Props, State> {
       }
     }
 
-    const actionButtons: ActionButton[] = [
+    const actionButtons: ActionButtonProps[] = [
       {
         label,
         id: "transactions-list-delete",

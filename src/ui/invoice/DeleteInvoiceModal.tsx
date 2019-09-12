@@ -1,60 +1,79 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
+import { adminDeleteInvoice } from "makerspace-ts-api-client";
 
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
-import Form from "ui/common/Form";
 import { timeToDate } from "ui/utils/timeToDate";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
+import useModal from "../hooks/useModal";
+import useWriteTransaction from "../hooks/useWriteTransaction";
+import { ActionButton } from "ui/common/ButtonRow";
 
-interface OwnProps {
-  invoice: Partial<MemberInvoice | RentalInvoice>;
-  isOpen: boolean;
-  isRequesting: boolean;
-  error: string;
-  onClose: () => void;
-  onSubmit: (form: Form) => void;
+
+interface Props {
+  invoice: MemberInvoice | RentalInvoice;
+  onSuccess?: () => void;
 }
 
+const DeleteInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
+  const { isOpen, openModal, closeModal } = useModal();
 
-class DeleteInvoiceModal extends React.Component<OwnProps, {}> {
-  public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
+  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteInvoice);
+  const onSubmit = React.useCallback(() => {
+    call(invoice.id);
+  }, [invoice, call]);
 
-  public render(): JSX.Element {
-    const { isOpen, onClose, isRequesting, error, onSubmit, invoice } = this.props;
+  React.useEffect(() => {
+    if (isOpen && response && !isRequesting && !error) {
+      closeModal();
+      onSuccess();
+      reset();
+    }
+  }, [isRequesting, error, response, isOpen, closeModal, onSuccess]);
 
-    return invoice ? (
-      <FormModal
-        formRef={this.setFormRef}
-        id="delete-invoice"
-        loading={isRequesting}
-        isOpen={isOpen}
-        closeHandler={onClose}
-        title="Delete Invoice"
-        onSubmit={onSubmit}
-        submitText="Delete"
-        error={error}
-      >
-        <Typography gutterBottom>
-          Are you sure you want to delete this invoice?
-        </Typography>
-        <KeyValueItem label="Member">
-          <span id="delete-invoice-member">{invoice.memberName}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Description">
-          <span id="delete-invoice-description">{invoice.description}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Amount">
-          <span id="delete-invoice-amount">{numberAsCurrency(invoice.amount)}</span>
-        </KeyValueItem>
-        <KeyValueItem label="Due Date">
-          <span id="delete-invoice-due-date">{timeToDate(invoice.dueDate)}</span>
-        </KeyValueItem>
-      </FormModal>
-    ) : null;
-  }
+
+  return (
+    <>
+      <ActionButton
+        id="invoices-list-delete"
+        variant="contained"
+        color="secondary"
+        disabled={!invoice}
+        onClick={openModal}
+        label="Delete Invoice"
+      />
+      {isOpen && (
+        <FormModal
+          id="delete-invoice"
+          loading={isRequesting}
+          isOpen={isOpen}
+          closeHandler={closeModal}
+          title="Delete Invoice"
+          onSubmit={onSubmit}
+          submitText="Delete"
+          error={error}
+        >
+          <Typography gutterBottom>
+            Are you sure you want to delete this invoice?
+          </Typography>
+          <KeyValueItem label="Member">
+            <span id="delete-invoice-member">{invoice.memberName}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Description">
+            <span id="delete-invoice-description">{invoice.description}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Amount">
+            <span id="delete-invoice-amount">{numberAsCurrency(invoice.amount)}</span>
+          </KeyValueItem>
+          <KeyValueItem label="Due Date">
+            <span id="delete-invoice-due-date">{timeToDate(invoice.dueDate)}</span>
+          </KeyValueItem>
+        </FormModal>
+      )}
+    </>
+  );
 }
 
 export default DeleteInvoiceModal;

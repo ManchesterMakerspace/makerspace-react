@@ -10,7 +10,7 @@ import useWriteTransaction from "ui/hooks/useWriteTransaction";
 const SendRegistrationComponent: React.FC = () => {
   const { history, match: { params: { email } } } = useReactRouter();
   const goToMembers = React.useCallback(() => history.push(Routing.Members), []);
-  const { loading, error, call } = useWriteTransaction(sendRegistrationEmail);
+  const { isRequesting, error, call } = useWriteTransaction(sendRegistrationEmail);
   const [success, setSuccess] = React.useState(false);
 
   const submitRequest = React.useCallback(async () => {
@@ -29,7 +29,7 @@ const SendRegistrationComponent: React.FC = () => {
           submitText={success ? 'Return to app' : 'Send email'}
           onCancel={!success && goToMembers}
           error={error}
-          loading={loading}
+          loading={isRequesting}
         >
           {success ?
             'Email sent successfully. You can now return to the app'

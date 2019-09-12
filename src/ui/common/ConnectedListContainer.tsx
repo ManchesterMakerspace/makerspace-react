@@ -10,7 +10,7 @@ import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import { SortDirection } from "ui/common/table/constants";
 import TableContainer from "ui/common/table/TableContainer";
 import { Column } from "ui/common/table/Table";
-import ButtonRow, { ActionButton } from "ui/common/ButtonRow";
+import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 
 
 interface OwnProps<T> {
@@ -19,7 +19,7 @@ interface OwnProps<T> {
   columns: Column<T>[];
   dataMap: string[];
   statusMap: string[];
-  actionButtons?: ActionButton[];
+  actionButtons?: ActionButtonProps[];
   loading?: boolean;
 }
 interface DispatchProps {

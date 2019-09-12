@@ -9,11 +9,10 @@ import RenewalForm from "ui/common/RenewalForm"
 import { updateRentalAction, createRentalAction, deleteRentalAction } from "ui/rentals/actions";
 import { CrudOperation } from "app/constants";
 import RentalForm from "ui/rentals/RentalForm";
-import DeleteRentalModal from "ui/rentals/DeleteRentalModal";
 
 export interface UpdateRentalRenderProps extends Props {
   submit: (form: Form) => Promise<boolean>;
-  setRef: (ref: RentalForm | RenewalForm | DeleteRentalModal) => void;
+  setRef: (ref: RentalForm | RenewalForm) => void;
 }
 interface OwnProps {
   rental: Partial<Rental>;
