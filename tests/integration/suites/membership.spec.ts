@@ -204,8 +204,12 @@ describe("Membership", () => {
     const cancelledFilter = await browser.findElement(By.css(subscriptionPO.filters.hideCancelled));
     await utils.selectCheckbox(cancelledFilter);
     const rows = await subscriptionPO.getAllRows();
-    rows.forEach(async (row, index) => { 
-      expect(await subscriptionPO.getColumnByIndex(index, "memberName")).not.toEqual(name);
-    });
+    await Promise.all(rows.map((row, index) => {
+      return new Promise(async (resolve) => {
+        const memberName = await subscriptionPO.getColumnByIndex(index, "memberName");
+        expect(memberName).not.toEqual(name);
+        resolve();
+      });
+    }));
   }, 300 * 1000);
 });
