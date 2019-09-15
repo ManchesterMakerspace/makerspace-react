@@ -76,7 +76,7 @@ describe("Paid Subscriptions", () => {
       await mock(mockRequests.subscription.get.ok(initSubscription))
 
       await header.navigateTo(header.links.settings);
-      await utils.waitForPageLoad(settingsPO.pageUrl);
+      await utils.waitForPageToMatch(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -125,7 +125,7 @@ describe("Paid Subscriptions", () => {
       await mock(mockRequests.invoices.get.ok([subscriptionInvoice], { resourceId: basicUser.id }));
 
       await header.navigateTo(header.links.settings);
-      await utils.waitForPageLoad(settingsPO.pageUrl);
+      await utils.waitForPageToMatch(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -148,7 +148,7 @@ describe("Paid Subscriptions", () => {
       await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
 
       await header.navigateTo(header.links.settings);
-      await utils.waitForPageLoad(settingsPO.pageUrl);
+      await utils.waitForPageToMatch(settingsPO.pageUrl);
       await settingsPO.goToMembershipSettings();
 
       // Subscription details displayed

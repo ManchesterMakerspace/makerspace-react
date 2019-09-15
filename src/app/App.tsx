@@ -13,7 +13,7 @@ import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { withRouter, RouteComponentProps } from 'react-router';
 
 interface StateProps {
-  auth: string;
+  currentUserId: string;
   isSigningIn: boolean;
   stagedInvoices: CollectionOf<MemberInvoice | RentalInvoice>;
   isCheckingOut: boolean;
@@ -60,11 +60,11 @@ class App extends React.Component<Props, State> {
 
   private renderBody = ():JSX.Element => {
     const { attemptingLogin } = this.state;
-    const { auth, permissions, isAdmin } = this.props;
+    const { currentUserId, permissions, isAdmin } = this.props;
     if (attemptingLogin) {
       return <LoadingOverlay id="body"/>;
     } else {
-      return auth ? <PrivateRouting permissions={permissions} auth={auth} isAdmin={isAdmin}/> : <PublicRouting/>;
+      return currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin}/> : <PublicRouting/>;
     }
   }
   public render(): JSX.Element {
@@ -89,7 +89,7 @@ const mapStateToProps = (state: ReduxState, _ownProps: OwnProps): StateProps => 
   } = state.checkout;
 
   return {
-    auth: currentUser.id,
+    currentUserId: currentUser.id,
     isAdmin: currentUser.isAdmin,
     stagedInvoices: invoices,
     permissions,

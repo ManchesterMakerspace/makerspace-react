@@ -5,7 +5,7 @@ import { isApiErrorResponse } from "makerspace-ts-api-client";
 import { useApiState, getApiState } from "../reducer/hooks";
 import { buildQueryString } from "../reducer/functions";
 import { TransactionAction, } from "../reducer";
-import { getStore } from "src/app/main";
+import { getStore } from "app/main";
 
 interface ReadTransaction<Args, T> extends TransactionState<T> {
   refresh: () => void;
@@ -13,14 +13,14 @@ interface ReadTransaction<Args, T> extends TransactionState<T> {
 
 const useReadTransaction = <Args, Resp>(
   transaction: ApiFunction<Args, Resp>,
-  args: Args
+  ...args: Args[]
 ): ReadTransaction<Args, Resp> => {
-  const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, args))
+  const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, ...args))
   const [force, setForce] = React.useState(false);
   const refresh = React.useCallback(() => setForce(prevState => !prevState), []);
 
   const getCurrentState = React.useCallback(() => {
-    const key = buildQueryString(transaction, args);
+    const key = buildQueryString(transaction, ...args);
     return getApiState(key, getStore().getState());
   }, [transaction, stringifyArgs(args)]);
 
@@ -31,7 +31,7 @@ const useReadTransaction = <Args, Resp>(
       if (!currentState || !currentState.isRequesting) {
         dispatch({ type: TransactionAction.Start });
 
-        const response = await transaction(args);
+        const response = await transaction(...args);
  
         if (isApiErrorResponse(response)) {
           dispatch({

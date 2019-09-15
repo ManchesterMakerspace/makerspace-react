@@ -21,6 +21,7 @@ import {
   Member,
   listMembers
 } from "makerspace-ts-api-client";
+import MemberSearchInput from "ui/common/MemberSearchInput";
 
 interface OwnProps {
   requirement: Requirement;
@@ -49,54 +50,8 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
 
   private initMembers = async () => {
     const { reportRequirement } = this.props;
-    if (reportRequirement) {
-      if (reportRequirement.memberIds && reportRequirement.memberIds.length) {
-        this.setState({ memberCount: (reportRequirement.memberIds || []).length || 1 });
-        const requestId = crypto.randomBytes(20).toString('hex');
-        this.setState({ loadingMembersRequestId: requestId }, () => {
-          Promise.all(reportRequirement.memberIds.map( async (id, index) =>
-            new Promise(async (resolve) => {
-              let member;
-
-              try {
-                // Only request if its a Mongo ID
-                // It could be name or email if not a member
-                if (id.match(mongoIdRegex)) {
-                  const result = await getMember(id);
-                  if (!isApiErrorResponse(result)) {
-                    member = result.data;
-                  }
-                }
-              } catch (e) {
-                if (!(e && e.response && e.response.status === 404)) {
-                  // Log the error if its anything other than 404
-                  console.log(e);
-                }
-              } finally {
-                if (!member) {
-                  member = { id };
-                }
-              }
-
-              // Verify we're still fetching the same collection before setting form
-              if (member && this.state.loadingMembersRequestId === requestId) {
-                const option = {
-                  value: member.id,
-                  label: (member as Member).firstname ? `${(member as Member).firstname} ${(member as Member).lastname || ""}` : member.id,
-                  id: member.id,
-                };
-                const fieldName = this.getMemberInputName(index);
-                this.formRef && await this.formRef.setValue(fieldName, option);
-              }
-
-              resolve();
-            })));
-        });
-      } else {
-        const fieldName = this.getMemberInputName(0);
-        const option: SelectOption = { value: null, label: "None reported", id: 'none' }
-        this.formRef && await this.formRef.setValue(fieldName, option);
-      }
+    if (reportRequirement && reportRequirement.memberIds && reportRequirement.memberIds.length) {
+      this.setState({ memberCount: (reportRequirement.memberIds).length || 1 });
     }
   }
 
@@ -208,37 +163,26 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
   }
 
   private renderMemberRow = (index: number) => {
-    const { requirement, disabled, index: requirementIndex } = this.props;
+    const { requirement, index: requirementIndex, reportRequirement, disabled } = this.props;
     const fieldName = this.getMemberInputName(index);
     const fields = reportRequirementFields(requirement, requirementIndex);
-    const onChange = (option: SelectOption) =>
-      this.formRef.setValue(fieldName, option);
 
+    const value = reportRequirement && reportRequirement.memberIds && reportRequirement.memberIds[index];
     return (
       <Grid item xs={12}>
         <FormLabel component="legend">{fields.memberId.label}</FormLabel>
-        <AsyncCreatableSelect
-          isClearable
-          name={fieldName}
+        <MemberSearchInput
+          disabled={disabled}
           placeholder={fields.memberId.placeholder}
-          id={fieldName}
-          onChange={onChange}
-          isDisabled={disabled}
-          loadOptions={this.memberOptions}
+          name={fieldName}
+          getFormRef={() => this.formRef}
+          initialSelection={{
+            value,
+            label: value
+          }}
         />
       </Grid>
     )
-  }
-
-  private memberOptions = async (searchValue: string) => {
-    const result = await listMembers({ search: searchValue });
-    if (isApiErrorResponse(result)) {
-      console.log(result.error);
-    } else {
-      const members = result.data;
-      const memberOptions = members.map(member => ({ value: member.id, label: `${member.firstname} ${member.lastname}`, id: member.id }));
-      return memberOptions;
-    }
   }
 
   public render(): JSX.Element {

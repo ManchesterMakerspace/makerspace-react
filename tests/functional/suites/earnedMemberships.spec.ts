@@ -253,8 +253,8 @@ describe("Earned Memberships", () => {
       await mock(mockRequests.member.get.ok(defaultMembers[1].id, defaultMembers[1]));
 
       await reportPO.viewReport(initReport.id);
-      expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(0))).toEqual(newReportRequirement.memberIds[0]);
-      expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(1))).toEqual(newReportRequirement.memberIds[1]);
+      expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(0))).toEqual(`${defaultMembers[0].firstname} ${defaultMembers[0].lastname}`);
+      expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(1))).toEqual(`${defaultMembers[1].firstname} ${defaultMembers[1].lastname}`);
       expect(await utils.getElementAttribute(reportPO.reportRequirementForm(0).reportedCount, "value")).toEqual(String(newReportRequirement.reportedCount));
       expect(await utils.getElementText(reportPO.reportForm.reportDate)).toEqual(timeToDate(initReport.date));
       done();

@@ -34,7 +34,7 @@ describe("Membership", () => {
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
-    await utils.waitForPageLoad(settingsPO.pageUrl);
+    await utils.waitForPageToMatch(settingsPO.pageUrl);
     await settingsPO.goToMembershipSettings();
 
     // Non subscription details displayed
@@ -81,7 +81,7 @@ describe("Membership", () => {
     // TODO: Verify subscription & receipt emails
 
     await header.navigateTo(header.links.settings);
-    await utils.waitForPageLoad(settingsPO.pageUrl);
+    await utils.waitForPageToMatch(settingsPO.pageUrl);
     await settingsPO.goToMembershipSettings();
 
     // Subscription details displayed
@@ -137,7 +137,7 @@ describe("Membership", () => {
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
-    await utils.waitForPageLoad(settingsPO.pageUrl);
+    await utils.waitForPageToMatch(settingsPO.pageUrl);
     await settingsPO.goToMembershipSettings();
 
     // Non subscription details displayed

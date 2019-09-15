@@ -20,19 +20,16 @@ interface Props {
 const DeleteInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
   const { isOpen, openModal, closeModal } = useModal();
 
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteInvoice);
+  const onDelete = React.useCallback(({ reset }) => {
+    closeModal();
+    onSuccess();
+    reset();
+  }, [closeModal, onSuccess]);
+
+  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteInvoice, onDelete);
   const onSubmit = React.useCallback(() => {
     call(invoice.id);
   }, [invoice, call]);
-
-  React.useEffect(() => {
-    if (isOpen && response && !isRequesting && !error) {
-      closeModal();
-      onSuccess();
-      reset();
-    }
-  }, [isRequesting, error, response, isOpen, closeModal, onSuccess]);
-
 
   return (
     <>

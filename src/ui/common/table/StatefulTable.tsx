@@ -35,10 +35,10 @@ type SetQuery =  SetAllQuery & {
   setPageNum(page: number): void;
 };
 
-export const useQueryState = (initialState: QueryState = {}): [QueryState, SetQuery] => {
+export const useQueryState = (initialState: QueryState = {}): [QueryState, SetQuery, () => void] => {
   const [order, setOrder] = React.useState<SortDirection>(initialState.order || SortDirection.Asc);
-  const [orderBy, setOrderBy] = React.useState<string>(initialState.orderBy || "");
-  const [search, setSearch] = React.useState<string>(initialState.search || "");
+  const [orderBy, setOrderBy] = React.useState<string>(initialState.orderBy);
+  const [search, setSearch] = React.useState<string>(initialState.search);
   const [pageNum, setPageNum] = React.useState<number>(initialState.pageNum || 0);
 
 
@@ -57,12 +57,16 @@ export const useQueryState = (initialState: QueryState = {}): [QueryState, SetQu
     setPageNum
   });
 
+  const reset = React.useCallback(() => {
+    setPageNum(initialState.pageNum || 0);
+  }, [setPageNum]);
+
   return [{
     order,
     orderBy,
     search,
     pageNum,
-  }, setQuery];
+  }, setQuery, reset];
 };
 
 const StatefulTable: React.FC<Props<unknown, unknown>> = ({

@@ -41,6 +41,11 @@ class MemberForm extends React.Component<OwnProps, State> {
       memberContractOnFile: false,
     }
   }
+  
+  public componentDidMount() {
+    const { member } = this.props;
+    this.setState({ memberContractOnFile: member && member.memberContractOnFile || false });
+  }
 
   public componentDidUpdate(prevProps: OwnProps) {
     const { isOpen, member } = this.props;

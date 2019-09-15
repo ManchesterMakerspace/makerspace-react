@@ -25,8 +25,13 @@ h6 > svg {
 }
 .loading-overlay {
   position: absolute;
-  height: 100%;
-  width: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
   background-color: rgba(200, 200, 200, 0.5);
   .spinner-container {
@@ -36,6 +41,7 @@ h6 > svg {
     height: 100%;
   }
 }
+
  .root {
   @include flex;
 }

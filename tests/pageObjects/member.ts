@@ -4,9 +4,19 @@ import { TablePageObject } from "./table";
 import { timeToDate } from "ui/utils/timeToDate"
 import { LoginMember } from "./auth";
 import { Member } from "makerspace-ts-api-client";
+import { SortDirection } from "ui/common/table/constants";
+import { QueryParams } from "src/app/interfaces";
 
 const membersListTableId = "members-table";
 const membersListFields = ["lastname", "expirationTime", "status"];
+
+export const defaultQueryParams = {
+  pageNum: ["0"],
+  orderBy: [""],
+  order: [SortDirection.Asc],
+  search: [""],
+  currentMembers: ["true"]
+} as any as QueryParams;
 export class MemberPageObject extends TablePageObject {
   public welcomeModal = {
     id: "#welcome-modal",
