@@ -17,22 +17,15 @@ interface Props {
 
 const DeleteRentalModal: React.FC<Props> = ({ rental, onDelete }) => {
   const { isOpen, openModal, closeModal } = useModal();
-
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteRental, onDelete);
+  const onSuccess = React.useCallback(({ reset }) => {
+    onDelete();
+    closeModal();
+    reset();
+  }, [onDelete, closeModal]);
+  const { call, isRequesting, error } = useWriteTransaction(adminDeleteRental, onSuccess);
   const onSubmit = React.useCallback(() => {
     rental && call(rental.id);
   }, [rental, call]);
-
-  React.useEffect(() => {
-    if (isOpen && response && !isRequesting && !error) {
-      closeModal();
-      reset();
-    }
-  }, [isRequesting, error, response, isOpen, closeModal]);
-
-  if (!rental) {
-    return null;
-  }
 
   return (
     <>
@@ -44,7 +37,7 @@ const DeleteRentalModal: React.FC<Props> = ({ rental, onDelete }) => {
         onClick={openModal}
         label="Delete Rental"
       />
-      {isOpen && (
+      {isOpen && rental && (
         <FormModal
           id="delete-rental"
           loading={isRequesting}

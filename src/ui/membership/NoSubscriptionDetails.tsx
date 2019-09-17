@@ -5,13 +5,11 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
 import MembershipSelectForm from "ui/membership/MembershipSelectForm";
-import Form from "ui/common/Form";
 import KeyValueItem from "ui/common/KeyValueItem";
 import { displayMemberExpiration } from "ui/member/utils";
 import MemberStatusLabel from "ui/member/MemberStatusLabel";
 import { getDetailsForMember } from "ui/membership/constants";
-import UpdateMembershipContainer from "ui/membership/UpdateMembershipContainer";
-import { CrudOperation, Routing } from "app/constants";
+import { Routing } from "app/constants";
 import FormModal from "ui/common/FormModal";
 import { Member, createInvoice } from "makerspace-ts-api-client";
 import useModal from "../hooks/useModal";
@@ -34,10 +32,10 @@ const NoSubscriptionDetails: React.FC<Props> = ({ member }) => {
 
   const { history } = useReactRouter();
 
-  const { call, isRequesting, error } = useWriteTransaction(createInvoice, (newInvoice) => {
+  const { call, isRequesting, error } = useWriteTransaction(createInvoice, ({ response }) => {
     dispatch({
       type: Action.StageInvoicesForPayment,
-      data: [newInvoice]
+      data: [response.data]
     });
     history.push(Routing.Checkout);
   });

@@ -4,7 +4,6 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 
 interface Resource {
@@ -16,7 +15,7 @@ interface OwnProps {
   title: string,
   basePath: string,
   information: JSX.Element,
-  actionButtons: ActionButtonProps[],
+  actionButtons: JSX.Element[],
   resources?: Resource[]
   activeResourceName?: string,
 }
@@ -40,17 +39,6 @@ class DetailView extends React.Component<OwnProps, State> {
     this.setActiveResourceFromProps();
   }
 
-  public componentDidUpdate(prevProps: OwnProps) {
-    const { activeResourceName: prevResourceName, resources: prevResources } = prevProps;
-    const { activeResourceName, resources } = this.props;
-    if (
-      (activeResourceName !== prevResourceName) ||
-      (resources !== prevResources)
-    ) {
-      this.setActiveResourceFromProps();
-    }
-  }
-
   private setActiveResourceFromProps = (newActiveName?: string) => {
     const { activeResourceName, resources } = this.props;
     const resourceLookupName = newActiveName || activeResourceName;
@@ -71,7 +59,7 @@ class DetailView extends React.Component<OwnProps, State> {
       <>
         <Grid item md={10} xs={12}>
           <Typography id="detail-view-title" gutterBottom variant="h6">{title}</Typography>
-          <ButtonRow actionButtons={actionButtons} />
+          {actionButtons}
         </Grid>
         <Grid item md={10} xs={12} style={sectionBorderStyle}>
           {information}

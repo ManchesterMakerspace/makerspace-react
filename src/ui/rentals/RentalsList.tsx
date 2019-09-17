@@ -156,7 +156,7 @@ class RentalsList extends React.Component<Props, State> {
         <ButtonRow
           actionButtons={actionButtons}
         />
-          <DeleteRentalModal rental={selectedRental} onDelete={onDelete}/>
+        <DeleteRentalModal rental={selectedRental} onDelete={onDelete}/>
       </>
     )
   }

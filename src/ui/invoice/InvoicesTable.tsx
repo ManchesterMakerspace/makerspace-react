@@ -16,7 +16,7 @@ import SettleInvoiceModal from "../invoice/SettleInvoiceModal";
 import CreateInvoiceModal from "../invoice/CreateInvoiceModal";
 import DeleteInvoiceModal from "../invoice/DeleteInvoiceModal";
 import { ActionButton } from "../common/ButtonRow";
-import { isInvoiceSettled, isInvoicePayable } from "./utils";
+import { isInvoicePayable } from "./utils";
 
 
 const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): Column<MemberInvoice | RentalInvoice>[] => [
@@ -84,7 +84,6 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
 ];
 
 const InvoicesTable: React.FC<{ stageInvoices(invoices: Invoice[]): void }> = ({ stageInvoices }) => {
-
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const { currentUser: { isAdmin, id: currentUserId } } = useAuthState();
   const [queryParams, setQueryState] = useQueryState();

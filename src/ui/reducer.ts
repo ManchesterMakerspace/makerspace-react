@@ -19,8 +19,6 @@ import { CheckoutState } from "ui/checkout/interfaces";
 import { checkoutReducer } from "ui/checkout/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
 import { earnedMembershipsReducer } from "ui/earnedMemberships/actions";
-import { ReportsState } from "ui/reports/interfaces";
-import { reportsReducer } from "ui/reports/actions";
 import { TransactionsState } from "ui/transactions/interfaces";
 import { transactionsReducer } from "ui/transactions/actions";
 import { RequestStatus } from "app/interfaces";
@@ -40,7 +38,6 @@ export interface State  {
   subscriptions: SubscriptionsState;
   checkout: CheckoutState;
   earnedMemberships: EarnedMembershipsState;
-  reports: ReportsState;
   transactions: TransactionsState;
 }
 
@@ -55,7 +52,6 @@ export const getRootReducer = (history: History) => combineReducers({
   subscriptions: subscriptionsReducer,
   checkout: checkoutReducer,
   earnedMemberships: earnedMembershipsReducer,
-  reports: reportsReducer,
   transactions: transactionsReducer,
 });
 

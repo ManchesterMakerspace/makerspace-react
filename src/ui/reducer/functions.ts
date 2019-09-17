@@ -6,10 +6,10 @@ type ApiFunction<Args, Resp> = (args: Args) => Promise<ApiErrorResponse | ApiDat
 
 export const buildQueryString = <Args, Resp>(
   apiFunction: ApiFunction<Args, Resp>,
-  args: Args
+ ...args: Args[]
 ): string =>  `${apiFunction.name}:${JSON.stringify(args)}`;
 
 export const buildTransactionString = <Args, Resp>(
   apiFunction: ApiFunction<Args, Resp>,
-  args: Args
+  ...args: Args[]
 ): string =>  `${apiFunction.name}-${generateUUID()}:${JSON.stringify(args)}`;

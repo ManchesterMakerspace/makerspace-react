@@ -4,7 +4,7 @@ import utils from "../../pageObjects/common";
 import header from "../../pageObjects/header";
 import { basicUser, adminUser, defaultMembers } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
-import memberPo from "../../pageObjects/member";
+import memberPo, { defaultQueryParams } from "../../pageObjects/member";
 import renewalPO from "../../pageObjects/renewalForm";
 import { autoLogin } from "../autoLogin";
 
@@ -12,6 +12,7 @@ const verifyRouting = async (member: LoginMember) => {
   const id = member.id;
   const columns = memberPo.getColumnIds(["lastname"], id);
 
+  mock(mockRequests.member.get.ok(id, member));
   await utils.clickElement(`${columns["lastname"]} a`);
   await utils.waitForPageLoad(memberPo.getProfilePath(id));
 }
@@ -25,6 +26,7 @@ describe("Members page", () => {
       });
     });
     it("Loads a list of members", async () => {
+      await mock(mockRequests.members.get.ok(defaultMembers), 0);
       await memberPo.verifyListView(defaultMembers, memberPo.fieldEvaluator);
       await verifyRouting(defaultMembers[0]);
     });
@@ -42,6 +44,7 @@ describe("Members page", () => {
       });
     });
     it("Loads a list of members", async () => {
+      await mock(mockRequests.members.get.ok(defaultMembers), 0);
       await memberPo.verifyListView(defaultMembers, memberPo.fieldEvaluator);
       await verifyRouting(defaultMembers[0]);
     });

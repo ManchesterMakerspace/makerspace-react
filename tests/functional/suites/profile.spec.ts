@@ -223,9 +223,9 @@ describe("Member Profiles", () => {
           ...rejectionCard,
           uid: "90210"
         };
+        await mock(mockRequests.rejectionCard.get.ok(openingCard));
         await mock(mockRequests.member.get.ok(foblessMember.id, foblessMember));
         await autoLogin(adminUser, memberPO.getProfilePath(foblessMember.id));
-        await mock(mockRequests.rejectionCard.get.ok(openingCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
         await utils.clickElement(memberPO.memberDetail.openCardButton);
@@ -280,9 +280,9 @@ describe("Member Profiles", () => {
             ...rejectionCard,
             uid: "90210"
         };
+        await mock(mockRequests.rejectionCard.get.ok(openingCard));
         await mock(mockRequests.member.get.ok(fobbedMember.id, fobbedMember));
         await autoLogin(adminUser, memberPO.getProfilePath(fobbedMember.id));
-        await mock(mockRequests.rejectionCard.get.ok(openingCard));
 
         expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Replace Fob/i);
         await utils.clickElement(memberPO.memberDetail.openCardButton);

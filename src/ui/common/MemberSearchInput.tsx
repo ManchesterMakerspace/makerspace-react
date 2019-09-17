@@ -17,18 +17,18 @@ interface Props  {
 
 async function searchMemberOptions(searchValue: string) {
   const membersResponse = await listMembers({ search: searchValue });
-
+  let memberOptions = [] as SelectOption[];
   if (isApiErrorResponse(membersResponse)) {
     console.error(membersResponse.error);
   } else {
     const members = membersResponse.data;
-    const memberOptions = members.map(member => ({
-      value: member.email,
+    memberOptions = members.map(member => ({
+      value: member.id,
       label: `${member.firstname} ${member.lastname}`,
       id: member.id
     }));
-    return memberOptions;
   }
+  return memberOptions;
 }
 
 type MemberSearchComponent = React.FunctionComponent<AsyncSelectProps<SelectOption> | AsyncCreateableSelectProps<SelectOption>>;
@@ -66,7 +66,7 @@ const MemberSearchInput: React.FC<Props> = ({
   React.useEffect(() => {
     const fetchMember = async () => {
       if (selection) {
-        const response = await getMember(selection.id);
+        const response = await getMember(selection.value);
         if (isApiErrorResponse(response)) {
           console.error(response.error);
         } else {
@@ -80,7 +80,7 @@ const MemberSearchInput: React.FC<Props> = ({
       }
     }
 
-    initialSelection && initialSelection.id && fetchMember();
+    initialSelection && initialSelection.value && fetchMember();
   }, [JSON.stringify(initialSelection), setSelection]);
 
   const updateSelection = React.useCallback((newSelection: SelectOption) => {

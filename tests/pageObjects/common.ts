@@ -78,15 +78,17 @@ export class PageUtils {
   }
 
   public waitForPageToMatch = async (targetMatch: string, exact: boolean = false, timeout: number = undefined) => {
+    const waitTime = timeout || this.waitUntilTime;
     try {
-      if (exact) {
-        await browser.wait(() => {
-          return browser.getCurrentUrl().then((url: string) => !!matchPath(url, {
+      await browser.wait(() => {
+        return browser.getCurrentUrl().then((url: string) => {
+          const pathname = url.replace(rootURL, "");
+          return !!matchPath(pathname, {
             exact,
             path: targetMatch,
-          }));
+          })
         });
-      }
+      }, waitTime);
     } catch {
       throw new Error(`${targetMatch} never loaded`);
     }
@@ -252,8 +254,6 @@ export class PageUtils {
     try {
       await browser.wait(() => {
         return this.getElementText(elementLocator).then((content) => {
-          console.log("CONTENT", content);
-          console.log("text", text);
           return content.test(new RegExp(text));
         });
       }, this.waitUntilTime);

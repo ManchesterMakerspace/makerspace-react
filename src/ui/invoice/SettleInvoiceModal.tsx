@@ -19,18 +19,16 @@ interface Props {
 const SettleInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
   const { isOpen, openModal, closeModal } = useModal();
 
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminUpdateInvoice);
+  const onUpdate = React.useCallback(({ reset }) => {
+    closeModal();
+    onSuccess();
+    reset();
+  }, [closeModal, onSuccess]);
+
+  const { call, isRequesting, error } = useWriteTransaction(adminUpdateInvoice, onUpdate);
   const onSubmit = React.useCallback(() => {
     call(invoice.id, { ...invoice, settled: true });
   }, [invoice, call]);
-
-  React.useEffect(() => {
-    if (isOpen && response && !isRequesting && !error) {
-      closeModal();
-      onSuccess();
-      reset();
-    }
-  }, [isRequesting, error, response, isOpen, closeModal, onSuccess]);
 
   return (
     <>

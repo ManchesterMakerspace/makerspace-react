@@ -7,10 +7,15 @@ interface CallTransactionState<Args, Data> extends TransactionState<Data> {
   call: ApiFunction<Args, Data>;
   reset: () => void;
 }
+export type SuccessTransactionState<Args, Resp> = { 
+  response: ApiDataResponse<Resp>,
+  reset: () => void;
+  call: ApiFunction<Args, Resp>;
+};
 
 const useWriteTransaction = <Args, Resp>(
   transaction: ApiFunction<Args, Resp>,
-  onSuccess?: (data: Resp) => void
+  onSuccess?: (state: SuccessTransactionState<Args, Resp>) => void
 ): CallTransactionState<Args, Resp> => {
   const [state, setState] = React.useState({ isRequesting: false, error: "", data: undefined, called: false, response: undefined });
 
@@ -18,15 +23,12 @@ const useWriteTransaction = <Args, Resp>(
     setState({ isRequesting: false, error: "", data: undefined, called: false, response: undefined });
   }, [setState]);
 
+  // TODO: This args spread is messing up my nice typings
   const call = React.useCallback(async (...args: Args[]) => {
     setState(prevState => ({ ...prevState, isRequesting: true, called: true }));
 
     const response = await transaction(...args);
     const error = (response as ApiErrorResponse).error;
-
-    if (!isApiErrorResponse(response)) {
-      onSuccess && onSuccess(response.data);
-    }
 
     setState(prevState => ({
       ...prevState,
@@ -35,6 +37,10 @@ const useWriteTransaction = <Args, Resp>(
       error: error && error.message,
       data: (response as ApiDataResponse<Resp>).data
     }));
+
+    if (!isApiErrorResponse(response)) {
+      onSuccess && onSuccess({ response, call, reset });
+    }
 
     return response;
   }, []);

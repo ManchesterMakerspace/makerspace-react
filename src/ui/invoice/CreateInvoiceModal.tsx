@@ -6,7 +6,7 @@ import useModal from "../hooks/useModal";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "ui/common/ButtonRow";
 import { useAuthState } from "../reducer/hooks";
-import { Whitelists } from "src/app/constants";
+import { Whitelists } from "app/constants";
 import InvoiceForm from "./InvoiceForm";
 
 
@@ -16,22 +16,18 @@ const CreateInvoiceModal: React.FC<{ memberId: string, onSuccess: () => void }> 
   const { permissions } = useAuthState();
   const allowCustomBilling = !!permissions[Whitelists.customBilling];
 
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminCreateInvoices);
+  const onCreate = React.useCallback(({ reset }) => {
+    closeModal();
+    onSuccess();
+    reset();
+  }, [closeModal, onSuccess]);
+  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminCreateInvoices, onCreate);
   const onSubmit = React.useCallback(async (form: Form) => {
     const validUpdate = formRef.current.validate && await formRef.current.validate(form);
     if (!form.isValid()) return;
 
     validUpdate && call(validUpdate);
   }, [formRef, call]);
-
-  React.useEffect(() => {
-    if (isOpen && response && !isRequesting && !error) {
-      closeModal();
-      onSuccess();
-      reset();
-    }
-  }, [isRequesting, error, response, isOpen, closeModal, onSuccess]);
-
 
   return (
     <>

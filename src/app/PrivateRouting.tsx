@@ -15,29 +15,31 @@ import Receipt from 'ui/checkout/Receipt';
 import { Permission } from 'app/entities/permission';
 import { CollectionOf } from 'app/interfaces';
 import SendRegistrationComponent from 'ui/auth/SendRegistrationComponent';
+import SignDocuments from 'ui/documents/SignDocuments';
 
 interface Props {
-  auth: string,
+  currentUserId: string,
   permissions: CollectionOf<Permission>,
   isAdmin: boolean;
 }
-const PrivateRouting: React.SFC<Props> = (props) => {
-  const billingEnabled = props.permissions[Whitelists.billing] || false;
-  const earnedMembershipEnabled = props.isAdmin && props.permissions[Whitelists.earnedMembership];
+const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin }) => {
+  const billingEnabled = permissions[Whitelists.billing] || false;
+  const earnedMembershipEnabled = isAdmin && permissions[Whitelists.earnedMembership];
 
   return (
     <BillingContextContainer>
       <Switch>
         <Route exact path={Routing.Members} component={MembersList} />
-        <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
+        <Route exact path={Routing.Documents} component={SignDocuments} />
         <Route exact path={Routing.Settings} component={SettingsContainer} />
+        <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
         <Route exact path={Routing.Rentals} component={RentalsList} />
         {billingEnabled && <Route exact path={`${Routing.Billing}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={BillingContainer} />}
         {billingEnabled && <Route exact path={Routing.Receipt} component={Receipt}/>}
         {billingEnabled && <Route path={Routing.Checkout} component={CheckoutContainer} />}
         <Route exact path={Routing.SendRegistration} component={SendRegistrationComponent}/>
         {earnedMembershipEnabled && <Route exact path={Routing.EarnedMemberships} component={EarnedMembershipsList}/>}
-        <Redirect to={`${Routing.Members}/${props.auth}`} />
+        <Redirect to={`${Routing.Members}/${currentUserId}`} />
         <Route component={NotFound} />
       </Switch>
     </BillingContextContainer>

@@ -18,3 +18,21 @@ const LoadingOverlay: React.SFC<LoadingProps> = (props) => {
 }
 
 export default LoadingOverlay;
+
+export function withLoading<Props, State>(
+  WrappedComponent: React.FunctionComponent<Props> | React.ComponentClass<Props, State>,
+  loadingId?: string,
+) {
+
+  return class extends React.Component<Props & { loading?: boolean }, State> {
+    render() {
+      return (
+        <div style={{ position: "relative" }}>
+          {this.props.loading && <LoadingOverlay id={loadingId}/>}
+          <WrappedComponent {...this.props} />
+        </div>
+      ) 
+      
+    }
+  }
+}

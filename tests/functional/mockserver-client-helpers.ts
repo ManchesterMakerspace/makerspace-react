@@ -1,4 +1,4 @@
-import { Url } from "app/constants";
+import { Url } from "./paths";
 import { QueryParams } from "app/interfaces";
 import { RentalQueryParams } from "app/entities/rental";
 
