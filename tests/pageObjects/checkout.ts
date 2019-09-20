@@ -26,6 +26,7 @@ export class CheckoutPageObject extends TablePageObject {
   public checkoutError = "#checkout-submitting-error"
   public submit = "#submit-payment-button"
 
+  public receiptContainer = "#receipt-container";
 
   public receiptTransactions = (transactionId: string) => `#transaction-${transactionId}`;
   public backToProfileButton = "#return-to-profile";
