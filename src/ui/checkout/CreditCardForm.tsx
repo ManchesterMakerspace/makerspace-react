@@ -54,8 +54,31 @@ class CreditCardForm extends React.Component<Props, State> {
     }
   }
 
+  private validateField = (event: any, requireValid: boolean = false) => {
+    const { emittedBy, fields } = event;
+    const { isValid, isPotentiallyValid } = fields[emittedBy];
+    let error: string;
+    if ((!isValid && requireValid) || !isPotentiallyValid) {
+      error = "Invalid value";
+    } else {
+      error = undefined;
+    }
+    this.setState(prevState => ({
+      ...prevState,
+      inputErrors: {
+        ...prevState.inputErrors,
+        [emittedBy]: error
+      }
+    }));
+  }
+
   private initHostedFields = async () => {
     const { braintreeInstance, toggleLoading } = this.props;
+    const { inputErrors } = this.state;
+    if (Object.values(inputErrors).some(err => !!err)) {
+      this.setState({ braintreeError: "Invalid inputs must be corrected before submitting" });
+    }
+
     toggleLoading(true);
     try {
       await Braintree.hostedFields.create({
@@ -71,21 +94,11 @@ class CreditCardForm extends React.Component<Props, State> {
       }, (err, hostedFieldsInstance: Braintree.HostedFields) => {
         if (err) throw err;
         hostedFieldsInstance.on("validityChange",(event) => {
-          const { emittedBy, fields } = event;
-          const { isValid, isPotentiallyValid } = fields[emittedBy];
-          let error: string;
-          if (!isValid && !isPotentiallyValid && CreditCardFields[emittedBy]) {
-            error = "Invalid value";
-          }
-          this.setState(prevState => ({
-            ...prevState,
-            inputErrors: {
-              ...prevState.inputErrors,
-              [emittedBy]: error
-            }
-          }))
+          this.validateField(event);
         });
-
+        hostedFieldsInstance.on("blur", (event) => {
+          this.validateField(event, true);
+        });
         this.setState({ hostedFieldsInstance: hostedFieldsInstance });
       });
     } catch (err) {
@@ -133,14 +146,18 @@ class CreditCardForm extends React.Component<Props, State> {
           id="credit-card-form"
           title="Enter your credit or debit card information"
         >
-          <HostedInput
-            label={CreditCardFields.number.label}
-            id={CreditCardFields.number.name}
-          />
-          {inputErrors["number"] && 
-            <ErrorMessage error={inputErrors["number"]}/>
-          }
-          <Grid container spacing={24}>
+          <Grid container spacing={8}>
+            <Grid item xs={12}>
+              <HostedInput
+                label={CreditCardFields.number.label}
+                id={CreditCardFields.number.name}
+              />
+              {inputErrors["number"] && 
+                <ErrorMessage error={inputErrors["number"]}/>
+              }
+            </Grid>
+          </Grid>
+          <Grid container spacing={8}>
             <Grid item xs={6}>
               <HostedInput
                 label={CreditCardFields.expirationDate.label}
@@ -160,13 +177,17 @@ class CreditCardForm extends React.Component<Props, State> {
               }
             </Grid>
           </Grid>
-          <HostedInput
-            label={CreditCardFields.postalCode.label}
-            id={CreditCardFields.postalCode.name}
-          />
-          {inputErrors["postalCode"] && 
-            <ErrorMessage error={inputErrors["postalCode"]}/>
-          }
+          <Grid container spacing={8}>
+            <Grid item xs={12}>
+              <HostedInput
+                label={CreditCardFields.postalCode.label}
+                id={CreditCardFields.postalCode.name}
+              />
+              {inputErrors["postalCode"] && 
+                <ErrorMessage error={inputErrors["postalCode"]}/>
+              }
+            </Grid>
+          </Grid>
           {error && <ErrorMessage error={error} id="credit-card-error"/>}
         </Form>
       </>

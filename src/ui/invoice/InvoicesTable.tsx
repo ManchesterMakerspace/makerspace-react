@@ -16,7 +16,7 @@ import SettleInvoiceModal from "../invoice/SettleInvoiceModal";
 import CreateInvoiceModal from "../invoice/CreateInvoiceModal";
 import DeleteInvoiceModal from "../invoice/DeleteInvoiceModal";
 import { ActionButton } from "../common/ButtonRow";
-import { isInvoicePayable } from "./utils";
+import { isInvoicePayable, isInvoiceSettled } from "./utils";
 
 
 const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): Column<MemberInvoice | RentalInvoice>[] => [
@@ -75,7 +75,7 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
     label: "Status",
     cell: (row: MemberInvoice | RentalInvoice) => {
       const statusColor = (row.pastDue && !row.settled) ? Status.Danger : Status.Success;
-      const label = row.settled ? "Paid" : (row.pastDue ? "Past Due" : "Upcoming");
+      const label = isInvoiceSettled(row) ? "Paid" : (row.pastDue ? "Past Due" : "Upcoming");
       return (
         <StatusLabel label={label} color={statusColor} />
       );

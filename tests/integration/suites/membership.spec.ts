@@ -75,7 +75,7 @@ describe("Membership", () => {
 
     // Submit payment, view receipt & return to profile
     await utils.clickElement(checkoutPo.submit);
-    await utils.waitForPageLoad(Routing.Receipt);
+    await utils.waitForPageToMatch(Routing.Receipt);
     await utils.clickElement(checkoutPo.backToProfileButton);
     await utils.waitForPageToMatch(Routing.Profile);
     // TODO: Verify subscription & receipt emails
@@ -178,7 +178,7 @@ describe("Membership", () => {
 
     // Submit payment, view receipt & return to profile
     await utils.clickElement(checkoutPo.submit);
-    await utils.waitForPageLoad(Routing.Receipt);
+    await utils.waitForPageToMatch(Routing.Receipt);
     await header.navigateTo(header.links.logout);
     await utils.waitForVisible(header.loginLink);
 

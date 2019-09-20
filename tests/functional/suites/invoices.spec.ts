@@ -84,10 +84,9 @@ describe("Invoicing and Dues", () => {
       await utils.clickElement(checkout.submit);
       await utils.assertNoInputError(checkout.checkoutError, true);
       // Wait for receipt
-      await utils.waitForPageLoad(Routing.Receipt)
+      await utils.waitForPageToMatch(Routing.Receipt)
       // Verify transactions are displayed
-      expect(await utils.isElementDisplayed(checkout.receiptTransactions(defaultTransaction.id))).toBeTruthy();
-      expect(await utils.isElementDisplayed(checkout.receiptTransactions(pastDueTransaction.id))).toBeTruthy();
+      expect(await utils.isElementDisplayed(checkout.receiptContainer)).toBeTruthy();
       // Return to profile
       await utils.clickElement(checkout.backToProfileButton);
       // Wait for profile redirect

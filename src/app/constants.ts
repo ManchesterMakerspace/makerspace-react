@@ -3,6 +3,7 @@ export namespace Routing {
     Optional = "?",
     MemberId = ":memberId",
     Resource = ":resource",
+    InvoiceId = ":invoiceId",
     Email = ":email",
   }
 
@@ -17,7 +18,7 @@ export namespace Routing {
   export const Subscriptions = "/subscriptions";
   export const Rentals = "/rentals";
   export const Checkout = "/checkout";
-  export const Receipt = `${Checkout}/receipt`;
+  export const Receipt = `${Checkout}/receipt/${PathPlaceholder.InvoiceId}`;
   export const PasswordReset = "/resetPassword";
   export const Settings = `${Profile}/settings`;
   export const SendRegistration = `/send-registration/${PathPlaceholder.Email}`

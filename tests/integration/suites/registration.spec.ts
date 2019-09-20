@@ -31,6 +31,8 @@ describe("Member management", () => {
     it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
+      await utils.waitForNotVisible(memberPO.memberDetail.loading);
+      await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
       await memberPO.verifyProfileInfo({
         ...newMember,
         expirationTime: null
@@ -62,7 +64,7 @@ describe("Member management", () => {
 
       // Submit payment, view receipt & return to profile
       await utils.clickElement(checkout.submit);
-      await utils.waitForPageLoad(Routing.Receipt);
+      await utils.waitForPageToMatch(Routing.Receipt);
       await utils.clickElement(checkout.backToProfileButton);
       await utils.waitForPageToMatch(Routing.Profile);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);

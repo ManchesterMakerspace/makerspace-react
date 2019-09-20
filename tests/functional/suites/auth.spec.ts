@@ -91,12 +91,7 @@ describe("Authentication", () => {
          4. Fill out sign up form & submit
          5. Verify document pages & error fields
          6. Accept & sign both documents
-         7. Verify directed to checkout form
-         8. Verify no payment methods are available & selected membership option is in receipt area
-         9. Add a CC payment method
-         10. Submit form
-         11. Verify directed to receipt page
-         12. Click 'Go to My Profile' & verify directed to profile page
+         7. Verify directed to profile
       */
 
       const membershipId = "foo";

@@ -62,12 +62,15 @@ class CheckoutContainer extends React.Component<Props, State> {
       // If there are no invoices, redirect to profile since there's nothing to do here
       if (isEmpty(invoices)) {
         this.props.pushLocation(buildProfileRouting(userId));
+        return;
       }
     }
 
     if (wasTransacting && !transactionsLoading && isEmpty(transactionsError) && !isEmpty(transactions)) {
+      const invoice = Object.values(invoices)[0];
       // Update state so component unmounts correctly
-      this.setState({ transactionsComplete: true }, () => this.props.pushLocation(Routing.Receipt));
+      this.setState({ transactionsComplete: true }, 
+        () => this.props.pushLocation(Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoice.id)));
     }
   }
 

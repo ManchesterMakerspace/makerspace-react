@@ -109,9 +109,9 @@ describe("Paid Subscriptions", () => {
       await utils.clickElement(checkoutPo.submit);
       await utils.assertNoInputError(checkoutPo.checkoutError, true);
       // Wait for receipt
-      await utils.waitForPageLoad(Routing.Receipt)
+      await utils.waitForPageToMatch(Routing.Receipt)
       // Verify transactions are displayed
-      expect(await utils.isElementDisplayed(checkoutPo.receiptTransactions(defaultTransaction.id))).toBeTruthy();
+      expect(await utils.isElementDisplayed(checkoutPo.receiptContainer)).toBeTruthy();
       // Return to profile
       await utils.clickElement(checkoutPo.backToProfileButton);
       // Wait for profile redirect
