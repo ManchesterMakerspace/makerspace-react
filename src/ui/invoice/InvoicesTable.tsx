@@ -83,11 +83,11 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
   }
 ];
 
-const InvoicesTable: React.FC<{ stageInvoices(invoices: Invoice[]): void }> = ({ stageInvoices }) => {
+const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ stageInvoice }) => {
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const { currentUser: { isAdmin, id: currentUserId } } = useAuthState();
   const [queryParams, setQueryState] = useQueryState();
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [selectedInvoice, setSelectedInvoice] = React.useState<Invoice>();
 
   const { refresh: refreshMember } = useReadTransaction(getMember, memberId);
 
@@ -106,14 +106,14 @@ const InvoicesTable: React.FC<{ stageInvoices(invoices: Invoice[]): void }> = ({
 
   React.useEffect(() => {
     if (Array.isArray(data) && data.length) {
-      setSelectedIds(data.reduce((selected, invoice) => {
-        if (invoice.memberId === currentUserId && isInvoicePayable(invoice)) {
-          selected.push(invoice.id);
-        }
-        return selected;
-      }, []));
+      const newSelection = data.find((invoice) =>  (invoice.memberId === currentUserId && isInvoicePayable(invoice)));
+      setSelectedInvoice(newSelection);
     }
-  }, [JSON.stringify(data), setSelectedIds]);
+  }, [JSON.stringify(data), setSelectedInvoice]);
+
+  const setSelected = React.useCallback((id: string) => {
+    setSelectedInvoice(data.find(invoice => invoice.id === id));
+  }, [setSelectedInvoice, data]);
 
   const onSuccess = React.useCallback(() => {
     refreshMember();
@@ -123,27 +123,17 @@ const InvoicesTable: React.FC<{ stageInvoices(invoices: Invoice[]): void }> = ({
   const rowId = React.useCallback(invoice => invoice.id, []);
   const fields = getFields(memberId, isAdmin, onSuccess);
 
-  const selectedInvoices: Invoice[] = React.useMemo(() => {
-    return data.reduce((selectedInvoice, invoice) => {
-      if (selectedIds.includes(invoice.id)) {
-        selectedInvoice.push(invoice)
-      }
-      return selectedInvoice
-    }, []);
-  }, [data, selectedIds]);
-
   const viewingOwnInvoices = memberId === currentUserId;
-  const payNow = viewingOwnInvoices && selectedInvoices.length && selectedInvoices.every(invoice => isInvoicePayable(invoice));
+  const payNow = viewingOwnInvoices && isInvoicePayable(selectedInvoice);
 
-
-  const goToCheckout = React.useCallback(() => stageInvoices(selectedInvoices), [selectedInvoices, stageInvoices]);
+  const goToCheckout = React.useCallback(() => stageInvoice(selectedInvoice), [selectedInvoice, stageInvoice]);
 
   return (
     <>
     {isAdmin && (
       <>
         <CreateInvoiceModal memberId={memberId} onSuccess={onSuccess}/>
-        <DeleteInvoiceModal invoice={selectedInvoices.length === 1 && selectedInvoices[0]} onSuccess={onSuccess}/>
+        <DeleteInvoiceModal invoice={selectedInvoice} onSuccess={onSuccess}/>
       </>
     )}
     {viewingOwnInvoices && (
@@ -168,8 +158,8 @@ const InvoicesTable: React.FC<{ stageInvoices(invoices: Invoice[]): void }> = ({
       columns={fields}
       rowId={rowId}
       totalItems={extractTotalItems(response)}
-      selectedIds={selectedIds}
-      setSelectedIds={setSelectedIds}
+      selectedIds={selectedInvoice && selectedInvoice.id}
+      setSelectedIds={setSelected}
     />
     </>
   )

@@ -15,9 +15,6 @@ import { withRouter, RouteComponentProps } from 'react-router';
 interface StateProps {
   currentUserId: string;
   isSigningIn: boolean;
-  stagedInvoices: CollectionOf<MemberInvoice | RentalInvoice>;
-  isCheckingOut: boolean;
-  checkoutError: string;
   permissions: CollectionOf<Permission>;
   isAdmin: boolean;
 }
@@ -80,22 +77,13 @@ class App extends React.Component<Props, State> {
 const mapStateToProps = (state: ReduxState, _ownProps: OwnProps): StateProps => {
   const {
     auth: { currentUser, permissions, isRequesting: isSigningIn },
-    checkout: { invoices }
   } = state;
-
-  const {
-    isRequesting: isCheckingOut,
-    error: checkoutError
-  } = state.checkout;
 
   return {
     currentUserId: currentUser.id,
     isAdmin: currentUser.isAdmin,
-    stagedInvoices: invoices,
     permissions,
     isSigningIn,
-    isCheckingOut,
-    checkoutError
   }
 }
 

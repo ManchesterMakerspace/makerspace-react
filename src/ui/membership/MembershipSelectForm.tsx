@@ -1,63 +1,93 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import isUndefined from "lodash-es/isUndefined";
+import useReactRouter from "use-react-router";
+
 import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 
-import { CollectionOf } from "app/interfaces";
+import { InvoiceOption, listInvoiceOptions } from "makerspace-ts-api-client";
+
 import { InvoiceableResource } from "app/entities/invoice";
 
-import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
 import ErrorMessage from "ui/common/ErrorMessage";
 import TableContainer from "ui/common/table/TableContainer";
-import { Column } from "ui/common/table/Table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { readOptionsAction } from "ui/billing/actions";
-import { Action as InvoiceOptionAction } from "ui/billing/constants";
-import { InvoiceOption } from "makerspace-ts-api-client";
+import useReadTransaction from "../hooks/useReadTransaction";
+import DuplicateInvoiceModal from "./DuplicateInvoiceModal";
 
-interface OwnProps {
+export const invoiceOptionParam = "optionId";
+export const discountParam = "discountId";
+const byAmount = (a: InvoiceOption, b: InvoiceOption) => Number(a.amount) - Number(b.amount);
+
+interface Props {
   title?: string;
-  onSelect?: (membershipOptionId: string, discountId: string) => void;
-  subscriptionOnly?: boolean;
-}
-interface DispatchProps {
-  getMembershipOptions: () => void;
-  selectMembershipOption: (membershipOptionId: string, discountId: string) => void;
-}
-interface StateProps {
-  membershipOptions: CollectionOf<InvoiceOption>;
-  invoiceOptionsLoading: boolean;
-  invoiceOptionsError: string;
-  membershipOptionId: string;
-  discountId: string;
+  onSelect?: (option: InvoiceOption, discountId: string) => void;
+  allowNone: boolean;
 }
 
-interface Props extends OwnProps, DispatchProps, StateProps { }
+const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
+  const { history, location: { search } } = useReactRouter();
+  const [selectedOption, setSelectedOption] = React.useState<InvoiceOption>();
 
-class MembershipSelectComponent extends React.Component<Props> {
-  private selectMembershipOption = (event: React.MouseEvent<HTMLTableElement>) => {
-    const { discountId } = this.props;
-    const optionId = event.currentTarget.id;
-    const option = this.getOption(optionId);
-    let optionDiscount;
-    if (discountId) {
-      // Only want to update discount if already selected
-      optionDiscount = option.discountId;
+  const searchParams = React.useMemo(() => new URLSearchParams(search), [search]);
+  const { membershipOptionId, discountId } = React.useMemo(() => {
+    const membershipOptionId = searchParams.get(invoiceOptionParam);
+    const discountId = searchParams.get(discountParam);
+    return { membershipOptionId, discountId };
+  }, [search, searchParams]);
+
+  const {
+    isRequesting,
+    error,
+    data: options = []
+  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
+
+  // Select bookmarked option on load
+  React.useEffect(() => {
+    if (options.length) {
+      const option = (options || []).find(option => option.id === membershipOptionId);
+      setSelectedOption(option);
     }
-    this.props.selectMembershipOption(optionId, optionDiscount);
-    this.props.onSelect && this.props.onSelect(optionId, optionDiscount);
-  };
+  }, [membershipOptionId, setSelectedOption, options]);
+  
+  const allOptions = React.useMemo(() => {
+    return options.sort(byAmount)
+                  .concat(allowNone ? [{ 
+                    id: "none",
+                    name: "None",
+                    description: "Paid with cash or select an option later",
+                    amount: "0",
+                    resourceClass: undefined,
+                    quantity: 0,
+                    disabled: false,
+                    operation: undefined,
+                  }] : []);
+  }, [allowNone, options]);
 
-  private getOption = (id: string) => this.props.membershipOptions[id];
+  const updateSelection = React.useCallback((optionId: string, discountId: string) => {
+    const option = (options || []).find(option => option.id === optionId);
+    setSelectedOption(option);
+    optionId ? searchParams.set(invoiceOptionParam, optionId) : searchParams.delete(invoiceOptionParam);
+    discountId ? searchParams.set(discountParam, discountId) : searchParams.delete(discountParam);
+    history.push({
+      search: searchParams.toString()
+    });
+    onSelect && onSelect(option, discountId);
+  }, [onSelect, options, history, searchParams]);
 
-  public componentDidMount() {
-    this.props.getMembershipOptions();
-  }
+  // Add option and discount IDs to query params
+  const selectMembershipOption = React.useCallback((event: React.MouseEvent<HTMLTableElement>) => {
+    const optionId = event.currentTarget.id;
+    const option = (options || []).find(option => option.id === optionId);
+    updateSelection(optionId, discountId ? option.discountId : undefined);
+  }, [updateSelection, discountId, options]);
 
-  private rowId = (row: InvoiceOption) => row.id;
-  private membershipColumns: Column<InvoiceOption>[] = [
+  // Add or remove discount ID from query params
+  const toggleDiscount = React.useCallback((_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    updateSelection(membershipOptionId, checked ? (membershipOptionId || "apply") : undefined);
+  }, [updateSelection, membershipOptionId]);
+
+  const fields = React.useMemo(() =>  [
     {
       id: "name",
       label: "Name",
@@ -77,119 +107,54 @@ class MembershipSelectComponent extends React.Component<Props> {
       id: "select",
       label: "",
       cell: (row: InvoiceOption) => {
-        const selected = this.props.membershipOptionId === row.id;
+        const selected = membershipOptionId === row.id;
         const variant = selected ? "contained" : "outlined";
         const label = selected ? "Selected" : "Select";
 
         return (
-          <Button id={row.id} variant={variant} color="primary" onClick={this.selectMembershipOption}>
+          <Button id={row.id} variant={variant} color="primary" onClick={selectMembershipOption}>
             {label}
           </Button>
         );
       }
     }
-  ];
+  ], [selectMembershipOption, membershipOptionId]);
 
-  private toggleDiscount = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const { membershipOptionId, membershipOptions, selectMembershipOption } = this.props;
-    let discountId;
-    if (checked) {
-      // Apply discount
-      if (membershipOptionId) {
-        // If option is already selected, find related discount and apply
-        const membershipOption = membershipOptions[membershipOptionId];
-        discountId = membershipOption.discountId;
-      } else {
-        // Otherwise just make it truthy to be updated when membership is actually selected
-        discountId = "apply";
-      }
-    }
-    selectMembershipOption(membershipOptionId, discountId);
-  };
-
-  private byAmount = (a: InvoiceOption, b: InvoiceOption) => Number(a.amount) - Number(b.amount);
-
-  public render(): JSX.Element {
-    const {
-      membershipOptions,
-      invoiceOptionsError,
-      invoiceOptionsLoading,
-      discountId
-    } = this.props;
-
-    let normalizedError: JSX.Element =
-      (invoiceOptionsError && (
-        <>
-          Error reading membership options: {invoiceOptionsError}. Email{" "}
-          <a href={`mailto: contact@manchestermakerspace.org`}>contact@manchestermakerspace.org</a> if your desired
-          membership option is not present
-        </>
-      ));
-    return (
+  let normalizedError: JSX.Element =
+    (error && (
       <>
-        <TableContainer
-          id="membership-select-table"
-          title={isUndefined(this.props.title) && "Select a Membership"}
-          data={Object.values(membershipOptions).sort(this.byAmount)}
-          columns={this.membershipColumns}
-          rowId={this.rowId}
-          loading={invoiceOptionsLoading}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              name="discount-select"
-              value="discount-select"
-              checked={!!discountId}
-              onChange={this.toggleDiscount}
-              color="default"
-            />
-          }
-          label="Apply 10% Discount for all student, senior (+65) and military. Proof of applicable affiliation may be required during orientation."
-        />
-        <ErrorMessage error={normalizedError} />
+        Error reading membership options: {error}. Email{" "}
+        <a href={`mailto: contact@manchestermakerspace.org`}>contact@manchestermakerspace.org</a> if your desired
+        membership option is not present
       </>
-    );
-  }
+    ));
+
+
+  return (
+    <>
+      <DuplicateInvoiceModal type={selectedOption && selectedOption.resourceClass} />
+      <TableContainer
+        id="membership-select-table"
+        title={typeof title === undefined && "Select a Membership"}
+        data={allOptions}
+        columns={fields}
+        rowId={(row: InvoiceOption) => row.id}
+        loading={isRequesting}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            name="discount-select"
+            value="discount-select"
+            checked={!!discountId}
+            onChange={toggleDiscount}
+            color="default"
+          />
+        }
+        label="Apply 10% Discount for all student, senior (+65) and military. Proof of applicable affiliation may be required during orientation."
+      />
+      <ErrorMessage error={normalizedError} />
+    </>
+  );
 }
-
-const mapStateToProps = (
-  state: ReduxState,
-  _ownProps: OwnProps
-): StateProps => {
-  const {
-    entities: membershipOptions,
-    selectedOption,
-    read: {
-      isRequesting: invoiceOptionsLoading,
-      error: invoiceOptionsError,
-    }
-  } = state.billing;
-
-
-  const discountId = selectedOption && selectedOption.discountId;
-  const membershipOptionId = selectedOption && selectedOption.id;
-
-  return {
-    membershipOptions,
-    invoiceOptionsLoading,
-    invoiceOptionsError,
-    membershipOptionId,
-    discountId,
-  }
-}
-
-const mapDispatchToProps = (
-  dispatch: ScopedThunkDispatch,
-  ownProps: OwnProps,
-): DispatchProps => {
-  const { subscriptionOnly } = ownProps;
-  return {
-    getMembershipOptions: () => dispatch(readOptionsAction({ subscriptionOnly, types: [InvoiceableResource.Membership] })),
-    selectMembershipOption: (membershipOptionId, discountId) => dispatch({
-      type: InvoiceOptionAction.SelectOption,
-      data: { id: membershipOptionId, discountId }
-    })
-  };
-}
-export default connect(mapStateToProps, mapDispatchToProps)(MembershipSelectComponent);
+export default MembershipSelect;

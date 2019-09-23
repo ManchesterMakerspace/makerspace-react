@@ -71,6 +71,14 @@ export class SignUpPageObject {
     await utils.clickElement(this.signUpForm.submitButton);
   }
 
+  private duplicateInvoiceModalId = "#outstanding-invoice";
+  public duplicateInvoiceModal = {
+    submit: `${this.duplicateInvoiceModalId}-submit`,
+    cancel: `${this.duplicateInvoiceModalId}-cancel`,
+  }
+  public acceptDuplicateInvoiceModal = () => utils.clickElement(this.duplicateInvoiceModal.submit);
+  public ignoreDuplicateInvoiceModal = () => utils.clickElement(this.duplicateInvoiceModal.cancel);
+
   public selectMembershipOption = (optionId: string) =>
     utils.clickElement(this.getRow(optionId, this.membershipSelectForm.row.select))
 

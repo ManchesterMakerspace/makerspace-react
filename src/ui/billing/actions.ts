@@ -96,7 +96,6 @@ export const deleteBillingAction = (
 
 const defaultState: BillingState = {
   entities: {},
-  selectedOption: undefined,
   read: {
     isRequesting: false,
     error: "",
@@ -251,19 +250,6 @@ export const billingReducer = (state: BillingState = defaultState, action: AnyAc
           error: deleteError
         }
       }
-    case BillingAction.SelectOption:
-      const selectedOption = action.data;
-      return {
-        ...state,
-        selectedOption: {
-          ...selectedOption
-        },
-      }
-    case BillingAction.ClearSelection:
-      return {
-        ...state,
-        selectedOption: undefined
-      };
     default:
       return state;
   }

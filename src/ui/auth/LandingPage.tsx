@@ -10,12 +10,23 @@ import Typography from '@material-ui/core/Typography';
 import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
 
 import { Routing, billingEnabled } from "app/constants";
-import MembershipSelectForm from 'ui/membership/MembershipSelectForm';
+import MembershipSelectForm, { invoiceOptionParam, discountParam } from 'ui/membership/MembershipSelectForm';
+import { InvoiceOption } from 'makerspace-ts-api-client';
 
 
 const LandingPage: React.FC = () => {
-  const { history } = useReactRouter();
-  const goToSignup = React.useCallback(() => history.push(Routing.SignUp), []);
+  const { history, location: { search } } = useReactRouter();
+  const goToSignup = React.useCallback<(option?: InvoiceOption, discount?: string) => void>((option, discountId) => {
+      const searchParams = new URLSearchParams(search);
+      if (option !== undefined) {
+      searchParams.set(invoiceOptionParam, option.id);
+      discountId && searchParams.set(discountParam, discountId);
+    }
+    history.push({
+      ...option && { search: searchParams.toString() },
+      pathname: Routing.SignUp
+    });
+  }, [history, search]);
 
   return (
     <Grid container spacing={24} justify="center">
@@ -40,13 +51,13 @@ const LandingPage: React.FC = () => {
                 <Typography variant="h5">
                   To get started, first select a membership option.
                   </Typography>
-                <MembershipSelectForm onSelect={goToSignup} subscriptionOnly={true}/>
+                  <MembershipSelectForm onSelect={goToSignup} allowNone={true}/>
               </Grid>}
               {!billingEnabled && <Grid item md={6} xs={12}>
                 <Typography variant="subtitle1" align="center">
                   Please take a moment to register with our online portal.
                   </Typography>
-                <Button id="register" variant="outlined" color="secondary" fullWidth onClick={goToSignup}>
+                <Button id="register" variant="outlined" color="secondary" fullWidth onClick={() => goToSignup()}>
                   Register
                   </Button>
               </Grid>}

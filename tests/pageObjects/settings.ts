@@ -3,6 +3,7 @@ import utils from "./common";
 
 class Settings {
   public pageUrl = Routing.Settings;
+  public buildPageUrl = (memberId: string) => Routing.Settings.replace(Routing.PathPlaceholder.MemberId, memberId);
 
   public menu = {
     profile: "#settings-profile",
