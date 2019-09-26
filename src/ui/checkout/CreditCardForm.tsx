@@ -6,8 +6,7 @@ import Grid from "@material-ui/core/Grid";
 //@ts-ignore
 import * as Braintree from "braintree-web";
 
-import Form from "ui/common/Form";
-import { CreditCardFields } from "ui/checkout/constants";
+import Form, { FormFields } from "ui/common/Form";
 import ErrorMessage from "ui/common/ErrorMessage";
 import HostedInput from "ui/checkout/HostedInput";
 import { createPaymentMethod, isApiErrorResponse } from "makerspace-ts-api-client";
@@ -26,6 +25,31 @@ interface State {
   hostedFieldsInstance: any;
   braintreeError: Braintree.BraintreeError | string;
   inputErrors: { [key: string]: string };
+}
+
+const formPrefix = "credit-card-form";
+const CreditCardFields: FormFields = {
+  number: {
+    label: "Credit or debit card number",
+    name: `${formPrefix}-cardNumber`,
+    placeholder: "4111 1111 1111 1111",
+    validate: (val) => !!val
+  },
+  cvv: {
+    label: "Security code",
+    name: `${formPrefix}-csv`,
+    placeholder: "123"
+  },
+  expirationDate: {
+    label: "Expiration date",
+    name: `${formPrefix}-expirationDate`,
+    placeholder: "MM/YYYY"
+  },
+  postalCode: {
+    label: "Zipcode",
+    name: `${formPrefix}-zipcode`,
+    placeholder: "90210"
+  }
 }
 
 class CreditCardForm extends React.Component<Props, State> {

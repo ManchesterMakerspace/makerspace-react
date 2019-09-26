@@ -2,7 +2,7 @@ import { InvoiceableResource, MemberInvoice } from "app/entities/invoice";
 import { Routing } from "app/constants";
 import { Invoice } from "makerspace-ts-api-client";
 
-import { basicUser, adminUser } from "../../constants/member";
+import { basicUser, adminUser, defaultMembers } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
@@ -16,8 +16,19 @@ import { creditCard as defaultCreditCard } from "../../constants/paymentMethod";
 import { defaultBillingOptions } from "../../constants/invoice";
 import { defaultTransactions } from "../../constants/transaction";
 import { autoLogin } from "../autoLogin";
+import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "../../constants/invoice";
+import signup from "../../pageObjects/signup";
+import settings from "../../pageObjects/settings";
+import header from "../../pageObjects/header";
 
-const initInvoices = [defaultInvoice, pastDueInvoice, settledInvoice];
+const initInvoices = [pastDueInvoice, settledInvoice];
+const resourcedInvoices = initInvoices.map(invoice => ({
+  ...invoice,
+  memberId: basicUser.id,
+  member: {
+    ...basicUser
+  }
+})) as MemberInvoice[]; // TODO: Ooops, I messed up my typings somewhere
 
 describe("Invoicing and Dues", () => {
   describe("Basic User", () => {
@@ -51,16 +62,8 @@ describe("Invoicing and Dues", () => {
         nonce: "foobar"
       }
 
-      const resourcedInvoices = initInvoices.map(invoice => ({
-        ...invoice,
-        memberId: basicUser.id,
-        member: {
-          ...basicUser
-        }
-      })) as MemberInvoice[]; // TODO: Ooops, I messed up my typings somewhere
-
-      // Upcoming, non subscription and past due invoices are automatically selected on load
-      // So 2 of initInvoices will be autoselected on load
+      // Upcoming, non subscription and past due invoices are automatically targeted on load
+      // Only 1 can be selected at a time tho
       await loadInvoices(resourcedInvoices, true);
       expect((await invoicePO.getAllRows()).length).toEqual(resourcedInvoices.length);
       expect(await invoicePO.getColumnText("description", resourcedInvoices[0].id)).toEqual(resourcedInvoices[0].description);
@@ -73,14 +76,13 @@ describe("Invoicing and Dues", () => {
 
       // Submit payment
       const pastDueTransaction = defaultTransactions[0];
-      const defaultTransaction = defaultTransactions[1];
-      await mock(mockRequests.transactions.post.ok(defaultTransaction));
       await mock(mockRequests.transactions.post.ok(pastDueTransaction));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
-      const total = numberAsCurrency(Number(defaultInvoice.amount) + Number(pastDueInvoice.amount));
 
-      expect(await utils.getElementText(checkout.total)).toEqual(`Total ${total}`);
+      expect(await utils.getElementText(checkout.total)).toEqual(
+        `Total ${numberAsCurrency(Number(pastDueInvoice.amount))}`
+      );
       await utils.clickElement(checkout.submit);
       await utils.assertNoInputError(checkout.checkoutError, true);
       // Wait for receipt
@@ -90,6 +92,79 @@ describe("Invoicing and Dues", () => {
       // Return to profile
       await utils.clickElement(checkout.backToProfileButton);
       // Wait for profile redirect
+      await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
+    });
+
+    it("Warns you if you're about to purchase a duplicate category", async () => {
+      await loadInvoices(resourcedInvoices, true);
+
+      // Mock a member that already has a membership invoice
+      const membershipOption = {
+        ...invoiceOptions[0],
+        resourceClass: "member"
+      };
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
+      await mock(mockRequests.invoices.get.ok([{
+        ...pastDueInvoice,
+        resourceClass: "member"
+      }]));
+
+      await header.navigateTo(header.links.settings);
+      await utils.waitForPageToMatch(settings.pageUrl);
+      await settings.goToMembershipSettings();
+
+      // Non subscription details displayed
+      await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
+      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
+      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
+  
+      // Select a subscription
+      await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
+      await utils.waitForNotVisible(signup.membershipSelectForm.loading);
+      await signup.selectMembershipOption(membershipOption.id);
+
+      // Duplicate notification b/c trying to buy membership even tho have membership invoice
+      await utils.waitForVisible(signup.duplicateInvoiceModal.submit);
+      await signup.ignoreDuplicateInvoiceModal();
+      // Ignore and continue to checkout
+      await utils.clickElement(signup.membershipSelectForm.submit);
+      await utils.waitForPageLoad(checkout.checkoutUrl);
+    });
+    
+    it("Redirects to profile if you accept duplicate invoice notice", async () => {
+      await loadInvoices(resourcedInvoices, true);
+
+      // Mock a member that already has a membership invoice
+      const membershipOption = {
+        ...invoiceOptions[0],
+        resourceClass: "member"
+      };
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
+      await mock(mockRequests.invoices.get.ok([{
+        ...pastDueInvoice,
+        resourceClass: "member"
+      }]));
+
+      await header.navigateTo(header.links.settings);
+      await utils.waitForPageToMatch(settings.pageUrl);
+      await settings.goToMembershipSettings();
+
+      // Non subscription details displayed
+      await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
+      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
+      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
+  
+      // Select a subscription
+      await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
+      await utils.waitForNotVisible(signup.membershipSelectForm.loading);
+      await signup.selectMembershipOption(membershipOption.id);
+
+      // Duplicate notification b/c trying to buy membership even tho have membership invoice
+      await utils.waitForVisible(signup.duplicateInvoiceModal.submit);
+      await signup.acceptDuplicateInvoiceModal();
+      // Accept and be redirected to profile (Dues are default displayed)
       await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
     });
   });

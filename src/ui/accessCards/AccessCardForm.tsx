@@ -40,7 +40,6 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
     createCard({
       memberId: member.id,
       uid: rejectionCard.uid,
-      cardLocation: undefined // TODO: this should be optional
     });
   }, [rejectionCard, createCard, setError, member.id]);
 

@@ -7,7 +7,7 @@ import MembersList from "ui/members/MembersList";
 import RentalsList from 'ui/rentals/RentalsList';
 import EarnedMembershipsList from 'ui/earnedMemberships/EarnedMembershipsList';
 import MemberDetail from 'ui/member/MemberDetail';
-import CheckoutContainer from 'ui/checkout/CheckoutContainer';
+import CheckoutPage from 'ui/checkout/CheckoutPage';
 import BillingContainer from 'ui/billing/BillingContainer';
 import SettingsContainer from 'ui/member/Settings';
 import BillingContextContainer from 'ui/billing/BillingContextContainer';
@@ -36,7 +36,7 @@ const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin 
         <Route exact path={Routing.Rentals} component={RentalsList} />
         {billingEnabled && <Route exact path={`${Routing.Billing}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={BillingContainer} />}
         {billingEnabled && <Route exact path={Routing.Receipt} component={Receipt}/>}
-        {billingEnabled && <Route path={Routing.Checkout} component={CheckoutContainer} />}
+        {billingEnabled && <Route path={Routing.Checkout} component={CheckoutPage} />}
         <Route exact path={Routing.SendRegistration} component={SendRegistrationComponent}/>
         {earnedMembershipEnabled && <Route exact path={Routing.EarnedMemberships} component={EarnedMembershipsList}/>}
         <Redirect to={`${Routing.Members}/${currentUserId}`} />

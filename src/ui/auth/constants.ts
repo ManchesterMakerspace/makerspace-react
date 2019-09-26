@@ -1,19 +1,15 @@
 import { emailValid } from "app/utils";
 import isString from "lodash-es/isString";
 import { FormFields } from "ui/common/Form";
-import { Routing } from "app/constants";
 
 export enum Action {
   StartAuthRequest = "AUTH/START_REQUEST",
   AuthUserSuccess = "AUTH/LOGIN_SUCCESS",
   AuthUserFailure = "AUTH/LOGIN_FAILURE",
   LogoutSuccess = "AUTH/LOGOUT",
-
-  StageSignUp = "AUTH/STAGE_SIGN_UP",
-  ClearStagedSignUp = "AUTH/CLEAR_STAGED_SIGN_UP",
 }
 
-export const EmailExistsError = "Email already exists";
+export const EmailExistsError = "Email is already taken";
 
 export const loginPrefix = "login-modal";
 export const LoginFields: FormFields = {

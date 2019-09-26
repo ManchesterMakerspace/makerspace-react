@@ -12,27 +12,6 @@ export const isMemberInvoice = (item: any): item is MemberInvoice => {
   return item && !!item.member && !item.rental;
 }
 
-export interface InvoiceOption {
-  id: string;
-  name: string;
-  description: string;
-  amount: string;
-  quantity: number;
-  operation: InvoiceOperation,
-  resourceClass: InvoiceableResource;
-  planId: string;
-  disabled: boolean;
-  discountId: string;
-}
-
-export interface InvoiceOptionSelection {
-  id: string;
-  discountId: string;
-}
-
-export const isInvoiceOptionSelection = (item: any): item is InvoiceOptionSelection => !!item.invoiceOptionId;
-
-
 export enum InvoiceOperation {
   Renew = "renew"
 }

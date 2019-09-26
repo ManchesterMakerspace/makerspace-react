@@ -1,8 +1,6 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
 
-import { getReceipt, isApiErrorResponse } from "makerspace-ts-api-client";
-
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -12,7 +10,6 @@ import { buildProfileRouting } from "ui/member/utils";
 import { useAuthState } from "../reducer/hooks";
 import { ActionButton } from "../common/ButtonRow";
 import LoadingOverlay from "../common/LoadingOverlay";
-import ErrorMessage from "../common/ErrorMessage";
 
 const buildReceiptUrl = (id: string) => `${process.env.BASE_URL || ""}/api/billing/receipts/${id}`;
 const receiptContainerId = "receipt-container";
@@ -35,17 +32,17 @@ const Receipt: React.FC = () => {
           <Typography variant="subheading">Details regarding your purchase can be found below.</Typography>
         </Grid>
         <Grid item sm={6} xs={12}>
-          <ActionButton 
-            id="return-to-profile" 
-            variant="outlined" 
-            style={{float: "right"}} 
-            color="primary" 
+          <ActionButton
+            id="return-to-profile"
+            variant="outlined"
+            style={{float: "right"}}
+            color="primary"
             label="Return to profile"
             onClick={goToProfile}
           />
           <ActionButton
             label="Print Receipt"
-            style={{float: "right"}} 
+            style={{float: "right"}}
             color="primary"
             variant="contained"
             onClick={printReceipt}
@@ -57,10 +54,10 @@ const Receipt: React.FC = () => {
           <Grid container spacing={16} style={{ height: "100%" }}>
             <Grid item xs={12} style={{ height: "100%" }}>
               {loading && <LoadingOverlay id="receipt-loading" />}
-              <iframe 
-                id={receiptContainerId} 
+              <iframe
+                id={receiptContainerId}
                 name={receiptContainerId}
-                src={buildReceiptUrl(invoiceId)} 
+                src={buildReceiptUrl(invoiceId)}
                 style={{ height: "100%", width: "100%" }}
                 onLoad={() => setLoading(false)}
                 frameBorder={0}

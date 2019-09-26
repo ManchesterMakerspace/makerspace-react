@@ -3,8 +3,7 @@ import TableContainer from "./TableContainer";
 import { SortDirection } from "./constants";
 import { Column } from "./Table";
 
-
-interface Props<Args, Resp> {
+interface Props<Ids, Resp> {
   id: string;
   loading: boolean;
   data: Resp[];
@@ -16,8 +15,8 @@ interface Props<Args, Resp> {
   title?: string;
   renderSearch?: boolean;
   totalItems?: number;
-  selectedIds: string[];
-  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedIds: Ids;
+  setSelectedIds: (ids: Ids) => void;
 }
 
 export interface QueryState {
@@ -109,9 +108,9 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
   const onPageChange = React.useCallback((newPage: number) => setPageNum(newPage), [setPageNum]);
   const onSelect = React.useCallback(
     (id: string, selected: boolean) => {
-      setSelectedIds(currentIds => {
-        const updatedIds = currentIds.slice();
-        const existingIndex = currentIds.indexOf(id);
+      if (Array.isArray(selectedIds)) {
+        const updatedIds = selectedIds.slice();
+        const existingIndex = selectedIds.indexOf(id);
         const alreadySelected = existingIndex > -1;
         if (selected && alreadySelected) {
           return;
@@ -120,20 +119,24 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
         } else {
           updatedIds.push(id)
         }
-        return updatedIds;
-      })
-    },
-    [setSelectedIds]
-  );
-  const onSelectAll = React.useCallback(() => {
-    setSelectedIds(currIds => {
-      const allIds = data.map(rowId);
-      if (currIds.length === allIds.length) {
-        return [];
+        return setSelectedIds(updatedIds);
       } else {
-        return allIds;
+        return setSelectedIds(selected ? id : undefined);
       }
-    })
+  },
+    [setSelectedIds, selectedIds]
+  );
+
+  // SelectAll only works with lists of IDs
+  const onSelectAll = React.useCallback(() => {
+    if (Array.isArray(selectedIds)) {
+      const allIds = data.map(rowId);
+      if (selectedIds.length === allIds.length) {
+        setSelectedIds([]);
+      } else {
+        setSelectedIds(allIds);
+      }
+    }
   }, [setSelectedIds, data]);
 
   const onSearchEnter = React.useCallback((searchTerm: string) => {
@@ -149,7 +152,7 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
       data={data}
       error={error}
       totalItems={totalItems}
-      selectedIds={selectedIds}
+      selectedIds={Array.isArray(selectedIds) ? selectedIds : [selectedIds]}
       pageNum={pageNum}
       columns={columns}
       order={order}
@@ -158,7 +161,7 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
       rowId={rowId}
       onPageChange={onPageChange}
       onSelect={setSelectedIds && onSelect}
-      onSelectAll={setSelectedIds && onSelectAll}
+      onSelectAll={Array.isArray(selectedIds) && setSelectedIds && onSelectAll}
       onSearchEnter={renderSearch && onSearchEnter}
     />
   )

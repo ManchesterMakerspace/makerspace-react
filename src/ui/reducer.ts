@@ -15,14 +15,13 @@ import { SubscriptionsState } from "ui/subscriptions/interfaces";
 import { subscriptionsReducer } from "ui/subscriptions/actions";
 import { MemberState } from "ui/member/interfaces";
 import { memberReducer } from "ui/member/actions";
-import { CheckoutState } from "ui/checkout/interfaces";
-import { checkoutReducer } from "ui/checkout/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
 import { earnedMembershipsReducer } from "ui/earnedMemberships/actions";
 import { TransactionsState } from "ui/transactions/interfaces";
 import { transactionsReducer } from "ui/transactions/actions";
 import { RequestStatus } from "app/interfaces";
 import { ApiErrorResponse, ApiDataResponse } from "makerspace-ts-api-client";
+import { cartReducer, CartState } from "./checkout/cart";
 
 export type ScopedThunkDispatch = ThunkDispatch<State, {}, Action>
 export type ScopedThunkAction<T> = ThunkAction<T, State, {}, AnyAction>;
@@ -31,12 +30,12 @@ export interface State  {
   router: RouterState;
   base: { [key: string]: Transaction<any> }
   auth: AuthState;
+  cart: CartState;
   members: MembersState;
   member: MemberState;
   rentals: RentalsState;
   billing: BillingState;
   subscriptions: SubscriptionsState;
-  checkout: CheckoutState;
   earnedMemberships: EarnedMembershipsState;
   transactions: TransactionsState;
 }
@@ -45,12 +44,12 @@ export const getRootReducer = (history: History) => combineReducers({
   router: connectRouter(history),
   base: baseReducer,
   auth: authReducer,
+  cart: cartReducer,
   members: membersReducer,
   member: memberReducer,
   rentals: rentalsReducer,
   billing: billingReducer,
   subscriptions: subscriptionsReducer,
-  checkout: checkoutReducer,
   earnedMemberships: earnedMembershipsReducer,
   transactions: transactionsReducer,
 });
@@ -71,6 +70,7 @@ export enum TransactionAction {
   Start = "start",
   Success = "success",
   Failure = "failure",
+  Reset = "reset"
 }
 
 const baseReducer = <T>(state: { [key: string]: Transaction<T> } = {}, action: AnyAction) => {
@@ -113,6 +113,8 @@ const baseReducer = <T>(state: { [key: string]: Transaction<T> } = {}, action: A
           isRequesting: false,
         }
       };
+    case TransactionAction.Reset:
+      return { ...state };
     default:
       return state;
   }

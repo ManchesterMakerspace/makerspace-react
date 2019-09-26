@@ -3,7 +3,6 @@ import { AnyAction } from "redux";
 
 import { AuthState, AuthForm, SignUpForm, AuthMember } from "ui/auth/interfaces";
 import { Action as AuthAction } from "ui/auth/constants";
-import { Action as CheckoutAction } from "ui/checkout/constants";
 import { memberIsAdmin } from "ui/member/utils";
 import {
   signIn,
@@ -77,7 +76,6 @@ export const submitSignUpAction = (
   signUpForm: SignUpForm
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
-  dispatch({ type: CheckoutAction.ResetStagedInvoices });
 
   const response = await registerMember(signUpForm);
   await handleAuthWithPermissions(response, dispatch);

@@ -81,6 +81,5 @@ export const defaultInvoices: Invoice[] = new Array(20).fill(undefined).map((_v,
   }
 })
 export const membershipOptionQueryParams = {
-  subscriptionOnly: "true",
   types: [InvoiceableResource.Membership]
 };
