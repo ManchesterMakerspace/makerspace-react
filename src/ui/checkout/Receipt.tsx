@@ -53,7 +53,7 @@ const Receipt: React.FC = () => {
         <CardContent style={{ height: "100%" }}>
           <Grid container spacing={16} style={{ height: "100%" }}>
             <Grid item xs={12} style={{ height: "100%" }}>
-              {loading && <LoadingOverlay id="receipt-loading" />}
+              {loading && <LoadingOverlay id="receipt" />}
               <iframe
                 id={receiptContainerId}
                 name={receiptContainerId}
