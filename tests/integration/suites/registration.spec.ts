@@ -31,23 +31,7 @@ describe("Member management", () => {
     it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
-      
-
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
-      if (await utils.isElementDisplayed(memberPO.memberDetail.notificationModalSubmit)) {
-        await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
-
-        await utils.waitForVisible(signup.documentsSigning.codeOfConductSubmit);
-        await utils.clickElement(signup.documentsSigning.codeOfConductCheckbox);
-        await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
-        await utils.waitForVisible(signup.documentsSigning.memberContractCheckbox);
-        await utils.clickElement(signup.documentsSigning.memberContractCheckbox);
-        await signup.signContract();
-        await utils.clickElement(signup.documentsSigning.memberContractSubmit);
-        await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
-        await utils.waitForPageToMatch(Routing.Profile);
-      }
-      
       await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
       await memberPO.verifyProfileInfo({
         ...newMember,
@@ -94,7 +78,7 @@ describe("Member management", () => {
       });
 
       // TODO: Verify new member, subscription & receipt emails
-      
+
       // Logout
       await header.navigateTo(header.links.logout);
       await utils.waitForVisible(header.loginLink);
@@ -136,7 +120,7 @@ describe("Member management", () => {
         expirationTime: moment().add(1, 'M').valueOf()
       });
     }, 300000);
-  
+
     it("Admins can register a customer manually", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
 

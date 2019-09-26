@@ -31,31 +31,36 @@ const MemberProfile: React.FC = () => {
     history.push(Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUserId));
   }, [currentUserId]);
 
-  const { 
+  const {
     isRequesting: memberLoading,
     refresh: refreshMember,
     error: memberError,
     data: member = {} as Member
   } = useReadTransaction(getMember, memberId);
 
-  const [notification, setNotificaation] = React.useState<Notification>();
-  React.useEffect(() => {
+  const [notification, setNotification] = React.useState<Notification>();
+  React.useLayoutEffect(() => {
     if (isOwnProfile && !memberLoading && member.hasOwnProperty("memberContractOnFile")) {
       if (member.memberContractOnFile) {
-        setNotificaation(undefined);
+        setNotification(undefined);
       } else {
-        setNotificaation(Notification.Welcome);
+        setNotification(Notification.Welcome);
       }
     }
-  }, [isOwnProfile, memberLoading, setNotificaation, member.memberContractOnFile]);
+  }, [isOwnProfile, memberLoading, setNotification, member.memberContractOnFile]);
+
+  // Don't render the notification box on the first paint
+  // Helps prevent flickering issue
+  const [renderNotification, setRenderNotification] = React.useState(false);
+  React.useEffect(() => setRenderNotification(true), []);
 
   const { customerId, earnedMembershipId } = member;
   const isEarnedMember = !!earnedMembershipId && (isOwnProfile || isAdmin);
 
   const closeNotification = React.useCallback(() => {
     refreshMember();
-    setNotificaation(undefined);
-  }, [refreshMember, setNotificaation]);
+    setNotification(undefined);
+  }, [refreshMember, setNotification]);
 
   const goToAgreements = React.useCallback(() => {
     history.push(Routing.Documents);
@@ -142,11 +147,11 @@ const MemberProfile: React.FC = () => {
           }] : []
         ]}
       />
-      <NotificationModal
+      {renderNotification && <NotificationModal
         notification={notification}
         onSubmit={goToAgreements}
         onClose={closeNotification}
-      />
+      />}
     </>
   )
 };
