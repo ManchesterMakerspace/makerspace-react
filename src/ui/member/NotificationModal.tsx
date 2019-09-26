@@ -45,12 +45,11 @@ class NotificationModal extends React.Component<Props> {
     }
 
     const closeHandler = displayedNotification.required ? undefined : onClose
-
     return (
       <FormModal
         formRef={this.setFormRef}
         id="notification-modal"
-        isOpen={!!notification}
+        isOpen={true}
         title={displayedNotification.title}
         onSubmit={onSubmit}
         submitText={displayedNotification.submit}
