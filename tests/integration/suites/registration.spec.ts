@@ -7,7 +7,7 @@ import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import header from "../../pageObjects/header";
-import memberPo from "../../pageObjects/member";
+import signup from "../../pageObjects/signup";
 import renewalPO from "../../pageObjects/renewalForm";
 import invoicePO from "../../pageObjects/invoice";
 import { checkout } from "../../pageObjects/checkout";
@@ -31,7 +31,23 @@ describe("Member management", () => {
     it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
+      
+
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
+      if (await utils.isElementDisplayed(memberPO.memberDetail.notificationModalSubmit)) {
+        await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
+
+        await utils.waitForVisible(signup.documentsSigning.codeOfConductSubmit);
+        await utils.clickElement(signup.documentsSigning.codeOfConductCheckbox);
+        await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
+        await utils.waitForVisible(signup.documentsSigning.memberContractCheckbox);
+        await utils.clickElement(signup.documentsSigning.memberContractCheckbox);
+        await signup.signContract();
+        await utils.clickElement(signup.documentsSigning.memberContractSubmit);
+        await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
+        await utils.waitForPageToMatch(Routing.Profile);
+      }
+      
       await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
       await memberPO.verifyProfileInfo({
         ...newMember,
@@ -65,6 +81,7 @@ describe("Member management", () => {
       // Submit payment, view receipt & return to profile
       await utils.clickElement(checkout.submit);
       await utils.waitForPageToMatch(Routing.Receipt);
+      await utils.waitForNotVisible(checkout.receiptLoading);
       await utils.clickElement(checkout.backToProfileButton);
       await utils.waitForPageToMatch(Routing.Profile);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
@@ -90,10 +107,10 @@ describe("Member management", () => {
 
       // Search for newly created member
       await header.navigateTo(header.links.members);
-      await utils.waitForPageLoad(memberPo.membersListUrl);
-      await utils.waitForNotVisible(memberPo.membersList.loading);
-      await utils.fillSearchInput(memberPo.membersList.searchInput, newMember.email);
-      await utils.waitForNotVisible(memberPo.getLoadingId());
+      await utils.waitForPageLoad(memberPO.membersListUrl);
+      await utils.waitForNotVisible(memberPO.membersList.loading);
+      await utils.fillSearchInput(memberPO.membersList.searchInput, newMember.email);
+      await utils.waitForNotVisible(memberPO.getLoadingId());
       const link: WebElement = await memberPO.getColumnByIndex(0, "lastname");
       await link.findElement(By.css("a")).click();
       await utils.waitForPageToMatch(Routing.Profile);
@@ -110,7 +127,7 @@ describe("Member management", () => {
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
       expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.submit);
-      expect(await utils.isElementDisplayed(memberPo.accessCardForm.error)).toBeFalsy();
+      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).toBeFalsy();
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
 
@@ -126,16 +143,16 @@ describe("Member management", () => {
       await auth.goToLogin();
       await auth.signInUser(getAdminUserLogin());
       await header.navigateTo(header.links.members);
-      await utils.waitForPageLoad(memberPo.membersListUrl);
-      await utils.waitForVisible(memberPo.membersList.createMemberButton);
-      await utils.clickElement(memberPo.membersList.createMemberButton);
-      await utils.waitForVisible(memberPo.memberForm.submit);
-      await utils.clickElement(memberPo.memberForm.contract);
-      await utils.fillInput(memberPo.memberForm.firstname, newMember.firstname);
-      await utils.fillInput(memberPo.memberForm.lastname, newMember.lastname);
-      await utils.fillInput(memberPo.memberForm.email, newMember.email);
-      await utils.clickElement(memberPo.memberForm.submit);
-      await utils.waitForNotVisible(memberPo.memberForm.submit);
+      await utils.waitForPageLoad(memberPO.membersListUrl);
+      await utils.waitForVisible(memberPO.membersList.createMemberButton);
+      await utils.clickElement(memberPO.membersList.createMemberButton);
+      await utils.waitForVisible(memberPO.memberForm.submit);
+      await utils.clickElement(memberPO.memberForm.contract);
+      await utils.fillInput(memberPO.memberForm.firstname, newMember.firstname);
+      await utils.fillInput(memberPO.memberForm.lastname, newMember.lastname);
+      await utils.fillInput(memberPO.memberForm.email, newMember.email);
+      await utils.clickElement(memberPO.memberForm.submit);
+      await utils.waitForNotVisible(memberPO.memberForm.submit);
       await utils.waitForPageToMatch(Routing.Profile);
       await memberPO.verifyProfileInfo({
         ...newMember,
@@ -157,7 +174,7 @@ describe("Member management", () => {
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
       expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.submit);
-      expect(await utils.isElementDisplayed(memberPo.accessCardForm.error)).toBeFalsy();
+      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).toBeFalsy();
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
       await memberPO.verifyProfileInfo({
         ...newMember,

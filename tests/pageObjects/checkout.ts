@@ -27,7 +27,7 @@ export class CheckoutPageObject extends TablePageObject {
   public submit = "#submit-payment-button"
 
   public receiptContainer = "#receipt-container";
-
+  public receiptLoading = "#receipt-loading";
   public receiptTransactions = (transactionId: string) => `#transaction-${transactionId}`;
   public backToProfileButton = "#return-to-profile";
 }
