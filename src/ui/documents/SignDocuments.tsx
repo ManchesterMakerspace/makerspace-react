@@ -34,8 +34,7 @@ const SignDocuments: React.FC<{ memberId: string }> = () => {
   } = useReadTransaction(getMember, currentUserId);
 
   const onContractAccept = React.useCallback(async (signature: string) => {
-    // TODO this update needs to accept either or 
-    await update(currentUserId, { signature } as any);
+    await update(currentUserId, { signature });
     refreshMember();
   }, [update]);
 

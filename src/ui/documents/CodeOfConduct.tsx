@@ -4,7 +4,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 import Form from "ui/common/Form";
 import { withLoading } from "../common/LoadingOverlay";
-const codeOfConduct = require('documents/code_of_conduct.html') as string;
+import DocumentFrame, { documents } from "./Document";
 
 const id = "code-of-conduct";
 const document = {
@@ -38,7 +38,7 @@ const CodeOfConduct: React.FC<Props> = ({ onAccept }) => {
     submitText="Proceed"
     onSubmit={onSubmit}
   >
-    <div dangerouslySetInnerHTML={{ __html: codeOfConduct }} />
+    <DocumentFrame id={id} src={documents.codeOfConduct} />
     <div key={document.name}>
       <FormControlLabel
         control={
