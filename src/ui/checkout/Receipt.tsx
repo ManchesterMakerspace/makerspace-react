@@ -2,14 +2,12 @@ import * as React from "react";
 import useReactRouter from "use-react-router";
 
 import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 
 import { buildProfileRouting } from "ui/member/utils";
 import { useAuthState } from "../reducer/hooks";
 import { ActionButton } from "../common/ButtonRow";
-import LoadingOverlay from "../common/LoadingOverlay";
+import DocumentFrame from "../documents/Document";
 
 const buildReceiptUrl = (id: string) => `${process.env.BASE_URL || ""}/api/billing/receipts/${id}`;
 const receiptContainerId = "receipt-container";
@@ -22,7 +20,6 @@ const Receipt: React.FC = () => {
     window.frames[receiptContainerId].focus();
     window.frames[receiptContainerId].print();
   }, [window.frames]);
-  const [loading, setLoading] = React.useState(true);
 
   return (
     <>
@@ -49,23 +46,7 @@ const Receipt: React.FC = () => {
           />
         </Grid>
       </Grid>
-      <Card style={{ height: "75vh" }}>
-        <CardContent style={{ height: "100%" }}>
-          <Grid container spacing={16} style={{ height: "100%" }}>
-            <Grid item xs={12} style={{ height: "100%" }}>
-              {loading && <LoadingOverlay id="receipt" />}
-              <iframe
-                id={receiptContainerId}
-                name={receiptContainerId}
-                src={buildReceiptUrl(invoiceId)}
-                style={{ height: "100%", width: "100%" }}
-                onLoad={() => setLoading(false)}
-                frameBorder={0}
-              />
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+      <DocumentFrame id={receiptContainerId} src={buildReceiptUrl(invoiceId)} />
     </>
   )
 }

@@ -7,11 +7,9 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-import { timeToDate } from "ui/utils/timeToDate";
 import Form from "ui/common/Form";
-import { useAuthState } from "../reducer/hooks";
 import { withLoading } from "../common/LoadingOverlay";
-const memberContract = require('documents/member_contract.html') as string;
+import DocumentFrame, { documents } from "./Document";
 
 const id = "member-contract";
 const document = {
@@ -28,11 +26,7 @@ interface Props {
 }
 
 const MemberContract: React.FC<Props> = ({ onAccept }) => {
-  const { currentUser } = useAuthState();
   const [error, setError ] = React.useState();
-  const formattedMemberContract = memberContract.replace('[name]', `<b>${currentUser.firstname} ${currentUser.lastname}</b>`)
-                                                .replace('[today]', `<b>${timeToDate(new Date())}</b>`);
-
   const signatureRef = React.useRef<any>();
   const clearSignature = React.useCallback(() => {
     signatureRef.current && signatureRef.current.clear();
@@ -60,7 +54,7 @@ const MemberContract: React.FC<Props> = ({ onAccept }) => {
       onSubmit={onSubmit}
       error={error}
     >
-      <div dangerouslySetInnerHTML={{ __html: formattedMemberContract }} />
+      <DocumentFrame id={id} src={documents.memberContract} />
       <div key={document.name}>
         <FormControlLabel
           control={
