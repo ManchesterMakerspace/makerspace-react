@@ -10,7 +10,7 @@ import CardContent from "@material-ui/core/CardContent";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import RemoveRedEye from "@material-ui/icons/RemoveRedEye";
 
-import { createInvoice, InvoiceOption } from "makerspace-ts-api-client";
+import { createInvoice, InvoiceOption, listInvoiceOptions } from "makerspace-ts-api-client";
 import { SignUpFields, EmailExistsError, signUpPrefix } from "ui/auth/constants";
 import { SignUpForm } from "ui/auth/interfaces";
 import ErrorMessage from "ui/common/ErrorMessage";
@@ -21,9 +21,10 @@ import { Routing } from "app/constants";
 import { submitSignUpAction } from "./actions";
 import { Action } from "ui/auth/constants";
 import { useAuthState } from "../reducer/hooks";
-import { billingEnabled } from "app/constants";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import MembershipSelectForm, { invoiceOptionParam, discountParam } from "ui/membership/MembershipSelectForm";
+import useReadTransaction from "ui/hooks/useReadTransaction";
+import { InvoiceableResource } from "app/entities/invoice";
 
 const SignUpForm: React.FC = () => {
   const { isOpen: emailNoteOpen, openModal: openEmailNote, closeModal: closeEmailNote } = useModal();
@@ -59,6 +60,11 @@ const SignUpForm: React.FC = () => {
   const selectMembership = React.useCallback((option: InvoiceOption, discountId: string) => {
     setOption({ discountId, id: option.id });
   }, [setOption]);
+
+  // TODO: Remove this when all invoicing released globally
+  const {
+    data: options = []
+  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
   return (
     <>
@@ -125,7 +131,7 @@ const SignUpForm: React.FC = () => {
                         }}
                       />
                     </Grid>
-                    {billingEnabled && (
+                    {options.length && (
                       <Grid item xs={12}>
                         <MembershipSelectForm onSelect={selectMembership} allowNone={true}/>
                       </Grid>

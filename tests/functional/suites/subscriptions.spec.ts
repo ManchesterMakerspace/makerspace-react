@@ -87,7 +87,7 @@ describe("Paid Subscriptions", () => {
         ...membershipOption,
         member: basicUser,
       } as Partial<MemberInvoice>, false)); // initial invoice creation
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
       await mock(mockRequests.paymentMethods.get.ok([newCard]));
       await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
