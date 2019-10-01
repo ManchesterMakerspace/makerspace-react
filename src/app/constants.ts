@@ -37,6 +37,3 @@ export enum Whitelists {
   customBilling = "custom_billing",
   earnedMembership = "earned_membership"
 }
-
-// TODO: I don't like this very much
-export const billingEnabled = (process as any).env.BILLING_ENABLED || false;

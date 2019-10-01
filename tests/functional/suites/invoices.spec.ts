@@ -103,7 +103,7 @@ describe("Invoicing and Dues", () => {
         ...invoiceOptions[0],
         resourceClass: "member"
       };
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
@@ -118,7 +118,7 @@ describe("Invoicing and Dues", () => {
       await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
-  
+
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
@@ -131,7 +131,7 @@ describe("Invoicing and Dues", () => {
       await utils.clickElement(signup.membershipSelectForm.submit);
       await utils.waitForPageLoad(checkout.checkoutUrl);
     });
-    
+
     it("Redirects to profile if you accept duplicate invoice notice", async () => {
       await loadInvoices(resourcedInvoices, true);
 
@@ -140,7 +140,7 @@ describe("Invoicing and Dues", () => {
         ...invoiceOptions[0],
         resourceClass: "member"
       };
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
@@ -155,7 +155,7 @@ describe("Invoicing and Dues", () => {
       await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
-  
+
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);

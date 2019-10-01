@@ -96,8 +96,7 @@ describe("Authentication", () => {
 
       const membershipId = "foo";
       const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
       await mock(mockRequests.signUp.ok(newMember)); // initial signup
       await mock(mockRequests.permission.get.ok(newMember.id, {}));
       await mock(mockRequests.invoices.post.ok(membershipOption, false)); // initial invoice creation
@@ -146,8 +145,7 @@ describe("Authentication", () => {
       */
       const membershipId = "foo";
       const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams));
+      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
       await browser.get(utils.buildUrl());
       await signup.selectMembershipOption(membershipId);
       await utils.waitForPageLoad(signup.signupUrl);
