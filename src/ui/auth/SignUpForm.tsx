@@ -48,7 +48,7 @@ const SignUpForm: React.FC = () => {
     if (option) {
       await buildInvoice(option);
     }
-  }, []);
+  }, [option]);
 
   React.useEffect(() => {
     if (!isRequesting && error && error.match(new RegExp(EmailExistsError))) {
