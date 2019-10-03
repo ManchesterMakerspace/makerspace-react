@@ -30,7 +30,7 @@ const CheckoutPage: React.FC = () => {
         <CartList paymentMethodId={paymentMethodId} />
       </Grid>
     </Grid>
-  )
+  );
 };
 
 export default CheckoutPage;

@@ -96,7 +96,7 @@ describe("Paid Subscriptions", () => {
       await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
       // Submit payment
-      const defaultTransaction = defaultTransactions[1];
+      const defaultTransaction = { ...defaultTransactions[0], invoice: defaultInvoice };
       await mock(mockRequests.transactions.post.ok(defaultTransaction));
       await mock(mockRequests.member.get.ok(basicUser.id, {
         ...basicUser,

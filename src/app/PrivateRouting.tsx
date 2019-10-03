@@ -10,7 +10,6 @@ import MemberDetail from 'ui/member/MemberDetail';
 import CheckoutPage from 'ui/checkout/CheckoutPage';
 import BillingContainer from 'ui/billing/BillingContainer';
 import SettingsContainer from 'ui/member/Settings';
-import BillingContextContainer from 'ui/billing/BillingContextContainer';
 import Receipt from 'ui/checkout/Receipt';
 import { Permission } from 'app/entities/permission';
 import { CollectionOf } from 'app/interfaces';
@@ -27,22 +26,20 @@ const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin 
   const earnedMembershipEnabled = isAdmin && permissions[Whitelists.earnedMembership];
 
   return (
-    <BillingContextContainer>
-      <Switch>
-        <Route exact path={Routing.Members} component={MembersList} />
-        <Route exact path={Routing.Documents} component={SignDocuments} />
-        <Route exact path={Routing.Settings} component={SettingsContainer} />
-        <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
-        <Route exact path={Routing.Rentals} component={RentalsList} />
-        {billingEnabled && <Route exact path={`${Routing.Billing}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={BillingContainer} />}
-        {billingEnabled && <Route exact path={Routing.Receipt} component={Receipt}/>}
-        {billingEnabled && <Route path={Routing.Checkout} component={CheckoutPage} />}
-        <Route exact path={Routing.SendRegistration} component={SendRegistrationComponent}/>
-        {earnedMembershipEnabled && <Route exact path={Routing.EarnedMemberships} component={EarnedMembershipsList}/>}
-        <Redirect to={`${Routing.Members}/${currentUserId}`} />
-        <Route component={NotFound} />
-      </Switch>
-    </BillingContextContainer>
+    <Switch>
+      <Route exact path={Routing.Members} component={MembersList} />
+      <Route exact path={Routing.Documents} component={SignDocuments} />
+      <Route exact path={Routing.Settings} component={SettingsContainer} />
+      <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
+      <Route exact path={Routing.Rentals} component={RentalsList} />
+      {billingEnabled && <Route exact path={`${Routing.Billing}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={BillingContainer} />}
+      {billingEnabled && <Route exact path={Routing.Receipt} component={Receipt}/>}
+      {billingEnabled && <Route path={Routing.Checkout} component={CheckoutPage} />}
+      <Route exact path={Routing.SendRegistration} component={SendRegistrationComponent}/>
+      {earnedMembershipEnabled && <Route exact path={Routing.EarnedMemberships} component={EarnedMembershipsList}/>}
+      <Redirect to={`${Routing.Members}/${currentUserId}`} />
+      <Route component={NotFound} />
+    </Switch>
   )
 };
 

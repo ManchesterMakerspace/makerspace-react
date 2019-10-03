@@ -19,8 +19,8 @@ import useModal from "../hooks/useModal";
 import { buildProfileRouting } from "../member/utils";
 import { useAuthState } from "../reducer/hooks";
 import { Routing } from "app/constants";
-import useWriteTransaction from "../hooks/useWriteTransaction";
-import { createTransaction } from "makerspace-ts-api-client";
+import useWriteTransaction, { SuccessTransactionState } from "../hooks/useWriteTransaction";
+import { createTransaction, Transaction } from "makerspace-ts-api-client";
 
 const getCartId = (item: CartItem) => item.id;
 
@@ -39,9 +39,12 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     return emptyCart;
   }, []);
 
-  const { discounts } = React.useContext(BillingContext);
-  const onSuccess = React.useCallback(({ invoiceId }) => {
-    history.push(`${Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoiceId)}`)
+  // TODO: Update this when you update writeTransaction
+  const onSuccess = React.useCallback(({ response: { data: transaction } }: SuccessTransactionState<Parameters<typeof createTransaction>[0], Transaction>) => {
+    const invoiceId = transaction && transaction.invoice.id;
+    if (invoiceId) {
+      history.push(`${Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoiceId)}`)
+    }
   }, [history]);
   const { call, isRequesting, error, reset } = useWriteTransaction(createTransaction, onSuccess);
   const { isOpen: errorIsOpen, openModal, closeModal } = useModal();
@@ -66,16 +69,9 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
       id: "description",
       label: "Description",
       cell: (row: CartItem) => {
-        const discount = discounts && (discounts.data || []).find(discount => discount.id === row.discountId);
         return (
           <>
             <div>{row.description}</div>
-            {discount && (
-              <>
-                <hr />
-                <div id="discount">{discount.description}</div>
-              </>
-            )}
           </>
         )
       },
@@ -83,7 +79,15 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     {
       id: "amount",
       label: "Amount",
-      cell: (row: CartItem) => numberAsCurrency(row.amount),
+      cell: (row: CartItem) => {
+        let amount = Number(row.amount);
+        // TODO: this should use discount
+        if (row.discountId) {
+          amount = amount * .90;
+        }
+
+        return numberAsCurrency(amount)
+      },
     },
     ...withError ? [{
       id: "error",
@@ -111,6 +115,9 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     return null;
   }
 
+  // TODO: this should use discount
+  const totalAmount = item.discountId ? (Number(item.amount) * .90) : (item.amount);
+
   return (
     <>
       <Card style={{ height: "100%" }}>
@@ -126,7 +133,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
               />
             </Grid>
             <Grid item xs={12} style={{ textAlign: "right" }}>
-              <Typography id="total" variant="h6" color="inherit">Total {numberAsCurrency(item.amount)}</Typography>
+              <Typography id="total" variant="h6" color="inherit">Total {numberAsCurrency(totalAmount)}</Typography>
             </Grid>
             <Grid item xs={12} style={{ textAlign: "left" }}>
               <Button id="submit-payment-button" variant="contained" disabled={!paymentMethodId} onClick={submitPayment}>Submit Payment</Button>

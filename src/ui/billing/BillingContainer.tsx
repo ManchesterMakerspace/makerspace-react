@@ -4,6 +4,7 @@ import DetailView from "ui/common/DetailView";
 import SubscriptionsList from "ui/subscriptions/SubscriptionsList";
 import TransactionsList from "ui/transactions/TransactionsList";
 import OptionsList from "ui/billing/OptionsList";
+import BillingContextContainer from "./BillingContextContainer";
 
 interface StateProps {}
 interface DispatchProps {}
@@ -30,32 +31,34 @@ class BillingContainer extends React.Component<Props, State> {
   }
   public render(): JSX.Element {
     return (
-      <DetailView
-        title="Billing Central"
-        basePath={Routing.Billing}
-        information={this.renderBillingInfo()}
-        actionButtons={[]}
-        resources={[
-          {
-            name: "subscriptions",
-            content: (
-              <SubscriptionsList/>
-            )
-          }, {
-            name: "transactions",
-            content: (
-              <TransactionsList />
-            )
-          }, {
-            name: "options",
-            displayName: "Billing Options",
-            content: (
-              <OptionsList />
-            )
-          }
-        ]}
-      />
-    )
+      <BillingContextContainer>
+        <DetailView
+          title="Billing Central"
+          basePath={Routing.Billing}
+          information={this.renderBillingInfo()}
+          actionButtons={[]}
+          resources={[
+            {
+              name: "subscriptions",
+              content: (
+                <SubscriptionsList/>
+              )
+            }, {
+              name: "transactions",
+              content: (
+                <TransactionsList />
+              )
+            }, {
+              name: "options",
+              displayName: "Billing Options",
+              content: (
+                <OptionsList />
+              )
+            }
+          ]}
+        />
+      </BillingContextContainer>
+    );
   }
 }
 
