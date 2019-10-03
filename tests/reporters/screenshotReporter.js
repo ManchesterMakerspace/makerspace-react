@@ -15,7 +15,7 @@ export class ScreenshotReporter {
         //         console.log('[%s] %s', entry.level.name, entry.message);
         //       });
         //   });
-        
+
         await takeScreenshot(result.fullName, resolve);
       }
     });

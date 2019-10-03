@@ -75,7 +75,7 @@ describe("Invoicing and Dues", () => {
       await utils.waitForPageLoad(checkout.checkoutUrl);
 
       // Submit payment
-      const pastDueTransaction = defaultTransactions[0];
+      const pastDueTransaction = { ...defaultTransactions[0], invoice: resourcedInvoices[0] };
       await mock(mockRequests.transactions.post.ok(pastDueTransaction));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));

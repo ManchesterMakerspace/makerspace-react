@@ -32,7 +32,7 @@ const NoSubscriptionDetails: React.FC<Props> = ({ member }) => {
   const resetCart = useEmptyCart();
   const addToCart = useAddToCart();
   const onSelect = React.useCallback((option: InvoiceOption, discountId: string) => {
-    setOption({ ...option, ...discountId && { discountId } });
+    setOption({ ...option, ...{ discountId } });
     setError("");
   }, [setOption]);
 
