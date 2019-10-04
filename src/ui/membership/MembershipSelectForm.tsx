@@ -84,7 +84,8 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
 
   // Add or remove discount ID from query params
   const toggleDiscount = React.useCallback((_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    updateSelection(membershipOptionId, checked ? (membershipOptionId || "apply") : undefined);
+    const option = (options || []).find(option => option.id === membershipOptionId);
+    updateSelection(membershipOptionId, checked ? (option.discountId || "apply") : undefined);
   }, [updateSelection, membershipOptionId]);
 
   const fields = React.useMemo(() =>  [
