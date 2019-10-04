@@ -62,7 +62,7 @@ class PaypalButton extends React.Component<Props, State> {
         if (paypalCheckoutErr) throw paypalCheckoutErr;
 
         checkoutJs.Button.render({
-          env: "sandbox",
+          env: process.env.NODE_ENV === "production" ? "production" : "sandbox",
           payment: () => {
             return paypalCheckoutInstance.createPayment({
               flow: 'vault',
