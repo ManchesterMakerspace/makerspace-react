@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
 
 import { Routing } from "app/constants";
-import MembershipSelectForm from 'ui/membership/MembershipSelectForm';
+import MembershipSelectForm, { invoiceOptionParam, discountParam } from 'ui/membership/MembershipSelectForm';
 import { InvoiceOption, listInvoiceOptions } from 'makerspace-ts-api-client';
 import useReadTransaction from 'ui/hooks/useReadTransaction';
 import { InvoiceableResource } from 'app/entities/invoice';
@@ -18,12 +18,17 @@ import { InvoiceableResource } from 'app/entities/invoice';
 
 const LandingPage: React.FC = () => {
   const { history, location: { search } } = useReactRouter();
-  const goToSignup = React.useCallback<(option?: InvoiceOption, discount?: string) => void>((option, discountId) => {
+  const goToSignup = React.useCallback<(option?: InvoiceOption, discountId?: string) => void>((option, discountId) => {
     const searchParams = new URLSearchParams(search);
-    history.push({
-      ...option && { search: searchParams.toString() },
-      pathname: Routing.SignUp
-    });
+    const optionId = option && option.id;
+    optionId ? searchParams.set(invoiceOptionParam, optionId) : searchParams.delete(invoiceOptionParam);
+    discountId ? searchParams.set(discountParam, discountId) : searchParams.delete(discountParam);
+    if (option) {
+      history.push({
+        search: searchParams.toString(),
+        pathname: Routing.SignUp
+      });
+    }
   }, [history, search]);
 
   // TODO: Remove this when all invoicing released globally

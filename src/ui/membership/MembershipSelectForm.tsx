@@ -34,7 +34,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
     const membershipOptionId = searchParams.get(invoiceOptionParam);
     const discountId = searchParams.get(discountParam);
     return { membershipOptionId, discountId };
-  }, [search, searchParams]);
+  }, [searchParams]);
 
   const {
     isRequesting,
@@ -42,13 +42,6 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
     data: options = []
   } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
-  // Select bookmarked option on load
-  React.useEffect(() => {
-    if (options.length) {
-      const option = (options || []).find(option => option.id === membershipOptionId);
-      setSelectedOption(option);
-    }
-  }, [membershipOptionId, setSelectedOption, options]);
 
   const allOptions = React.useMemo(() => {
     return options.sort(byAmount)
@@ -64,8 +57,14 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
                   }] : []);
   }, [allowNone, options]);
 
+  // Select bookmarked option on load
+  React.useEffect(() => {
+    const option = (allOptions || []).find(option => option.id === membershipOptionId);
+    setSelectedOption(option);
+  }, [membershipOptionId, setSelectedOption, allOptions]);
+
   const updateSelection = React.useCallback((optionId: string, discountId: string) => {
-    const option = (options || []).find(option => option.id === optionId);
+    const option = (allOptions || []).find(option => option.id === optionId);
     setSelectedOption(option);
     optionId ? searchParams.set(invoiceOptionParam, optionId) : searchParams.delete(invoiceOptionParam);
     discountId ? searchParams.set(discountParam, discountId) : searchParams.delete(discountParam);
@@ -73,20 +72,20 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
       search: searchParams.toString()
     });
     onSelect && onSelect(option, discountId);
-  }, [onSelect, options, history, searchParams]);
+  }, [onSelect, allOptions, history, searchParams]);
 
   // Add option and discount IDs to query params
   const selectMembershipOption = React.useCallback((event: React.MouseEvent<HTMLTableElement>) => {
     const optionId = event.currentTarget.id;
-    const option = (options || []).find(option => option.id === optionId);
-    updateSelection(optionId, discountId ? option && option.discountId : undefined);
-  }, [updateSelection, discountId, options]);
+    const option = (allOptions || []).find(option => option.id === optionId);
+    updateSelection(optionId, discountId ? (option && option.discountId || discountId) : undefined);
+  }, [updateSelection, discountId, allOptions]);
 
   // Add or remove discount ID from query params
   const toggleDiscount = React.useCallback((_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-    const option = (options || []).find(option => option.id === membershipOptionId);
+    const option = (allOptions || []).find(option => option.id === membershipOptionId);
     updateSelection(membershipOptionId, checked ? (option && option.discountId || "apply") : undefined);
-  }, [updateSelection, membershipOptionId]);
+  }, [updateSelection, membershipOptionId, allOptions]);
 
   const fields = React.useMemo(() =>  [
     {
