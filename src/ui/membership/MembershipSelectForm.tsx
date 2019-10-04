@@ -49,10 +49,10 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
       setSelectedOption(option);
     }
   }, [membershipOptionId, setSelectedOption, options]);
-  
+
   const allOptions = React.useMemo(() => {
     return options.sort(byAmount)
-                  .concat(allowNone ? [{ 
+                  .concat(allowNone ? [{
                     id: "none",
                     name: "None",
                     description: "Paid with cash or select an option later",
@@ -79,13 +79,13 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
   const selectMembershipOption = React.useCallback((event: React.MouseEvent<HTMLTableElement>) => {
     const optionId = event.currentTarget.id;
     const option = (options || []).find(option => option.id === optionId);
-    updateSelection(optionId, discountId ? option.discountId : undefined);
+    updateSelection(optionId, discountId ? option && option.discountId : undefined);
   }, [updateSelection, discountId, options]);
 
   // Add or remove discount ID from query params
   const toggleDiscount = React.useCallback((_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
     const option = (options || []).find(option => option.id === membershipOptionId);
-    updateSelection(membershipOptionId, checked ? (option.discountId || "apply") : undefined);
+    updateSelection(membershipOptionId, checked ? (option && option.discountId || "apply") : undefined);
   }, [updateSelection, membershipOptionId]);
 
   const fields = React.useMemo(() =>  [

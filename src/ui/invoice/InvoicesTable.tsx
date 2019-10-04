@@ -75,7 +75,16 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
     label: "Status",
     cell: (row: MemberInvoice | RentalInvoice) => {
       const statusColor = (row.pastDue && !row.settled) ? Status.Danger : Status.Success;
-      const label = isInvoiceSettled(row) ? "Paid" : (row.pastDue ? "Past Due" : "Upcoming");
+      let label;
+      if (row.refunded) {
+        label = "Refunded";
+      } else if (isInvoiceSettled(row)) {
+        label = "Paid";
+      } else if (row.pastDue) {
+        label = "Past Due";
+      } else {
+        "Upcoming";
+      }
       return (
         <StatusLabel label={label} color={statusColor} />
       );
