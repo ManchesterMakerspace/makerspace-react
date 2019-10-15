@@ -115,9 +115,6 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     return null;
   }
 
-  // TODO: this should use discount
-  const totalAmount = item.discountId ? (Number(item.amount) * .90) : (item.amount);
-
   return (
     <>
       <Card style={{ height: "100%" }}>
@@ -133,7 +130,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
               />
             </Grid>
             <Grid item xs={12} style={{ textAlign: "right" }}>
-              <Typography id="total" variant="h6" color="inherit">Total {numberAsCurrency(totalAmount)}</Typography>
+              <Typography id="total" variant="h6" color="inherit">Total {numberAsCurrency(item.amount)}</Typography>
             </Grid>
             <Grid item xs={12} style={{ textAlign: "left" }}>
               <Button id="submit-payment-button" variant="contained" disabled={!paymentMethodId} onClick={submitPayment}>Submit Payment</Button>
