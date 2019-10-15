@@ -83,7 +83,7 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
       } else if (row.pastDue) {
         label = "Past Due";
       } else {
-        "Upcoming";
+        label = "Upcoming";
       }
       return (
         <StatusLabel label={label} color={statusColor} />
