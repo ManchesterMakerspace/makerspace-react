@@ -29,16 +29,15 @@ class SubscriptionsPageObject extends TablePageObject {
   }
 
   public actionButtons = {
-    delete: "#subscriptions-list-delete",
+    delete: "#subscription-option-cancel",
   }
 
   private cancelSubscriptionModalId = "#cancel-subscription";
   public cancelSubscriptionModal = {
     id: `${this.cancelSubscriptionModalId}-confirm`,
-    status: `${this.cancelSubscriptionModalId}-status`,
-    resourceClass: `${this.cancelSubscriptionModalId}-resource`,
-    member: `${this.cancelSubscriptionModalId}-member`,
-    nextPayment: `${this.cancelSubscriptionModalId}-next-payment`,
+    status: `#subscription-status`,
+    type: "#subscription-type",
+    nextPayment: `#subscription-next-payment`,
     submit: `${this.cancelSubscriptionModalId}-submit`,
     cancel: `${this.cancelSubscriptionModalId}-cancel`,
     error: `${this.cancelSubscriptionModalId}-error`,

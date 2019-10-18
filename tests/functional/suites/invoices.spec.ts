@@ -66,7 +66,6 @@ describe("Invoicing and Dues", () => {
       // Only 1 can be selected at a time tho
       await loadInvoices(resourcedInvoices, true);
       expect((await invoicePO.getAllRows()).length).toEqual(resourcedInvoices.length);
-      expect(await invoicePO.getColumnText("description", resourcedInvoices[0].id)).toEqual(resourcedInvoices[0].description);
 
       // Get payment methods (none array)
       // Checkout
@@ -104,14 +103,15 @@ describe("Invoicing and Dues", () => {
         resourceClass: "member"
       };
       await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
+
+      await header.navigateTo(header.links.settings);
+      await utils.waitForPageToMatch(settings.pageUrl);
+
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
         resourceClass: "member"
       }]));
-
-      await header.navigateTo(header.links.settings);
-      await utils.waitForPageToMatch(settings.pageUrl);
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -119,6 +119,10 @@ describe("Invoicing and Dues", () => {
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
 
+      await mock(mockRequests.invoices.get.ok([{
+        ...pastDueInvoice,
+        resourceClass: "member"
+      }]));
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
@@ -141,14 +145,15 @@ describe("Invoicing and Dues", () => {
         resourceClass: "member"
       };
       await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
+
+      await header.navigateTo(header.links.settings);
+      await utils.waitForPageToMatch(settings.pageUrl);
+
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
         resourceClass: "member"
       }]));
-
-      await header.navigateTo(header.links.settings);
-      await utils.waitForPageToMatch(settings.pageUrl);
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -156,6 +161,11 @@ describe("Invoicing and Dues", () => {
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
 
+      await mock(mockRequests.invoices.get.ok([{
+        ...pastDueInvoice,
+        resourceClass: "member"
+      }]));
+      
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);

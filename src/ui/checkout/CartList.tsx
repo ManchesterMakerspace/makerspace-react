@@ -12,7 +12,6 @@ import Table from "ui/common/table/Table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import ErrorMessage from "ui/common/ErrorMessage";
 import LoadingOverlay from "ui/common/LoadingOverlay";
-import { BillingContext } from "ui/billing/BillingContextContainer";
 import FormModal from "ui/common/FormModal";
 import { CartItem, useCartState, useEmptyCart, isInvoiceSelection } from "./cart";
 import useModal from "../hooks/useModal";
@@ -23,6 +22,16 @@ import useWriteTransaction, { SuccessTransactionState } from "../hooks/useWriteT
 import { createTransaction, Transaction } from "makerspace-ts-api-client";
 
 const getCartId = (item: CartItem) => item.id;
+
+// TODO: this should use discount
+// Only display the discount amount if using invoice option
+const renderAmount = (item: CartItem) => {
+  let amt = Number(item.amount);
+  if (item.discountId && !isInvoiceSelection(item)) {
+    amt = amt * .9;
+  }
+  return numberAsCurrency(amt);
+}
 
 interface Props {
   paymentMethodId: string;
@@ -79,15 +88,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     {
       id: "amount",
       label: "Amount",
-      cell: (row: CartItem) => {
-        let amount = Number(row.amount);
-        // TODO: this should use discount
-        if (row.discountId) {
-          amount = amount * .90;
-        }
-
-        return numberAsCurrency(amount)
-      },
+      cell: (row: CartItem) => renderAmount(row),
     },
     ...withError ? [{
       id: "error",
@@ -130,7 +131,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
               />
             </Grid>
             <Grid item xs={12} style={{ textAlign: "right" }}>
-              <Typography id="total" variant="h6" color="inherit">Total {numberAsCurrency(item.amount)}</Typography>
+              <Typography id="total" variant="h6" color="inherit">Total {renderAmount(item)}</Typography>
             </Grid>
             <Grid item xs={12} style={{ textAlign: "left" }}>
               <Button id="submit-payment-button" variant="contained" disabled={!paymentMethodId} onClick={submitPayment}>Submit Payment</Button>

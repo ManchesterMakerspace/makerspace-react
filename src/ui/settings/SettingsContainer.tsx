@@ -11,11 +11,11 @@ import { CrudOperation } from "app/constants";
 import UpdateMemberContainer, { UpdateMemberRenderProps } from "ui/member/UpdateMemberContainer";
 import MemberForm from "ui/member/MemberForm";
 import PaymentMethodsContainer from "ui/checkout/PaymentMethodsContainer";
-import UpdateMembershipForm from "ui/membership/UpdateMembershipForm";
 import { Whitelists } from "app/constants";
 import { getMember } from "makerspace-ts-api-client";
 import useReadTransaction from "../hooks/useReadTransaction";
 import { useAuthState } from "../reducer/hooks";
+import ManageSubscriptions from "./ManageSubscriptions";
 
 
 const SettingsContainer: React.FC = () => {
@@ -26,7 +26,6 @@ const SettingsContainer: React.FC = () => {
     isRequesting: loadingMember,
     error: memberError,
     data: member,
-    refresh: refreshMember
   } = useReadTransaction(getMember, currentUserId);
 
   return (
@@ -42,7 +41,7 @@ const SettingsContainer: React.FC = () => {
           </ListItemIcon> */}
           <ListItemText
             id="settings-profile"
-            primary="Profile Details"
+            primary="Personal Information"
           />
         </ListItem>
         {billingEnabled && <>
@@ -55,7 +54,7 @@ const SettingsContainer: React.FC = () => {
             </ListItemIcon> */}
             <ListItemText
               id="settings-membership"
-              primary="Membership"
+              primary="Subscriptions"
             />
           </ListItem>
           <ListItem
@@ -74,51 +73,56 @@ const SettingsContainer: React.FC = () => {
       </List>
       </Grid>
       <Grid item md={8} sm={7} xs={12}>
+        {selectedIndex == 0 && (
           <Card>
             <CardContent>
               <Grid container spacing={16}>
                 <Grid item xs={12}>
-                  {
-                    selectedIndex == 0 && (
-                      <UpdateMemberContainer
-                        closeHandler={() => {}}
-                        operation={CrudOperation.Update}
-                        isOpen={selectedIndex === 0}
-                        member={member}
-                        render={(renderProps: UpdateMemberRenderProps) => (
-                          <MemberForm
-                            ref={renderProps.setRef}
-                            member={member || {}}
-                            isAdmin={false}
-                            isOpen={renderProps.isOpen}
-                            isRequesting={loadingMember || renderProps.isRequesting}
-                            error={memberError || renderProps.error}
-                            onClose={renderProps.closeHandler}
-                            onSubmit={renderProps.submit}
-                            noDialog={true}
-                            title="Update Profile Details"
-                          />
-                        )}
+                  <UpdateMemberContainer
+                    closeHandler={() => {}}
+                    operation={CrudOperation.Update}
+                    isOpen={selectedIndex === 0}
+                    member={member}
+                    render={(renderProps: UpdateMemberRenderProps) => (
+                      <MemberForm
+                        ref={renderProps.setRef}
+                        member={member || {}}
+                        isAdmin={false}
+                        isOpen={renderProps.isOpen}
+                        isRequesting={loadingMember || renderProps.isRequesting}
+                        error={memberError || renderProps.error}
+                        onClose={renderProps.closeHandler}
+                        onSubmit={renderProps.submit}
+                        noDialog={true}
+                        title="Update Personal Information"
                       />
-                    )
-                  }
-                  {
-                    selectedIndex === 1 && (
-                      <UpdateMembershipForm subscriptionId={member.subscriptionId} member={member} getMember={refreshMember} />
-                    )
-                  }
-                  {
-                    selectedIndex === 2 && (
-                      <PaymentMethodsContainer
-                        title="Manage Payment Methods"
-                        managingMethods={true}
-                      />
-                    )
-                  }
+                    )}
+                  />
                 </Grid>
               </Grid>
             </CardContent>
           </Card>
+        )}
+        {
+          selectedIndex === 1 && (
+            <ManageSubscriptions />
+          )
+        }
+        {
+          selectedIndex === 2 && (
+            <Card>
+              <CardContent>
+                <Grid container spacing={16}>
+                  <Grid item xs={12}>
+                    <PaymentMethodsContainer
+                      title="Manage Payment Methods"
+                      managingMethods={true}
+                    />
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          )}
       </Grid>
     </Grid>
   )

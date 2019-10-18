@@ -35,8 +35,7 @@ const RenewMember: React.FC<{ memberId: string }> = ({ memberId }) => {
 
     if (!form.isValid()) return;
 
-    // TODO: Renew isn't supported in update shape but it should be
-    renew(memberId, validUpdate as any);
+    renew(memberId, validUpdate);
   }, [formRef, renew]);
 
   return (

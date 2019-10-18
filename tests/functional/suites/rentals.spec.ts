@@ -30,8 +30,8 @@ describe("Rentals", () => {
         memberName: `${basicUser.firstname} ${basicUser.lastname}`,
       };
       beforeEach(async () => {
+        await mock(mockRequests.rentals.get.ok(defaultRentals, {}, true));
         return autoLogin(adminUser, undefined, { billing: true }).then(async () => {
-          await mock(mockRequests.rentals.get.ok(defaultRentals, {}, true));
           await header.navigateTo(header.links.rentals);
           await utils.waitForPageLoad(rentalsPO.listUrl);
           expect(await utils.isElementDisplayed(rentalsPO.getErrorRowId())).toBeFalsy();

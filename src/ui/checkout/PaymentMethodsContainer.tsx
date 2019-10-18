@@ -15,13 +15,13 @@ import { AnyPaymentMethod } from "app/entities/paymentMethod";
 import Form from "ui/common/Form";
 import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import PaymentMethodComponent from "ui/checkout/PaymentMethod";
-import { Subscription, listPaymentMethods, isApiErrorResponse, deletePaymentMethod } from "makerspace-ts-api-client";
+import { listPaymentMethods, isApiErrorResponse, deletePaymentMethod } from "makerspace-ts-api-client";
 
 interface OwnProps {
   onPaymentMethodChange?: (newId: string) => void;
   managingMethods?: boolean;
   title?: string;
-  subscription?: Subscription;
+  paymentMethodToken?: string;
 }
 interface Props extends OwnProps {}
 interface State {
@@ -40,7 +40,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const { subscription } = props;
+    const { paymentMethodToken } = props;
     this.state = {
       isRequesting: false,
       isDeleting: false,
@@ -48,7 +48,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
       error: "",
       openAddPayment: false,
       openDeleteModal: false,
-      selectedPaymentMethodId: subscription && subscription.paymentMethodToken,
+      selectedPaymentMethodId: paymentMethodToken,
     };
   }
 

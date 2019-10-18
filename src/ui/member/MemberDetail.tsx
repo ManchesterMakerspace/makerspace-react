@@ -11,7 +11,7 @@ import InvoicesList from "ui/invoice/InvoicesList";
 import RentalsList from "ui/rentals/RentalsList";
 import { ActionButton } from "ui/common/ButtonRow";
 import { Whitelists, Routing } from "app/constants";
-import { getDetailsForMember } from "ui/membership/constants";
+import { getDetailsForMember } from "./constants";
 import AccessCardForm from "ui/accessCards/AccessCardForm";
 import ReportList from "ui/reports/ReportList";
 import TransactionsList from "ui/transactions/TransactionsList";

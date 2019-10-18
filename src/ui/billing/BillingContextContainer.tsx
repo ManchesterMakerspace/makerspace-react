@@ -20,7 +20,7 @@ export interface Context {
     loading: boolean;
     data: Discount[];
     error: string;
-    refresh: () => void;
+    refresh: (types?: InvoiceableResource[]) => void;
   };
 }
 
@@ -35,7 +35,7 @@ const defaultContext: Context = {
     loading: false,
     data: [],
     error: "",
-    refresh: () => { return; },
+    refresh: (type) => { return; },
   },
 };
 
@@ -87,7 +87,7 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
     });
   }
 
-  private getDiscounts = () => {
+  private getDiscounts = (types?: InvoiceableResource[]) => {
     this.setState((state) => ({
       discounts: {
         ...state.discounts,
@@ -97,7 +97,7 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
       let data: Discount[];
       let error: string;
 
-      const result = await adminListBillingPlanDiscounts();
+      const result = await adminListBillingPlanDiscounts({ types });
       if (isApiErrorResponse(result)) {
         error = result.error.message;
       } else {

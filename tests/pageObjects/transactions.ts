@@ -16,7 +16,7 @@ class TransactionsPageObject extends TablePageObject {
       expect(text).toEqual(timeToDate(transaction.createdAt));
     } else if (field === "status") {
       expect(
-        ["Paid", "Failed", "In Progress", "Unknown"].some((status => new RegExp(status, 'i').test(text)))
+        ["Successful", "Failed", "In Progress", "Unknown"].some((status => new RegExp(status, 'i').test(text)))
       ).toBeTruthy();
     } else if (field === "member") {
       if (member) {
