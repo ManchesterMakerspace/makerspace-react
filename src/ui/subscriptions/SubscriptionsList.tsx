@@ -1,51 +1,17 @@
 import * as React from "react";
-import { connect } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 
+import { Subscription, adminListSubscriptions } from "makerspace-ts-api-client";
 
-import { Subscription } from "makerspace-ts-api-client";
-import { CollectionOf } from "app/interfaces";
-
-import { State as ReduxState, ScopedThunkDispatch } from "ui/reducer";
-import { SortDirection } from "ui/common/table/constants";
-import TableContainer from "ui/common/table/TableContainer";
-import { Column } from "ui/common/table/Table";
-import { readSubscriptionsAction } from "ui/subscriptions/actions";
-import { timeToDate } from "ui/utils/timeToDate";
-import ButtonRow from "ui/common/ButtonRow";
-import DeleteSubscription from "ui/subscriptions/DeleteSubscriptionModal";
-import { CrudOperation } from "app/constants";
-import Form from "ui/common/Form";
-import UpdateSubscriptionContainer, { UpdateSubscriptionRenderProps } from "ui/subscriptions/UpdateSubscriptionContainer";
-import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { SubscriptionQueryParams } from "app/entities/subscription";
-
-
-interface OwnProps { }
-interface DispatchProps {
-  getSubscriptions: (queryParams?: SubscriptionQueryParams) => void;
-}
-interface StateProps {
-  isAdmin: boolean;
-  subscriptions: CollectionOf<Subscription>;
-  totalItems: number;
-  loading: boolean;
-  error: string;
-  isWriting: boolean;
-  writeError: string;
-}
-interface Props extends OwnProps, DispatchProps, StateProps { }
-interface State {
-  hideCancelled: boolean;
-  selectedId: string;
-  pageNum: number;
-  orderBy: string;
-  search: string;
-  order: SortDirection;
-  openDeleteForm: boolean;
-}
+import { Column } from "../common/table/Table";
+import StatefulTable, { useQueryState } from "../common/table/StatefulTable";
+import { numberAsCurrency } from "../utils/numberAsCurrency";
+import { timeToDate } from "../utils/timeToDate";
+import extractTotalItems from "../utils/extractTotalItems";
+import CancelSubscriptionModal from "./CancelSubscriptionModal";
+import useReadTransaction from "../hooks/useReadTransaction";
 
 const fields: Column<Subscription>[] = [
   {
@@ -72,189 +38,75 @@ const fields: Column<Subscription>[] = [
   }
 ];
 
-class SubscriptionsList extends React.Component<Props, State> {
+const rowId = (sub: Subscription) => sub.id;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hideCancelled: true,
-      selectedId: undefined,
-      pageNum: 0,
-      orderBy: "",
-      search: "",
-      order: SortDirection.Asc,
-      openDeleteForm: false,
-    };
-  }
+const SubscriptionsTable: React.FC = () => {
+  const [hideCanceled, setHideCanceled] = React.useState(true);
+  const toggleHideCanceled = React.useCallback(() => {
+    setHideCanceled(canceled => !canceled);
+  }, [setHideCanceled]);
 
-  private getSubscriptions = () => {
-    const { hideCancelled } = this.state;
-    this.props.getSubscriptions({
-      ...hideCancelled && {
-        hideCancelled
-      }
-    })
-  }
+  const [selectedId, setSelectedId] = React.useState<string>();
+  const [queryParams, setQueryState, resetQuery] = useQueryState();
 
-  public componentDidMount() {
-    this.getSubscriptions();
-  }
+  const {
+    isRequesting,
+    data: subscriptions = [],
+    response,
+    refresh,
+    error
+  } = useReadTransaction(adminListSubscriptions, {
+    ...queryParams,
+    hideCanceled
+  });
 
-  public componentDidUpdate = (prevProps: Props) => {
-    const { isWriting, writeError } = this.props;
-    const { isWriting: wasWriting } = prevProps;
+  const onCancel = React.useCallback(() => {
+    refresh();
+    resetQuery();
+  }, [refresh, resetQuery]);
 
-    if (wasWriting && !isWriting && !writeError) {
-      this.getSubscriptions();
-    }
-  }
+  const selectedSubscription = subscriptions.find(sub => sub.id === selectedId);
 
-  private getActionButtons = (): JSX.Element => {
-    const { selectedId } = this.state;
-    const { loading, subscriptions } = this.props;
-    return (
-      <ButtonRow
-        actionButtons={[
-          {
-            id: "subscriptions-list-delete",
-            variant: "contained",
-            color: "secondary",
-            disabled: loading || !subscriptions[selectedId],
-            onClick: this.openDeleteForm,
-            label: "Cancel Subscription"
-          }
-        ]}
-      />
-    )
-  }
-
-  // Only select one at a time
-  private onSelect = (id: string, selected: boolean) => {
-    if (selected) {
-      this.setState({ selectedId: id });
-    } else {
-      this.setState({ selectedId: undefined });
-    }
-  }
-
-  private openDeleteForm = () => this.setState({ openDeleteForm: true });
-  private closeDeleteForm = () => this.setState({ openDeleteForm: false });
-
-  private rowId = (row: Subscription) => row.id;
-
-  private renderInvoiceForms = () => {
-    const { selectedId, openDeleteForm } = this.state;
-    const { subscriptions, isAdmin } = this.props;
-
-    const deleteModal = (renderProps: UpdateSubscriptionRenderProps) => {
-      const submit = async (form: Form) => {
-        const success = await renderProps.submit(form);
-        success && this.setState({ selectedId: undefined });
-      }
-      return (
-        <DeleteSubscription
-          ref={renderProps.setRef}
-          subscription={renderProps.subscription}
-          isOpen={renderProps.isOpen}
-          isRequesting={renderProps.isRequesting}
-          error={renderProps.error}
-          onClose={renderProps.closeHandler}
-          onSubmit={submit}
-        />
-      );
-    }
-
-    return (
-      <>
-        <UpdateSubscriptionContainer
-          operation={CrudOperation.Delete}
-          isOpen={openDeleteForm}
-          isAdmin={isAdmin}
-          subscription={subscriptions[selectedId]}
-          closeHandler={this.closeDeleteForm}
-          render={deleteModal}
-        />
-      </>
-    );
-  }
-
-  private toggleSubscriptionView = () =>
-    this.setState(state => ({ hideCancelled: !state.hideCancelled }), this.getSubscriptions)
-
-  public render(): JSX.Element {
-    const { subscriptions: data, totalItems, loading, error } = this.props;
-    const { selectedId, hideCancelled } = this.state;
-
-    return (
-      <>
-        <Grid style={{ paddingTop: 20 }}>{this.getActionButtons()}</Grid>
+  return (
+    <Grid container spacing={24} justify="center">
+      <Grid item xs={12}>
         <Grid>
+          <CancelSubscriptionModal 
+            subscription={selectedSubscription}
+            onSuccess={onCancel}
+          />
           <FormControlLabel
             control={
               <Checkbox
                 name="hide-canceled"
                 value="hide-canceled"
-                id="hide-cancelled"
-                checked={!!hideCancelled}
-                onChange={this.toggleSubscriptionView}
+                id="hide-canceled"
+                checked={!!hideCanceled}
+                onChange={toggleHideCanceled}
                 color="default"
               />
             }
-            label="Hide cancelled subscriptions."
+            label="Hide canceled subscriptions."
           />
         </Grid>
-        <TableContainer
+
+        <StatefulTable
           id="subscriptions-table"
           title="Subscriptions"
-          loading={loading}
-          data={Object.values(data)}
+          loading={isRequesting}
+          data={Object.values(subscriptions)}
           error={error}
-          selectedIds={[selectedId]}
-          totalItems={totalItems}
+          totalItems={extractTotalItems(response)}
+          selectedIds={selectedId}
+          setSelectedIds={setSelectedId}
+          queryParams={queryParams}
+          setQuery={setQueryState}
           columns={fields}
-          rowId={this.rowId}
-          onSelect={this.onSelect}
+          rowId={rowId}
         />
-        {this.renderInvoiceForms()}
-      </>
-    );
-  }
+      </Grid>
+    </Grid>
+  )
 }
 
-const mapStateToProps = (
-  state: ReduxState,
-  _ownProps: OwnProps
-): StateProps => {
-  const {
-    entities: subscriptions,
-    read: {
-      totalItems,
-      isRequesting: loading,
-      error
-    },
-    delete: {
-      isRequesting: isWriting,
-      error: writeError,
-    }
-  } = state.subscriptions;
-  const { currentUser: { isAdmin } } = state.auth;
-  return {
-    subscriptions: subscriptions,
-    isAdmin,
-    totalItems,
-    loading,
-    error,
-    isWriting,
-    writeError,
-  }
-}
-
-const mapDispatchToProps = (
-  dispatch: ScopedThunkDispatch
-): DispatchProps => {
-  return {
-    getSubscriptions: (queryParams) => dispatch(readSubscriptionsAction())
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(SubscriptionsList);
+export default SubscriptionsTable;

@@ -11,8 +11,6 @@ import { RentalsState } from "ui/rentals/interfaces";
 import { rentalsReducer } from "ui/rentals/actions";
 import { BillingState } from "ui/billing/interfaces";
 import { billingReducer } from "ui/billing/actions";
-import { SubscriptionsState } from "ui/subscriptions/interfaces";
-import { subscriptionsReducer } from "ui/subscriptions/actions";
 import { MemberState } from "ui/member/interfaces";
 import { memberReducer } from "ui/member/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
@@ -35,7 +33,6 @@ export interface State  {
   member: MemberState;
   rentals: RentalsState;
   billing: BillingState;
-  subscriptions: SubscriptionsState;
   earnedMemberships: EarnedMembershipsState;
   transactions: TransactionsState;
 }
@@ -49,7 +46,6 @@ export const getRootReducer = (history: History) => combineReducers({
   member: memberReducer,
   rentals: rentalsReducer,
   billing: billingReducer,
-  subscriptions: subscriptionsReducer,
   earnedMemberships: earnedMembershipsReducer,
   transactions: transactionsReducer,
 });

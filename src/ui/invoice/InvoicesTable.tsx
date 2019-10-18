@@ -1,25 +1,29 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+
+
+import { adminListInvoices, listInvoices, getMember, Invoice } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import useReadTransaction from "../hooks/useReadTransaction";
-import { adminListInvoices, listInvoices, getMember, Invoice } from "makerspace-ts-api-client";
 import StatefulTable, { useQueryState } from "../common/table/StatefulTable";
 import { InvoiceableResourceDisplay, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { SortDirection } from "ui/common/table/constants";
-import { timeToDate } from "ui/utils/timeToDate";
 import { Column } from "ui/common/table/Table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import StatusLabel from "ui/common/StatusLabel";
 import { Status } from "ui/constants";
 import extractTotalItems from "../utils/extractTotalItems";
-import SettleInvoiceModal from "../invoice/SettleInvoiceModal";
 import CreateInvoiceModal from "../invoice/CreateInvoiceModal";
 import DeleteInvoiceModal from "../invoice/DeleteInvoiceModal";
 import { ActionButton } from "../common/ButtonRow";
-import { isInvoicePayable, isInvoiceSettled } from "./utils";
+import { isInvoicePayable, isInvoiceSettled, renderInvoiceDueDate, renderInvoiceStatus } from "./utils";
+import ViewInvoiceModal from "./ViewInvoiceModal";
+import ViewSubscriptionModal from "../subscriptions/ViewSubscriptionModal";
 
 
-const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): Column<MemberInvoice | RentalInvoice>[] => [
+const getFields = (memberId: string): Column<MemberInvoice | RentalInvoice>[] => [
   ...memberId ? [] : [{
     id: "member",
     label: "Member",
@@ -29,29 +33,13 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
   {
     id: "resourceClass",
     label: "Type",
-    cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass]
-  },
-  {
-    id: "description",
-    label: "Description",
-    cell: (row: MemberInvoice | RentalInvoice) => row.description,
+    cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass],
     defaultSortDirection: SortDirection.Desc,
   },
   {
     id: "dueDate",
     label: "Due Date",
-    cell: (row: MemberInvoice | RentalInvoice) => {
-      const dueDate = timeToDate(row.dueDate);
-      if (row.subscriptionId) {
-        return `Automatic Payment on ${dueDate}`
-      } else {
-        if (row.settled) {
-          return "Paid"
-        } else {
-          return dueDate;
-        }
-      }
-    },
+    cell: (row: MemberInvoice | RentalInvoice) => renderInvoiceDueDate(row),
     defaultSortDirection: SortDirection.Desc
   },
   {
@@ -60,43 +48,40 @@ const getFields = (memberId: string, isAdmin: boolean, onSuccess: () => void): C
     cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
     defaultSortDirection: SortDirection.Desc
   },
-  ...isAdmin ? [{
-    id: "settled",
-    label: "Paid?",
-    cell: (row: MemberInvoice | RentalInvoice) => {
-      return (
-        <SettleInvoiceModal invoice={row} onSuccess={onSuccess} />
-      );
-    },
-    defaultSortDirection: SortDirection.Desc
-  }] : [],
   {
     id: "status",
     label: "Status",
     cell: (row: MemberInvoice | RentalInvoice) => {
       const statusColor = (row.pastDue && !row.settled) ? Status.Danger : Status.Success;
-      let label;
-      if (row.refunded) {
-        label = "Refunded";
-      } else if (isInvoiceSettled(row)) {
-        label = "Paid";
-      } else if (row.pastDue) {
-        label = "Past Due";
-      } else {
-        label = "Upcoming";
-      }
+      const label = renderInvoiceStatus(row);
       return (
         <StatusLabel label={label} color={statusColor} />
       );
     },
+  },
+  {
+    id: "view",
+    label: "View",
+    cell: (row: MemberInvoice | RentalInvoice) => {
+      if (row.subscriptionId) {
+        return <ViewSubscriptionModal subscriptionId={row.subscriptionId} memberId={row.memberId}/>;
+      }
+      return <ViewInvoiceModal invoice={row} />;
+    }
   }
 ];
 
 const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ stageInvoice }) => {
+  const [hideSettled, setHideSettled] = React.useState(true);
+  const toggleHideSettled = React.useCallback(() => {
+    setHideSettled(settled => !settled);
+  }, [setHideSettled]);
+
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const { currentUser: { isAdmin, id: currentUserId } } = useAuthState();
   const [queryParams, setQueryState] = useQueryState();
   const [selectedInvoice, setSelectedInvoice] = React.useState<Invoice>();
+  const viewingOwnInvoices = memberId === currentUserId;
 
   const { refresh: refreshMember } = useReadTransaction(getMember, memberId);
 
@@ -107,11 +92,12 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
     response,
     refresh
   } = useReadTransaction(
-    isAdmin ? adminListInvoices : listInvoices,
+    isAdmin && !viewingOwnInvoices ? adminListInvoices : listInvoices,
     {
+      ...queryParams,
+      hideSettled,
       resourceId: memberId,
-      ...queryParams
-    });
+    } as any); // TODO: Need to fix these types of conditionals
 
   React.useEffect(() => {
     if (Array.isArray(data) && data.length) {
@@ -130,9 +116,8 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
   }, [refresh, refreshMember]);
 
   const rowId = React.useCallback(invoice => invoice.id, []);
-  const fields = getFields(memberId, isAdmin, onSuccess);
+  const fields = getFields(memberId);
 
-  const viewingOwnInvoices = memberId === currentUserId;
   const payNow = viewingOwnInvoices && isInvoicePayable(selectedInvoice);
 
   const goToCheckout = React.useCallback(() => stageInvoice(selectedInvoice), [selectedInvoice, stageInvoice]);
@@ -143,6 +128,19 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       <>
         <CreateInvoiceModal memberId={memberId} onSuccess={onSuccess}/>
         <DeleteInvoiceModal invoice={selectedInvoice} onSuccess={onSuccess}/>
+        <FormControlLabel
+            control={
+              <Checkbox
+                name="hide-settled"
+                value="hide-settled"
+                id="hide-settled"
+                checked={!!hideSettled}
+                onChange={toggleHideSettled}
+                color="default"
+              />
+            }
+            label="Hide settled dues"
+          />
       </>
     )}
     {viewingOwnInvoices && (

@@ -7,7 +7,7 @@ import { buildQueryString } from "../reducer/functions";
 import { TransactionAction, } from "../reducer";
 import { getStore } from "app/main";
 
-interface ReadTransaction<Args, T> extends TransactionState<T> {
+export interface ReadTransaction<Args, T> extends TransactionState<T> {
   refresh: () => void;
 }
 

@@ -66,7 +66,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
       context.plans.refresh([this.state.type]);
     }
     if (!context.discounts.loading) {
-      context.discounts.refresh();
+      context.discounts.refresh([this.state.type]);
     }
   }
 
@@ -86,6 +86,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     }
     // Reload plans if type changes
     if (type && type !== oldType) {
+      this.formRef && this.formRef.resetForm();
       this.getBillingPlans();
     }
     // Update form type if option changed and is out of sync
@@ -102,9 +103,6 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
   private planToOptionMap = {
     [BillingPlanProps.Name]: InvoiceOptionProps.Name,
     [BillingPlanProps.Description]: InvoiceOptionProps.Description,
-  }
-  // Map of uneditable props to override option with
-  private planOverridesMap = {
     [BillingPlanProps.Id]: InvoiceOptionProps.PlanId,
     [BillingPlanProps.BillingFrequency]: InvoiceOptionProps.Quantity,
     [BillingPlanProps.Amount]: InvoiceOptionProps.Amount,
@@ -119,18 +117,8 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     const planToValues = Object.entries(billingPlan).reduce((invoiceOptionForm, [key, val]) => {
       // Convert billing plan key to option key
       const optionMap = this.planToOptionMap[key];
-      const overrideMap = this.planOverridesMap[key];
-        // Find related form field
-      let field;
-      if (optionMap) {
-        const tmpField = fields[optionMap];
-        // Only apply option map if no value
-        if (tmpField && !this.formRef.getValues()[tmpField.name]) {
-          field = tmpField
-        }
-      } else if (overrideMap) {
-        field = fields[overrideMap];
-      }
+      // Find related form field
+      const field = fields[optionMap];
       if (field) {
         // Apply to form values update object
         invoiceOptionForm[field.name] = val;
@@ -166,12 +154,6 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
   private renderPlanOption = (field: { id: string, name: string, value: string }) => (
     <option id={`${fields.planId.name}-option-${field.id}`} key={field.id} value={field.value}>{field.name}</option>
   )
-
-  private getActivePlanId = () => {
-    const { option } = this.props;
-    const { planId } = this.state;
-    return planId || (option && option.planId);
-  }
 
   private renderDiscountOptions = () => {
     const { discounts } = this.props.context;

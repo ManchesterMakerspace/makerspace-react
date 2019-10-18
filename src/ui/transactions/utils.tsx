@@ -11,7 +11,7 @@ export const renderTransactionStatus = (transaction: Transaction) => {
   switch (transaction.status) {
     case TransactionStatus.Settled:
       color = Status.Success;
-      label = "Paid";
+      label = "Successful";
       break;
     case TransactionStatus.Failed:
     case TransactionStatus.Declined:

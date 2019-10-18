@@ -25,7 +25,7 @@ const reviewMemberInfo = async (loggedInUser: LoginMember, viewingMember?: Login
   await memberPO.verifyProfileInfo(viewingMember);
 }
 
-const reviewSubResource = async (member: LoginMember, admin: boolean = false) => {
+const reviewSubResource = async (member: LoginMember, admin: boolean = false,  ownProfile: boolean = false) => {
   const memberDetails = {
     memberId: member.id,
     memberName: `${member.firstname} ${member.lastname}`,
@@ -36,6 +36,9 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false) =>
   // Go to rentals
   // Rentals displayed
   await mock(mockRequests.rentals.get.ok(rentals, { memberId: member.id }, admin));
+  await mock(mockRequests.invoices.get.ok(invoices, { resourceId: member.id }, admin && !ownProfile));
+  await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
+
   await memberPO.goToMemberRentals();
   await utils.waitForVisible(rentalPO.getTitleId());
   await utils.waitForNotVisible(rentalPO.getLoadingId());
@@ -43,7 +46,6 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false) =>
 
   // Go to invoices
   // Invoices displayed
-  await mock(mockRequests.invoices.get.ok(invoices, { resourceId: member.id }, admin));
   await memberPO.goToMemberDues();
   await utils.waitForVisible(invoicePo.getTitleId());
   await utils.waitForNotVisible(invoicePo.getLoadingId());
@@ -51,7 +53,6 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false) =>
 
   // Go to transactions
   // Transactions displayed
-  await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
   await memberPO.goToMemberTransactions();
   await utils.waitForVisible(transactionPO.getTitleId());
   await utils.waitForNotVisible(transactionPO.getLoadingId());
@@ -104,7 +105,7 @@ describe("Member Profiles", () => {
            2. Assert profile shows tables for: Dues, Rentals,
         */
         return autoLogin(adminUser, undefined, { billing: true }).then(() => {
-          return reviewSubResource(adminUser, true);
+          return reviewSubResource(adminUser, true, true);
         })
       });
     });

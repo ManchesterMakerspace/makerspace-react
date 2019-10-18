@@ -64,6 +64,8 @@ export const sessionLoginUserAction = (): ThunkAction<Promise<void>, {}, {}, Any
   await handleAuthWithPermissions(response, dispatch, true);
 }
 
+export const refreshUserAction = sessionLoginUserAction;
+
 export const logoutUserAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });

@@ -9,7 +9,7 @@ import EarnedMembershipsList from 'ui/earnedMemberships/EarnedMembershipsList';
 import MemberDetail from 'ui/member/MemberDetail';
 import CheckoutPage from 'ui/checkout/CheckoutPage';
 import BillingContainer from 'ui/billing/BillingContainer';
-import SettingsContainer from 'ui/member/Settings';
+import SettingsContainer from 'ui/settings/SettingsContainer';
 import Receipt from 'ui/checkout/Receipt';
 import { Permission } from 'app/entities/permission';
 import { CollectionOf } from 'app/interfaces';

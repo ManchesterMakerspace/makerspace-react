@@ -20,12 +20,13 @@ import { MemberInvoice } from "app/entities/invoice";
 import { paymentMethods } from "../../pageObjects/paymentMethods";
 import memberPO from "../../pageObjects/member";
 import { LoginMember } from "../../pageObjects/auth";
+import { timeToDate } from "ui/utils/timeToDate";
 
 describe("Paid Subscriptions", () => {
   describe("Admin subscription", () => {
     beforeEach(async () => {
       return autoLogin(adminUser, undefined, { billing: true }).then(async () => {
-        await mock(mockRequests.subscriptions.get.ok(defaultSubscriptions, {}, true));
+        await mock(mockRequests.subscriptions.get.ok(defaultSubscriptions, { hideCanceled: true }, true));
         await header.navigateTo(header.links.billing);
         await utils.waitForPageLoad(billingPO.url);
         await billingPO.goToSubscriptions();
@@ -43,11 +44,10 @@ describe("Paid Subscriptions", () => {
       await subscriptionsPO.selectRow(defaultSubscriptions[0].id);
       await utils.clickElement(subscriptionsPO.actionButtons.delete);
       await utils.waitForVisible(subscriptionsPO.cancelSubscriptionModal.submit);
-      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.member)).toEqual(defaultSubscriptions[0].memberName);
       expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).toEqual(defaultSubscriptions[0].status);
-      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.resourceClass)).toEqual(defaultSubscriptions[0].resourceClass);
+      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.nextPayment)).toEqual(timeToDate(defaultSubscriptions[0].nextBillingDate));
       await mock(mockRequests.subscription.delete.ok(defaultSubscriptions[0].id, true));
-      await mock(mockRequests.subscriptions.get.ok([], undefined, true));
+      await mock(mockRequests.subscriptions.get.ok([], { hideCanceled: true} , true));
       await utils.clickElement(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForNotVisible(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForVisible(subscriptionsPO.getNoDataRowId());
@@ -73,10 +73,12 @@ describe("Paid Subscriptions", () => {
 
     it("Displays information about current subscriptions and membership", async () => {
       await autoLogin(basicUser, undefined, { billing: true });
-      await mock(mockRequests.subscription.get.ok(initSubscription))
-
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
+
+      await mock(mockRequests.invoices.get.ok([]));
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+
       await settingsPO.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -121,14 +123,19 @@ describe("Paid Subscriptions", () => {
         defaultInvoice,
         subscriptionId: initSubscription.id,
       };
-      await mock(mockRequests.subscription.get.ok(initSubscription))
-      await mock(mockRequests.invoices.get.ok([subscriptionInvoice], { resourceId: basicUser.id }));
 
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
+
+      await mock(mockRequests.subscription.get.ok(initSubscription))
+      await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
+      await mock(mockRequests.member.get.ok(basicUser.id, {
+        ...basicUser,
+        subscriptionId: initSubscription.id,
+      } as LoginMember));
       await settingsPO.goToMembershipSettings();
 
-      // Non subscription details displayed
+      // Subscription details displayed
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
       expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
       expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
@@ -144,11 +151,17 @@ describe("Paid Subscriptions", () => {
         ...defaultInvoice,
         subscriptionId: initSubscription.id,
       };
-      await mock(mockRequests.subscription.get.ok(initSubscription))
-      await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
-
+      
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
+
+      // Mock for subscription details
+      await mock(mockRequests.subscription.get.ok(initSubscription))
+      await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
+      await mock(mockRequests.member.get.ok(basicUser.id, {
+        ...basicUser,
+        subscriptionId: initSubscription.id,
+      } as LoginMember));
       await settingsPO.goToMembershipSettings();
 
       // Subscription details displayed
@@ -161,6 +174,7 @@ describe("Paid Subscriptions", () => {
 
       await mock(mockRequests.subscription.delete.ok(initSubscription.id));
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      await mock(mockRequests.invoices.get.ok([]));
 
       await utils.clickElement(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForNotVisible(subscriptionsPO.cancelSubscriptionModal.submit);

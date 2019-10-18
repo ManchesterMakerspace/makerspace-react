@@ -8,7 +8,7 @@ const invoicesTableId = "invoices-table";
 // Settled not included because that's only for admins
 // TODO: Status not included because its complicated
 const fields = [
-  "resourceClass", "dueDate", "amount", "description"
+  "resourceClass", "dueDate", "amount"
 ];
 export class InvoicePageObject extends TablePageObject {
   public fieldEvaluator = (member?: Partial<Member>) => (invoice: Partial<MemberInvoice | RentalInvoice>) => (fieldContent: { field: string, text: string }) => {

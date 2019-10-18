@@ -1,31 +1,24 @@
 import * as React from "react";
 
 import FormModal from "ui/common/FormModal";
-import { getSubscription, updateSubscription } from "makerspace-ts-api-client";
-import useReadTransaction from "../hooks/useReadTransaction";
-import { useAuthState } from "../reducer/hooks";
+import { updateSubscription, Subscription } from "makerspace-ts-api-client";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import PaymentMethodsContainer from "../checkout/PaymentMethodsContainer";
 
 interface Props {
-  subscriptionId: string;
+  subscription: Subscription;
+  onSuccess?(): void;
 }
 
-const ChangePaymentMethodModal: React.FC<Props> = ({ subscriptionId }) => {
+const ChangePaymentMethodModal: React.FC<Props> = ({ subscription: { id: subscriptionId, paymentMethodToken } = {} }) => {
   const { isOpen, openModal, closeModal } = useModal();
   const [paymentMethodId, setPaymentMethodId] = React.useState();
 
-  const { isRequesting: loading, error: loadingError, data: subscription, refresh } = useReadTransaction(getSubscription, subscriptionId);
   const { isRequesting, error, call } = useWriteTransaction(updateSubscription, () => {
     closeModal();
-    refresh();
   });
-
-  React.useEffect(() => {
-    subscription && setPaymentMethodId(subscription.paymentMethodToken);
-  }, [JSON.stringify(subscription)]);
 
   const onSubmit = React.useCallback(async () => {
     paymentMethodId && call(subscriptionId, { paymentMethodToken: paymentMethodId });
@@ -35,16 +28,13 @@ const ChangePaymentMethodModal: React.FC<Props> = ({ subscriptionId }) => {
     return null;
   }
 
-  const isLoading = loading || isRequesting;
-  const apiError = error || loadingError;
-
   return (
     <>
-     <ActionButton 
+     <ActionButton
         id="subscription-option-payment-method"
         color="primary"
         variant="contained"
-        disabled={isLoading || !!apiError}
+        disabled={isRequesting || !!error}
         label="Change Payment Method"
         onClick={openModal}
       />
@@ -54,13 +44,13 @@ const ChangePaymentMethodModal: React.FC<Props> = ({ subscriptionId }) => {
           isOpen={true}
           closeHandler={closeModal}
           onSubmit={onSubmit}
-          loading={isLoading}
-          error={apiError}
+          loading={isRequesting}
+          error={error}
         >
           <PaymentMethodsContainer
             onPaymentMethodChange={setPaymentMethodId}
             title="Select or add a new payment method"
-            subscription={subscription}
+            paymentMethodToken={paymentMethodToken}
           />
         </FormModal>
       )}

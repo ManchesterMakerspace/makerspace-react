@@ -119,7 +119,7 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
         } else {
           updatedIds.push(id)
         }
-        return setSelectedIds(updatedIds);
+        return setSelectedIds(updatedIds.filter(id => id !== undefined));
       } else {
         return setSelectedIds(selected ? id : undefined);
       }
