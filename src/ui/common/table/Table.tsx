@@ -179,7 +179,7 @@ class EnhancedTable<T> extends React.Component<Props<T>, {}> {
       return (
         <TableRow key={tableRowId} id={`${tableRowId}-row`}>
           {checkbox}
-          {...this.getBodyCells(row)}
+          {this.getBodyCells(row)}
         </TableRow>
       )
     });
