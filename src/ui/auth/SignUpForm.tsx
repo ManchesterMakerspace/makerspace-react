@@ -26,7 +26,7 @@ import MembershipSelectForm, { invoiceOptionParam, discountParam } from "ui/memb
 import useReadTransaction from "ui/hooks/useReadTransaction";
 import { InvoiceableResource } from "app/entities/invoice";
 
-const SignUpForm: React.FC = () => {
+const SignUpFormComponent: React.FC = () => {
   const { isOpen: emailNoteOpen, openModal: openEmailNote, closeModal: closeEmailNote } = useModal();
   const { history, location: { search } } = useReactRouter();
   const goToLogin = React.useCallback(() => history.push(Routing.Login), [history]);
@@ -170,4 +170,4 @@ const SignUpForm: React.FC = () => {
   );
 }
 
-export default SignUpForm;
+export default SignUpFormComponent;

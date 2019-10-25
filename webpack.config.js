@@ -49,15 +49,11 @@ module.exports = env => ({
         ]
       },
       {
-        test: /\.tsx?$/,
+        test: /\.(js|jsx|tsx|ts)$/,
+        exclude: /(node_modules)/,
         use: [
           { loader: "cache-loader" },
-          {
-            loader: "ts-loader",
-            options: {
-              happyPackMode: true
-            }
-          }
+          { loader: "babel-loader" }
         ]
       },
       {
@@ -129,7 +125,7 @@ module.exports = env => ({
     new CopyWebpackPlugin([{ from: "src/assets/favicon.png", to: "favicon.png" }]),
     new webpack.EnvironmentPlugin({
       BILLING_ENABLED: true,
-      BASE_URL: env && env.BASE_URL || ""
+      BASE_URL: (env && env.BASE_URL) || ""
     })
   ]
 });
