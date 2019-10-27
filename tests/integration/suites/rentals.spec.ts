@@ -42,6 +42,7 @@ describe("Rentals", () => {
     expect(await utils.getElementText(rentalsPO.rentalForm.member)).toEqual(memberName);
     await utils.fillInput(rentalsPO.rentalForm.number, newRental.number);
     await utils.fillInput(rentalsPO.rentalForm.description, newRental.description);
+    await utils.clickElement(rentalsPO.rentalForm.contract);
     await utils.clickElement(rentalsPO.rentalForm.submit);
     await utils.waitForNotVisible(rentalsPO.rentalForm.submit);
     expect((await rentalsPO.getAllRows()).length).toEqual(1);

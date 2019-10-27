@@ -43,6 +43,7 @@ class RentalsPageObject extends TablePageObject {
     number: `${this.rentalFormId}-number`,
     expiration: `${this.rentalFormId}-expiration`,
     member: `${this.rentalFormId}-member`,
+    contract: `${this.rentalFormId}-contract`,
     submit: `${this.rentalFormId}-submit`,
     cancel: `${this.rentalFormId}-cancel`,
     error: `${this.rentalFormId}-error`,

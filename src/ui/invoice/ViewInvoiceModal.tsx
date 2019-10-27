@@ -5,12 +5,16 @@ import { ActionButton } from "../common/ButtonRow";
 import FormModal from "ui/common/FormModal";
 import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import InvoiceDetails from "./InvoiceDetails";
+import SettleInvoiceModal from "./SettleInvoiceModal";
+import { useAuthState } from "../reducer/hooks";
 
 interface Props {
   invoice: MemberInvoice | RentalInvoice;
+  onUpdate: () => void;
 }
 
-const ViewInvoiceModal: React.FC<Props> = ({ invoice }) => {
+const ViewInvoiceModal: React.FC<Props> = ({ invoice, onUpdate }) => {
+  const { currentUser: { isAdmin } } = useAuthState();
   const {isOpen, openModal, closeModal} = useModal();
 
   return (
@@ -33,6 +37,7 @@ const ViewInvoiceModal: React.FC<Props> = ({ invoice }) => {
             Details
           </Typography>
           <InvoiceDetails invoice={invoice}/>
+          {isAdmin && <SettleInvoiceModal invoice={invoice} onSuccess={onUpdate}/>}
         </FormModal>
       )}
     </>

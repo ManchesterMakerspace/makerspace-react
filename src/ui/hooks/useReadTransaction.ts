@@ -24,6 +24,8 @@ const useReadTransaction = <Args, Resp>(
     return getApiState(key, getStore().getState());
   }, [transaction, stringifyArgs(args)]);
 
+  console.warn("args", stringifyArgs(args));
+
   React.useEffect(() => {
 
     const callTransaction = async () => {

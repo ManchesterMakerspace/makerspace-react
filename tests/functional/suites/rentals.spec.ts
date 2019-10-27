@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import { basicUser, adminUser } from "../../constants/member";
+import { basicUser, adminUser, defaultMembers } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
 
 import header from "../../pageObjects/header";
@@ -49,7 +49,13 @@ describe("Rentals", () => {
         await utils.waitForVisible(rentalsPO.rentalForm.submit);
         await utils.fillInput(rentalsPO.rentalForm.number, initRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, initRental.description);
-
+        await utils.clickElement(rentalsPO.rentalForm.contract);
+        await mock(mockRequests.members.get.ok(defaultMembers));
+        await utils.fillAsyncSearchInput(
+          rentalsPO.rentalForm.member,
+          defaultMembers[0].email,
+          defaultMembers[0].id
+        );
         await mock(mockRequests.rentals.post.ok(initRental));
         await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
         await utils.clickElement(rentalsPO.rentalForm.submit);
@@ -152,6 +158,7 @@ describe("Rentals", () => {
         expect(await utils.getElementText(rentalsPO.rentalForm.member)).toEqual(`${basicUser.firstname} ${basicUser.lastname}`);
         await utils.fillInput(rentalsPO.rentalForm.number, initRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, initRental.description);
+        await utils.clickElement(rentalsPO.rentalForm.contract);
 
         await mock(mockRequests.rentals.post.ok(initRental));
         await mock(mockRequests.rentals.get.ok([initRental], undefined, true));

@@ -9,6 +9,7 @@ export enum Notification {
   WelcomeNeedPayment = "welcomeNeedPayment",
   MembershipExpired = "membershipExpired",
   PaymentRequired = "paymentRequired",
+  SignRental = "SignRental",
 }
 
 const Notifications = {
@@ -22,6 +23,12 @@ const Notifications = {
     You can review your profile now. Please note, if you just signed up, your membership will not be active until we receive your payment and you receive your key.
 
     Before proceeding, please take a moment to review and sign the Manchester Makerspace Code of Conduct and Member Contract.`,
+    required: true,
+  },
+  [Notification.SignRental]: {
+    title: "Please complete your Rental Agreement",
+    submit: "Review Documents",
+    body: `We are missing a signed rental agreement for one of your plot, shelf or locker rentals.  Please take a moment to review these documents before continuing`,
     required: true,
   }
 }

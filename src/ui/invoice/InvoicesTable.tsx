@@ -18,12 +18,12 @@ import extractTotalItems from "../utils/extractTotalItems";
 import CreateInvoiceModal from "../invoice/CreateInvoiceModal";
 import DeleteInvoiceModal from "../invoice/DeleteInvoiceModal";
 import { ActionButton } from "../common/ButtonRow";
-import { isInvoicePayable, isInvoiceSettled, renderInvoiceDueDate, renderInvoiceStatus } from "./utils";
+import { isInvoicePayable, renderInvoiceDueDate, renderInvoiceStatus } from "./utils";
 import ViewInvoiceModal from "./ViewInvoiceModal";
 import ViewSubscriptionModal from "../subscriptions/ViewSubscriptionModal";
 
 
-const getFields = (memberId: string): Column<MemberInvoice | RentalInvoice>[] => [
+const getFields = (memberId: string, onUpdate: () => void): Column<MemberInvoice | RentalInvoice>[] => [
   ...memberId ? [] : [{
     id: "member",
     label: "Member",
@@ -66,7 +66,7 @@ const getFields = (memberId: string): Column<MemberInvoice | RentalInvoice>[] =>
       if (row.subscriptionId) {
         return <ViewSubscriptionModal subscriptionId={row.subscriptionId} memberId={row.memberId}/>;
       }
-      return <ViewInvoiceModal invoice={row} />;
+      return <ViewInvoiceModal invoice={row} onUpdate={onUpdate}/>;
     }
   }
 ];
@@ -116,7 +116,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
   }, [refresh, refreshMember]);
 
   const rowId = React.useCallback(invoice => invoice.id, []);
-  const fields = getFields(memberId);
+  const fields = getFields(memberId, onSuccess);
 
   const payNow = viewingOwnInvoices && isInvoicePayable(selectedInvoice);
 

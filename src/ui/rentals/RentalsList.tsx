@@ -224,7 +224,7 @@ class RentalsList extends React.Component<Props, State> {
     const editForm = (renderProps: UpdateRentalRenderProps) => (
       <RentalForm
         ref={renderProps.setRef}
-        rental={renderProps.rental}
+        rental={renderProps.rental as Rental}
         isOpen={renderProps.isOpen}
         isRequesting={renderProps.isRequesting}
         error={renderProps.error}
@@ -236,7 +236,7 @@ class RentalsList extends React.Component<Props, State> {
     const createForm = (renderProps: UpdateRentalRenderProps) => (
       <RentalForm
         ref={renderProps.setRef}
-        rental={renderProps.rental}
+        rental={renderProps.rental as Rental}
         isOpen={renderProps.isOpen}
         isRequesting={renderProps.isRequesting}
         error={renderProps.error}

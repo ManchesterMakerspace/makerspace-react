@@ -1,6 +1,6 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
-import { Member, getMember } from "makerspace-ts-api-client";
+import { Member, getMember, listRentals } from "makerspace-ts-api-client";
 
 import { displayMemberExpiration, buildProfileRouting } from "ui/member/utils";
 import LoadingOverlay from "ui/common/LoadingOverlay";
@@ -40,14 +40,19 @@ const MemberProfile: React.FC = () => {
 
   const [notification, setNotification] = React.useState<Notification>();
   React.useLayoutEffect(() => {
-    if (isOwnProfile && !memberLoading && member.hasOwnProperty("memberContractOnFile")) {
-      if (member.memberContractOnFile) {
-        setNotification(undefined);
-      } else {
-        setNotification(Notification.Welcome);
-      }
+    if (isOwnProfile && !memberLoading && (member.id && !member.memberContractOnFile)) {
+      setNotification(Notification.Welcome);
     }
-  }, [isOwnProfile, memberLoading, setNotification, member.memberContractOnFile]);
+  }, [isOwnProfile, memberLoading, member.memberContractOnFile]);
+
+  const { data: rentals = [] } = useReadTransaction(listRentals, memberId);
+
+  React.useLayoutEffect(() => {
+    const missingAgreement = rentals.find(rental => !rental.contractOnFile);
+    if (isOwnProfile && missingAgreement && !notification) {
+      setNotification(Notification.SignRental)
+    }
+  }, [isOwnProfile, rentals]);
 
   // Don't render the notification box on the first paint
   // Helps prevent flickering issue
@@ -63,8 +68,24 @@ const MemberProfile: React.FC = () => {
   }, [refreshMember, setNotification]);
 
   const goToAgreements = React.useCallback(() => {
-    history.push(Routing.Documents);
-  }, [history]);
+    switch (notification) {
+      case Notification.SignRental:
+        const missingAgreement = rentals.find(rental => !rental.contractOnFile);
+        history.push(
+          Routing.Documents
+            .replace(Routing.PathPlaceholder.Resource, "rental")
+            .replace(Routing.PathPlaceholder.ResourceId, missingAgreement.id)
+        );
+        break;
+      case Notification.Welcome:
+        history.push(
+          Routing.Documents
+            .replace(Routing.PathPlaceholder.Resource, "membership")
+            .replace(Routing.PathPlaceholder.ResourceId, "")
+        );
+        break;
+    }
+  }, [history, rentals, notification]);
 
   React.useEffect(() => {
     if (memberError && !member.id) {

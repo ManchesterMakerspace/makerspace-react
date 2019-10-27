@@ -94,12 +94,12 @@ const membershipDetails = {
     allowMod: true,
   },
   paypal: {
-    description: "Membership handled by PayPal. Contact an administrator for details.",
+    description: "Membership handled by PayPal. If you wish to change your membership, you must first cancel your PayPal subscription.",
     type: "Managed by PayPal",
     allowMod: false,
   },
   notFound: {
-    description: "Membership subscription cannot be found. Contact an administrator for assistance.",
+    description: "Membership subscription exists but cannot be found. Contact an administrator for assistance.",
     type: "Unknown",
     allowMod: false,
   },

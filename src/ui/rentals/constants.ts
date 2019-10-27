@@ -1,5 +1,6 @@
 import { SelectOption } from "ui/common/RenewalForm";
 import { dateToTime } from "ui/utils/timeToDate";
+import { Rental } from "makerspace-ts-api-client";
 
 export enum Action {
   StartReadRequest = "RENTALS/START_READ_REQUEST",
@@ -43,7 +44,7 @@ export const rentalRenewalOptions: SelectOption[] = [
 ]
 
 const formPrefix = "rental-form";
-export const fields = {
+export const fields = (rental: Rental) =>  ({
   number: {
     label: "Number",
     name: `${formPrefix}-number`,
@@ -69,6 +70,14 @@ export const fields = {
     label: "Select a member",
     name: `${formPrefix}-member`,
     placeholder: `Search by name or email`,
+    validate: (val: string) => !!val,
     transform: (val: SelectOption) => val && val.value,
   },
-}
+  contractOnFile: {
+    label: "Rental Agreement Signed?",
+    name: `${formPrefix}-contract`,
+    validate: (val: string) => rental && rental.id ? true : !!val, // Validate contract only on create.
+    transform: (val: string) => !!val,
+    error: "Member must sign contract"
+  }
+});
