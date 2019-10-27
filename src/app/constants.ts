@@ -3,6 +3,7 @@ export namespace Routing {
     Optional = "?",
     MemberId = ":memberId",
     Resource = ":resource",
+    ResourceId = ":resourceId",
     InvoiceId = ":invoiceId",
     Email = ":email",
   }
@@ -11,7 +12,7 @@ export namespace Routing {
   export const Login = "/login";
   export const SignUp = "/signup";
   export const Members = "/members";
-  export const Documents = "/agreements"
+  export const Documents = `/agreements/${Routing.PathPlaceholder.Resource}/${Routing.PathPlaceholder.ResourceId}${Routing.PathPlaceholder.Optional}`;
   export const Profile = `${Members}/${PathPlaceholder.MemberId}`;
 
   export const Billing = "/billing";

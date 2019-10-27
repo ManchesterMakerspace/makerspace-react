@@ -3,8 +3,6 @@ import useModal from "../hooks/useModal";
 import { ActionButton } from "../common/ButtonRow";
 import FormModal from "ui/common/FormModal";
 import SubscriptionDetails from "./SubscriptionDetails";
-import { useAuthState } from "../reducer/hooks";
-import ManageSubscription from "../settings/ManageSubscription";
 
 interface Props {
   subscriptionId: string;

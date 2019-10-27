@@ -14,7 +14,7 @@ import Receipt from 'ui/checkout/Receipt';
 import { Permission } from 'app/entities/permission';
 import { CollectionOf } from 'app/interfaces';
 import SendRegistrationComponent from 'ui/auth/SendRegistrationComponent';
-import SignDocuments from 'ui/documents/SignDocuments';
+import AgreementContainer from 'ui/documents/AgreementsContainer';
 
 interface Props {
   currentUserId: string,
@@ -28,7 +28,7 @@ const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin 
   return (
     <Switch>
       <Route exact path={Routing.Members} component={MembersList} />
-      <Route exact path={Routing.Documents} component={SignDocuments} />
+      <Route exact path={`${Routing.Documents}`} component={AgreementContainer} />
       <Route exact path={Routing.Settings} component={SettingsContainer} />
       <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
       <Route exact path={Routing.Rentals} component={RentalsList} />

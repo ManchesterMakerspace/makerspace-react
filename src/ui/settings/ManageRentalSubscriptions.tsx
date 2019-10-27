@@ -9,6 +9,7 @@ import useReadTransaction from "../hooks/useReadTransaction";
 import LoadingOverlay from "../common/LoadingOverlay";
 import ErrorMessage from "../common/ErrorMessage";
 import SubscriptionDetails from "../subscriptions/SubscriptionDetails";
+import { Grid } from "@material-ui/core";
 
 const ManageRentalSubscriptions: React.FC = () => {
   const { currentUser: { id: memberId } } = useAuthState();
@@ -23,7 +24,7 @@ const ManageRentalSubscriptions: React.FC = () => {
   const fallbackUI = (rentalsLoading && <LoadingOverlay  id="manage-rental-subscription-loading" contained={true}/>)
                     || (rentalsError && <ErrorMessage error={rentalsError} />);
 
-  if (!rentalsLoading && !rentalsError && !subscriptionRentals.length) {
+  if (!rentalsLoading && !rentalsError && !(subscriptionRentals.length && subscriptionRentals.some(r => !!r.subscriptionId))) {
     return null;
   }
 
@@ -33,9 +34,11 @@ const ManageRentalSubscriptions: React.FC = () => {
         {fallbackUI || (
           <>
             <Typography variant="h4" gutterBottom={true}>Rentals</Typography>
-            {subscriptionRentals.map(rental => {
-              <SubscriptionDetails memberId={memberId} key={rental.id} rentalSubId={rental.subscriptionId} />;
-            })}
+            {subscriptionRentals.map(rental => (
+              <Grid style={{ padding: "1em", border: "1px solid black", borderRadius: "3px" }}>
+                <SubscriptionDetails memberId={memberId} key={rental.id} rentalSubId={rental.subscriptionId} />
+              </Grid>
+            ))}
           </>
         )}
       </CardContent>
