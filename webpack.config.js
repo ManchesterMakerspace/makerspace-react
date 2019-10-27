@@ -8,7 +8,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = env => ({
   mode: "development",
-  entry: "./src/app/main.tsx",
+  entry: ["@babel/polyfill", "./src/app/main.tsx"],
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "makerspace-react.js",

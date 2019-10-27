@@ -9,7 +9,6 @@ import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { CollectionOf } from 'app/interfaces';
 import { Permission } from "app/entities/permission";
-import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { withRouter, RouteComponentProps } from 'react-router';
 
 interface StateProps {
