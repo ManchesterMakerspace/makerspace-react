@@ -39,35 +39,28 @@ interface Props {
   onClose: () => void;
 }
 
-class NotificationModal extends React.Component<Props> {
-  public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
-
-  public render(): JSX.Element {
-    const { notification, onSubmit, onClose } = this.props;
-
-    const displayedNotification = Notifications[notification];
-    if (!displayedNotification) {
-      return null;
-    }
-
-    const closeHandler = displayedNotification.required ? undefined : onClose
-    return (
-      <FormModal
-        formRef={this.setFormRef}
-        id="notification-modal"
-        isOpen={true}
-        title={displayedNotification.title}
-        onSubmit={onSubmit}
-        submitText={displayedNotification.submit}
-        closeHandler={closeHandler}
-      >
-        <Typography variant="body1" style={{whiteSpace: "pre-line"}}>
-          {displayedNotification.body}
-        </Typography>
-      </FormModal>
-    )
+const NotificationModal: React.FC<Props> = ({ notification, onSubmit, onClose }) => {
+  const displayedNotification = Notifications[notification];
+  if (!displayedNotification) {
+    return null;
   }
-}
+
+  const closeHandler = displayedNotification.required ? undefined : onClose;
+  return (
+    <FormModal
+      id="notification-modal"
+      isOpen={true}
+      title={displayedNotification.title}
+      onSubmit={onSubmit}
+      submitText={displayedNotification.submit}
+      closeHandler={closeHandler}
+    >
+      <Typography variant="body1" style={{ whiteSpace: "pre-line" }}>
+        {displayedNotification.body}
+      </Typography>
+    </FormModal>
+  );
+};
+
 
 export default NotificationModal;

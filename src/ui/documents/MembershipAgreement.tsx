@@ -7,13 +7,22 @@ import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import DocumentForm from "./DocumentForm";
 import { Documents, documents } from "./Document";
+import { useScrollToHeader } from "../hooks/useScrollToHeader";
 
 const MembershipAgreement: React.FC = () => {
   const [display, setDisplay] = React.useState<Documents>(Documents.CodeOfConduct);
   const { history } = useReactRouter();
-  const { currentUser: { id: currentUserId } } = useAuthState();
+  const { executeScroll } = useScrollToHeader();
+  const { currentUser: { id: currentUserId, memberContractOnFile } } = useAuthState();
+
+  React.useEffect(() => {
+    if (memberContractOnFile) {
+      history.push(buildProfileRouting(currentUserId));
+    }
+  }, [memberContractOnFile]);
 
   const onSuccess = React.useCallback(() => {
+    executeScroll();
     history.push(buildProfileRouting(currentUserId));
   }, [history]);
 
@@ -34,13 +43,13 @@ const MembershipAgreement: React.FC = () => {
   const onAccept = display === Documents.MemberContract ? onContractAccept : onConductAccept;
 
   return (
-    <DocumentForm 
-      error={error} 
+    <DocumentForm
+      error={error}
       loading={updating}
       doc={{
         ...documents[display],
         src: String(documents[display].src)
-      }} 
+      }}
       onAccept={onAccept}
       requestSignature={display === Documents.MemberContract}
     />

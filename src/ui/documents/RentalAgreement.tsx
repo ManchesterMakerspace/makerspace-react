@@ -7,14 +7,17 @@ import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import DocumentForm from "./DocumentForm";
 import { Documents, documents } from "./Document";
+import { useScrollToHeader } from "../hooks/useScrollToHeader";
 
 const rentalAgreement = documents[Documents.RentalAgreement];
 
 const RentalAgreement: React.FC<{ rentalId: string }> = ({ rentalId }) => {
   const { history } = useReactRouter();
   const { currentUser: { id: currentUserId } } = useAuthState();
+  const { executeScroll } = useScrollToHeader();
 
   const onSuccess = React.useCallback(() => {
+    executeScroll();
     history.push(buildProfileRouting(currentUserId));
   }, [history]);
 
@@ -30,13 +33,13 @@ const RentalAgreement: React.FC<{ rentalId: string }> = ({ rentalId }) => {
 
 
   return (
-    <DocumentForm 
-      error={error} 
+    <DocumentForm
+      error={error}
       loading={updating}
       doc={{
         ...rentalAgreement,
         src: typeof rentalAgreement.src === "function" && rentalAgreement.src(rentalId)
-      }} 
+      }}
       onAccept={onContractAccept}
       requestSignature={true}
     />

@@ -11,8 +11,7 @@ export const memberStatusLabelMap = {
   [MemberStatus.Inactive]: "Inactive"
 };
 
-const MemberStatusLabel: React.SFC<{ member: Partial<Member>; id?: string }> = props => {
-  const { member } = props;
+const MemberStatusLabel: React.FC<{ member: Partial<Member>; id?: string }> = ({ member, id }) => {
   const inActive = ![MemberStatus.Active, MemberStatus.NonMember].includes(member.status as MemberStatus);
   const current = member.expirationTime > Date.now();
 
@@ -34,7 +33,7 @@ const MemberStatusLabel: React.SFC<{ member: Partial<Member>; id?: string }> = p
     }
   }
 
-  return <StatusLabel id={props.id} label={label} color={statusColor} />;
+  return <StatusLabel id={id} label={label} color={statusColor} />;
 };
 
 export default MemberStatusLabel;

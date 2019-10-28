@@ -84,7 +84,7 @@ class PaypalButton extends React.Component<Props, State> {
           },
 
           onCancel: (data: any) => {
-            console.log('checkout.js payment cancelled');
+            console.log('checkout.js payment canceled');
           },
 
           onError: (err: any) => {
