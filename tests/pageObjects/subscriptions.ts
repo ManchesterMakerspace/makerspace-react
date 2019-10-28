@@ -45,7 +45,7 @@ class SubscriptionsPageObject extends TablePageObject {
   }
 
   public filters = {
-    hideCancelled: "#hide-cancelled",
+    hidecanceled: "#hide-canceled",
   }
 }
 

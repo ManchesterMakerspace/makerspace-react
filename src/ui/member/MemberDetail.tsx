@@ -24,6 +24,11 @@ import NotificationModal, { Notification } from "./NotificationModal";
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
   const { currentUser: { id: currentUserId, isAdmin }, permissions } = useAuthState();
+
+  // State for tracking initial render to address bug displaying notifications
+  const [initRender, setInitRender] = React.useState(true);
+  React.useEffect(() => setInitRender(false), []);
+
   const isOwnProfile = currentUserId === memberId;
   const billingEnabled = !!permissions[Whitelists.billing];
 
@@ -39,20 +44,20 @@ const MemberProfile: React.FC = () => {
   } = useReadTransaction(getMember, memberId);
 
   const [notification, setNotification] = React.useState<Notification>();
-  React.useLayoutEffect(() => {
-    if (isOwnProfile && !memberLoading && (member.id && !member.memberContractOnFile)) {
+  React.useEffect(() => {
+    if (!initRender && isOwnProfile && !memberLoading && (member.id && !member.memberContractOnFile)) {
       setNotification(Notification.Welcome);
     }
-  }, [isOwnProfile, memberLoading, member.memberContractOnFile]);
+  }, [initRender, isOwnProfile, memberLoading, member.memberContractOnFile]);
 
   const { data: rentals = [] } = useReadTransaction(listRentals, memberId);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const missingAgreement = rentals.find(rental => !rental.contractOnFile);
-    if (isOwnProfile && missingAgreement && !notification) {
+    if (!initRender && isOwnProfile && missingAgreement && !notification) {
       setNotification(Notification.SignRental)
     }
-  }, [isOwnProfile, rentals]);
+  }, [initRender, isOwnProfile, rentals]);
 
   // Don't render the notification box on the first paint
   // Helps prevent flickering issue

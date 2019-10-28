@@ -27,7 +27,6 @@ describe("Member management", () => {
     beforeEach(() => {
       return browser.get(utils.buildUrl());
     });
-    // TODO customers should be able to skip picking a membership type (PayPal/ cash payments)
     it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);

@@ -202,9 +202,9 @@ describe("Membership", () => {
     await utils.clickElement(subscriptionPO.cancelSubscriptionModal.submit);
     await utils.waitForNotVisible(subscriptionPO.cancelSubscriptionModal.submit);
 
-    // Make sure deleted one doesn't show up since list should filter cancelled
-    const cancelledFilter = await browser.findElement(By.css(subscriptionPO.filters.hideCancelled));
-    await utils.selectCheckbox(cancelledFilter);
+    // Make sure deleted one doesn't show up since list should filter canceled
+    const canceledFilter = await browser.findElement(By.css(subscriptionPO.filters.hidecanceled));
+    await utils.selectCheckbox(canceledFilter);
     const rows = await subscriptionPO.getAllRows();
     await Promise.all(rows.map((row, index) => {
       return new Promise(async (resolve) => {

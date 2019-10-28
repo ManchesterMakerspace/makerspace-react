@@ -3,5 +3,5 @@ export interface SubscriptionUpdate {
 }
 
 export interface SubscriptionQueryParams {
-  hideCancelled: boolean;
+  hidecanceled: boolean;
 }
