@@ -24,7 +24,7 @@ const DeleteRentalModal: React.FC<Props> = ({ rental, onDelete }) => {
   }, [onDelete, closeModal]);
   const { call, isRequesting, error } = useWriteTransaction(adminDeleteRental, onSuccess);
   const onSubmit = React.useCallback(() => {
-    rental && call(rental.id);
+    rental && call({ id: rental.id });
   }, [rental, call]);
 
   return (

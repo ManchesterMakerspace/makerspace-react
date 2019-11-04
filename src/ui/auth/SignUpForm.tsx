@@ -23,8 +23,7 @@ import { Action } from "ui/auth/constants";
 import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import MembershipSelectForm, { invoiceOptionParam, discountParam } from "ui/membership/MembershipSelectForm";
-import useReadTransaction from "ui/hooks/useReadTransaction";
-import { InvoiceableResource } from "app/entities/invoice";
+import InvoicingGate from "../membership/InvoicingGate";
 
 const SignUpFormComponent: React.FC = () => {
   const { isOpen: emailNoteOpen, openModal: openEmailNote, closeModal: closeEmailNote } = useModal();
@@ -46,7 +45,7 @@ const SignUpFormComponent: React.FC = () => {
     if (!form.isValid()) return;
     await dispatch(submitSignUpAction(validSignUp));
     if (option) {
-      await buildInvoice(option);
+      await buildInvoice({ createInvoiceDetails: option});
     }
   }, [option]);
 
@@ -61,10 +60,6 @@ const SignUpFormComponent: React.FC = () => {
     setOption({ discountId, id: option.id });
   }, [setOption]);
 
-  // TODO: Remove this when all invoicing released globally
-  const {
-    data: options = []
-  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
   return (
     <>
@@ -131,11 +126,13 @@ const SignUpFormComponent: React.FC = () => {
                         }}
                       />
                     </Grid>
-                    {options.length && (
-                      <Grid item xs={12}>
-                        <MembershipSelectForm onSelect={selectMembership} allowNone={true}/>
-                      </Grid>
-                    )}
+                    <InvoicingGate>
+                      {open => open && (
+                        <Grid item xs={12}>
+                          <MembershipSelectForm onSelect={selectMembership} allowNone={true}/>
+                        </Grid>
+                      )}
+                    </InvoicingGate>
                     {!isRequesting && error && <ErrorMessage id={`${signUpPrefix}-error`} error={error} />}
                   </Grid>
                 </Form>

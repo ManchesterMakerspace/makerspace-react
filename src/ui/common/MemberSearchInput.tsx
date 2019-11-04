@@ -66,7 +66,7 @@ const MemberSearchInput: React.FC<Props> = ({
   React.useEffect(() => {
     const fetchMember = async () => {
       if (selection) {
-        const response = await getMember(selection.value);
+        const response = await getMember({ id: selection.value });
         if (isApiErrorResponse(response)) {
           console.error(response.error);
         } else {

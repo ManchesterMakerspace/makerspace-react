@@ -43,7 +43,7 @@ export const createBillingAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartCreateRequest });
 
-  const result = await adminCreateInvoiceOption(invoiceForm);
+  const result = await adminCreateInvoiceOption({ createInvoiceOptionDetails: invoiceForm });
   if (isApiErrorResponse(result)) {
     dispatch({
       type: BillingAction.CreateOptionFailure,
@@ -61,7 +61,7 @@ export const updateBillingAction = (
   updateDetails: InvoiceOption
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartUpdateRequest });
-  const result = await adminUpdateInvoiceOption(invoiceOptionId, updateDetails);
+  const result = await adminUpdateInvoiceOption({ id: invoiceOptionId, updateInvoiceOptionDetails: updateDetails });
   if (isApiErrorResponse(result)) {
     dispatch({
       type: BillingAction.UpdateOptionFailure,
@@ -79,7 +79,7 @@ export const deleteBillingAction = (
   invoiceOptionId: string,
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartDeleteRequest });
-  const result = await adminDeleteInvoiceOption(invoiceOptionId);
+  const result = await adminDeleteInvoiceOption({ id: invoiceOptionId });
 
   if (isApiErrorResponse(result)) {
     dispatch({

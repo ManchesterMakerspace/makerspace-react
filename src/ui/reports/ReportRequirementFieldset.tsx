@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as crypto from "crypto";
 import range from "lodash-es/range";
 import Grid from "@material-ui/core/Grid";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -10,16 +9,10 @@ import Form from "ui/common/Form";
 import { reportRequirementFields, formPrefix } from "ui/reports/constants";
 import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
 import { mapValues } from "lodash-es";
-import { AsyncCreatableSelect } from "ui/common/AsyncSelect";
-import { mongoIdRegex } from "ui/constants";
 import {
   Requirement,
   ReportRequirement,
   NewReportRequirement,
-  getMember,
-  isApiErrorResponse,
-  Member,
-  listMembers
 } from "makerspace-ts-api-client";
 import MemberSearchInput from "ui/common/MemberSearchInput";
 

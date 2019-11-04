@@ -1,14 +1,13 @@
 import { InvoiceableResource, MemberInvoice } from "app/entities/invoice";
 import { Routing } from "app/constants";
-import { Invoice } from "makerspace-ts-api-client";
+import { Invoice, Member } from "makerspace-ts-api-client";
 
-import { basicUser, adminUser, defaultMembers } from "../../constants/member";
+import { basicUser, adminUser } from "../../constants/member";
 import { mockRequests, mock } from "../mockserver-client-helpers";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import invoicePO from "../../pageObjects/invoice";
 import { pastDueInvoice, settledInvoice, defaultInvoice, defaultInvoices } from "../../constants/invoice";
-import { SortDirection } from "ui/common/table/constants";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { checkout } from "../../pageObjects/checkout";
 import { paymentMethods } from "../../pageObjects/paymentMethods";
@@ -22,13 +21,13 @@ import settings from "../../pageObjects/settings";
 import header from "../../pageObjects/header";
 
 const initInvoices = [pastDueInvoice, settledInvoice];
-const resourcedInvoices = initInvoices.map(invoice => ({
+const resourcedInvoices: MemberInvoice[] = initInvoices.map(invoice => ({
   ...invoice,
   memberId: basicUser.id,
   member: {
-    ...basicUser
+    ...basicUser as Member
   }
-})) as MemberInvoice[]; // TODO: Ooops, I messed up my typings somewhere
+}));
 
 describe("Invoicing and Dues", () => {
   describe("Basic User", () => {
@@ -165,7 +164,7 @@ describe("Invoicing and Dues", () => {
         ...pastDueInvoice,
         resourceClass: "member"
       }]));
-      
+
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
@@ -181,7 +180,7 @@ describe("Invoicing and Dues", () => {
   describe("Admin User", () => {
     const targetUrl = memberPO.getProfilePath(basicUser.id);
     const loadInvoices = async (invoices: Invoice[], login?: boolean) => {
-      await mock(mockRequests.invoices.get.ok(invoices, { order: SortDirection.Asc, resourceId: basicUser.id }, true));
+      await mock(mockRequests.invoices.get.ok(invoices, undefined, true));
       if (login) {
         await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
         await autoLogin(adminUser, targetUrl, { billing: true });
@@ -220,7 +219,7 @@ describe("Invoicing and Dues", () => {
       // await utils.fillInput(amount, String(defaultInvoice.amount));
 
       await mock(mockRequests.invoices.post.ok(newInvoice, true));
-      await mock(mockRequests.invoices.get.ok([newInvoice], { order: SortDirection.Asc, resourceId: basicUser.id }, true));
+      await mock(mockRequests.invoices.get.ok([newInvoice], undefined, true));
       await utils.clickElement(submit);
       await utils.waitForNotVisible(submit);
       expect((await invoicePO.getAllRows()).length).toEqual(1);
@@ -249,7 +248,7 @@ describe("Invoicing and Dues", () => {
       await utils.fillInput(invoicePO.invoiceForm.amount, String(updatedInvoice.amount));
       await utils.fillInput(invoicePO.invoiceForm.description, updatedInvoice.description);
       await mock(mockRequests.invoices.put.ok(updatedInvoice));
-      await mock(mockRequests.invoices.get.ok([updatedInvoice], { order: SortDirection.Asc, resourceId: basicUser.id }, true));
+      await mock(mockRequests.invoices.get.ok([updatedInvoice], undefined, true));
       await utils.clickElement(invoicePO.invoiceForm.submit);
       await utils.waitForNotVisible(invoicePO.invoiceForm.submit);
       expect((await invoicePO.getAllRows()).length).toEqual(1);
@@ -273,7 +272,7 @@ describe("Invoicing and Dues", () => {
       expect(await utils.getElementText(invoicePO.deleteInvoiceModal.amount)).toEqual(numberAsCurrency(defaultInvoices[0].amount));
       expect(await utils.getElementText(invoicePO.deleteInvoiceModal.description)).toEqual(defaultInvoices[0].description);
       await mock(mockRequests.invoices.delete.ok(defaultInvoices[0].id));
-      await mock(mockRequests.invoices.get.ok([], { order: SortDirection.Asc, resourceId: basicUser.id }, true));
+      await mock(mockRequests.invoices.get.ok([], undefined, true));
       await utils.clickElement(invoicePO.deleteInvoiceModal.submit);
       await utils.waitForNotVisible(invoicePO.deleteInvoiceModal.submit);
       await utils.waitForVisible(invoicePO.getNoDataRowId());

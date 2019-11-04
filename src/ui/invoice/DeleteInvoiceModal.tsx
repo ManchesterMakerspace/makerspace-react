@@ -26,9 +26,9 @@ const DeleteInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
     reset();
   }, [closeModal, onSuccess]);
 
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminDeleteInvoice, onDelete);
+  const { call, isRequesting, error } = useWriteTransaction(adminDeleteInvoice, onDelete);
   const onSubmit = React.useCallback(() => {
-    call(invoice.id);
+    call({ id: invoice.id });
   }, [invoice, call]);
 
   return (

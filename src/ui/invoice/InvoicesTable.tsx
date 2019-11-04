@@ -1,13 +1,11 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 
 import { adminListInvoices, listInvoices, getMember, Invoice } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import useReadTransaction from "../hooks/useReadTransaction";
-import StatefulTable, { useQueryState } from "../common/table/StatefulTable";
+import StatefulTable from "../common/table/StatefulTable";
 import { InvoiceableResourceDisplay, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import { SortDirection } from "ui/common/table/constants";
 import { Column } from "ui/common/table/Table";
@@ -21,6 +19,8 @@ import { ActionButton } from "../common/ButtonRow";
 import { isInvoicePayable, renderInvoiceDueDate, renderInvoiceStatus } from "./utils";
 import ViewInvoiceModal from "./ViewInvoiceModal";
 import ViewSubscriptionModal from "../subscriptions/ViewSubscriptionModal";
+import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
+import InvoiceFilters from "./InvoiceFilters";
 
 
 const getFields = (memberId: string, onUpdate: () => void): Column<MemberInvoice | RentalInvoice>[] => [
@@ -72,18 +72,25 @@ const getFields = (memberId: string, onUpdate: () => void): Column<MemberInvoice
 ];
 
 const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ stageInvoice }) => {
-  const [hideSettled, setHideSettled] = React.useState(true);
-  const toggleHideSettled = React.useCallback(() => {
-    setHideSettled(settled => !settled);
-  }, [setHideSettled]);
-
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const { currentUser: { isAdmin, id: currentUserId } } = useAuthState();
-  const [queryParams, setQueryState] = useQueryState();
-  const [selectedInvoice, setSelectedInvoice] = React.useState<Invoice>();
   const viewingOwnInvoices = memberId === currentUserId;
+  const asAdmin = isAdmin && !viewingOwnInvoices;
 
-  const { refresh: refreshMember } = useReadTransaction(getMember, memberId);
+  const { params } = useQueryContext({
+    settled: false,
+    refunded: undefined,
+    pastDue: undefined,
+    refundRequested: undefined,
+    memberId: memberId,
+  });
+
+  const [selectedInvoice, setSelectedInvoice] = React.useState<Invoice>();
+
+  const { refresh: refreshMember } = useReadTransaction(getMember, { id: memberId });
+
+  const adminInvoiceResponse = useReadTransaction(adminListInvoices, params, !asAdmin);
+  const invoiceResponse = useReadTransaction(listInvoices, params, asAdmin);
 
   const {
     isRequesting,
@@ -91,13 +98,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
     data = [],
     response,
     refresh
-  } = useReadTransaction(
-    isAdmin && !viewingOwnInvoices ? adminListInvoices : listInvoices,
-    {
-      ...queryParams,
-      hideSettled,
-      resourceId: memberId,
-    } as any); // TODO: Need to fix these types of conditionals
+  } = asAdmin ? adminInvoiceResponse : invoiceResponse;
 
   React.useEffect(() => {
     if (Array.isArray(data) && data.length) {
@@ -128,19 +129,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       <>
         <CreateInvoiceModal memberId={memberId} onSuccess={onSuccess}/>
         <DeleteInvoiceModal invoice={selectedInvoice} onSuccess={onSuccess}/>
-        <FormControlLabel
-            control={
-              <Checkbox
-                name="hide-settled"
-                value="hide-settled"
-                id="hide-settled"
-                checked={!!hideSettled}
-                onChange={toggleHideSettled}
-                color="default"
-              />
-            }
-            label="Hide settled dues"
-          />
+        <InvoiceFilters onChange={refresh}/>
       </>
     )}
     {viewingOwnInvoices && (
@@ -160,8 +149,6 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       loading={isRequesting}
       data={data}
       error={error}
-      queryParams={queryParams}
-      setQuery={setQueryState}
       columns={fields}
       rowId={rowId}
       totalItems={extractTotalItems(response)}
@@ -172,4 +159,4 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
   )
 };
 
-export default InvoicesTable;
+export default withQueryContext(InvoicesTable);

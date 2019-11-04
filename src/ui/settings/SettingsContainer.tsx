@@ -26,7 +26,7 @@ const SettingsContainer: React.FC = () => {
     isRequesting: loadingMember,
     error: memberError,
     data: member,
-  } = useReadTransaction(getMember, currentUserId);
+  } = useReadTransaction(getMember, { id: currentUserId });
 
   return (
     <Grid container spacing={16}>

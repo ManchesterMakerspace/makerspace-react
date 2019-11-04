@@ -40,7 +40,7 @@ export const createMembersAction = (
   dispatch({ type: MembersAction.StartCreateRequest });
 
   let newMember: Member;
-  const result = await adminCreateMember(memberForm);
+  const result = await adminCreateMember({ createMemberDetails: memberForm });
 
   if (isApiErrorResponse(result)) {
     dispatch({

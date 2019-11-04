@@ -23,11 +23,10 @@ const useWriteTransaction = <Args, Resp>(
     setState({ isRequesting: false, error: "", data: undefined, called: false, response: undefined });
   }, [setState]);
 
-  // TODO: This args spread is messing up my nice typings
-  const call = React.useCallback(async (...args: Args[]) => {
+  const call: ApiFunction<Args, Resp> = React.useCallback(async (args: Args) => {
     setState(prevState => ({ ...prevState, isRequesting: true, called: true }));
 
-    const response = await transaction(...args);
+    const response = await transaction(args);
     const error = (response as ApiErrorResponse).error;
 
     setState(prevState => ({

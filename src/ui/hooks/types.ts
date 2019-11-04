@@ -7,4 +7,4 @@ export interface TransactionState<T> {
   data: T;
 }
 
-export type ApiFunction<Args, Data> = (...args: Args[]) => Promise<ApiErrorResponse | ApiDataResponse<Data>>;
+export type ApiFunction<Args, Data> = (params: Args) => Promise<ApiErrorResponse | ApiDataResponse<Data>>;

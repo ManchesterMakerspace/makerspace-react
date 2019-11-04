@@ -13,7 +13,8 @@ import useReadTransaction from "../hooks/useReadTransaction";
 import extractTotalItems from "../utils/extractTotalItems";
 import useModal from "../hooks/useModal";
 import { useAuthState } from "../reducer/hooks";
-import StatefulTable, { useQueryState } from "../common/table/StatefulTable";
+import StatefulTable from "../common/table/StatefulTable";
+import { withQueryContext, useQueryContext } from "../common/Filters/QueryContext";
 
 const getFields = (openDetails: (id: string) => void) => ([
   {
@@ -33,34 +34,39 @@ const rowId = (report: Report) => report.id;
 
 const ReportsTable: React.FC<{ earnedMembershipId: string }> = ({ earnedMembershipId }) => {
   const [selectedId, setSelectedId] = React.useState<string>();
-  const [queryParams, setQueryState, resetQuery] = useQueryState();
+
+  const { params, changePage } = useQueryContext();
   const { isOpen, openModal, closeModal } = useModal();
   const { currentUser: { id: currentUserId, isAdmin } } = useAuthState();
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const isOwnMembership = currentUserId === memberId;
+  const asAdmin = isAdmin && !isOwnMembership
 
   const setSeleted = React.useCallback((ids: string[]) => {
     setSelectedId(Array.isArray(ids) && ids[0] || undefined);
   }, [setSelectedId]);
   const {
     data: member
-  } = useReadTransaction(getMember, memberId);
+  } = useReadTransaction(getMember, { id: memberId });
   const {
     data: earnedMembership
-  } = useReadTransaction(isAdmin && !isOwnMembership ? adminGetEarnedMembership : getEarnedMembership, earnedMembershipId);
+  } = useReadTransaction(asAdmin ? adminGetEarnedMembership : getEarnedMembership, { id: earnedMembershipId});
 
+  const adminEMResponse = useReadTransaction(adminListEarnedMembershipReports, { id: earnedMembershipId, ...params }, !asAdmin);
+  const emResponse = useReadTransaction(listEarnedMembershipReports, { id: earnedMembershipId, ...params }, asAdmin);
   const {
     isRequesting,
     error,
     data: reports = [],
     response,
     refresh,
-  } = useReadTransaction(isAdmin && !isOwnMembership ? adminListEarnedMembershipReports : listEarnedMembershipReports, earnedMembershipId, queryParams);
+  } = asAdmin ? adminEMResponse : emResponse;
+
 
   const onCreate = React.useCallback(() => {
     refresh();
-    resetQuery();
-  }, [refresh, resetQuery])
+    changePage(0);
+  }, [refresh, changePage])
 
   const openDetails = React.useCallback(reportId => {
     setSelectedId(reportId);
@@ -83,8 +89,6 @@ const ReportsTable: React.FC<{ earnedMembershipId: string }> = ({ earnedMembersh
           totalItems={extractTotalItems(response)}
           selectedIds={[selectedId]}
           setSelectedIds={setSeleted}
-          queryParams={queryParams}
-          setQuery={setQueryState}
           columns={getFields(openDetails)}
           rowId={rowId}
         />
@@ -105,4 +109,4 @@ const ReportsTable: React.FC<{ earnedMembershipId: string }> = ({ earnedMembersh
   )
 }
 
-export default ReportsTable;
+export default withQueryContext(ReportsTable);

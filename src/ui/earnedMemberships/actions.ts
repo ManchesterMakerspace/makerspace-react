@@ -51,7 +51,7 @@ export const readMembershipAction = (
   dispatch({ type: MembershipAction.StartReadRequest });
 
   const func = admin ? adminGetEarnedMembership : getEarnedMembership;
-  const result = await func(membershipId);
+  const result = await func({ id: membershipId });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -72,7 +72,7 @@ export const createMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartCreateRequest });
 
-  const result = await adminCreateEarnedMembership(membershipForm);
+  const result = await adminCreateEarnedMembership({ createEarnedMembershipDetails: membershipForm });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -93,7 +93,7 @@ export const updateMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartUpdateRequest });
 
-  const result = await adminUpdateEarnedMembership(membershipId, updatedMembership);
+  const result = await adminUpdateEarnedMembership({ id: membershipId, updateEarnedMembershipDetails: updatedMembership });
 
   if (isApiErrorResponse(result)) {
     dispatch({

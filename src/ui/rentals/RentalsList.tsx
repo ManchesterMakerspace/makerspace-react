@@ -21,7 +21,6 @@ import RentalForm from "ui/rentals/RentalForm";
 import UpdateRentalContainer, { UpdateRentalRenderProps } from "ui/rentals/UpdateRentalContainer";
 import DeleteRentalModal from "ui/rentals/DeleteRentalModal";
 import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
-import Form from "ui/common/Form";
 import { rentalToRenewal } from "ui/rentals/utils";
 import { rentalRenewalOptions } from "ui/rentals/constants";
 import RenewalForm from "ui/common/RenewalForm";

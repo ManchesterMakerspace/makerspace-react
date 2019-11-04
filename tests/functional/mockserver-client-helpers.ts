@@ -61,7 +61,7 @@ type AnyQueryParam = QueryParams;
 const objectToQueryParams = (params: AnyQueryParam) => {
   if (!(params)) { return; }
   return Object.entries(params).map(([name, values]) => ({
-    values: Array.isArray(values) ? values : [values],
+    values: Array.isArray(values) ? values.map(v => String(v)) : [String(values)],
     name: Array.isArray(values) ? `${name}[]` : name
   }));
 }

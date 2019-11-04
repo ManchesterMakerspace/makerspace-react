@@ -79,7 +79,7 @@ class PasswordReset extends React.Component<Props, State> {
 
     this.setState({ passwordRequesting: true });
     // Successfully changing password counts as auth action for Devise
-    const passwordReset = await resetPassword({ resetPasswordToken: passwordToken, password });
+    const passwordReset = await resetPassword({ passwordResetDetails: { resetPasswordToken: passwordToken, password } });
     if (isApiErrorResponse(passwordReset)) {
       this.setState({ passwordRequesting: false, passwordError: passwordReset.error.message });
     } else {

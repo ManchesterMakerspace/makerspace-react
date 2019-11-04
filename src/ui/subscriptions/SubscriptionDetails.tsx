@@ -14,21 +14,6 @@ import NoSubscriptionDetails from "./NoSubscriptionDetails";
 import ChangePaymentMethodModal from "../membership/ChangePaymentMethodModal";
 import CancelSubscriptionModal from "./CancelSubscriptionModal";
 
-interface RenderProps {
-  isLoading: boolean;
-  error: string;
-  subscription: Subscription;
-  invoice: Invoice;
-  member: Member;
-  onChange(): void;
-}
-
-interface Props {
-  subscriptionId: string;
-  memberId: string;
-  onChange(): void;
-}
-
 export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, invoice?: Invoice}> = ({ invoice, subscription }) => {
   const type = subscription && renderPlanType(subscription.planId);
 
@@ -61,23 +46,18 @@ const SubscriptionDetails: React.FC<{ memberId: string, rentalSubId?: string }> 
     error: getMemberError,
     data: member,
     refresh: reloadMember
-  } = useReadTransaction(getMember, id);
+  } = useReadTransaction(getMember, { id });
 
-  let result = {} as ReadTransaction<any, Invoice[]>;
-  if (asAdmin) {
-    result = useReadTransaction(adminListInvoices, { resourceId: memberId });
-  } else {
-    result = useReadTransaction(listInvoices, {});
-  }
+  const adminResult = useReadTransaction(adminListInvoices, { resourceId: [memberId] }, !asAdmin);
+  const baseResult = useReadTransaction(listInvoices, { }, asAdmin);
+  const { isRequesting: invoicesLoading, data: invoices = [], error: invoicesError, refresh: reloadInvoices } = asAdmin ? adminResult : baseResult;
 
   // Use prop if exists
   const subscriptionId = rentalSubId || (member ? member.subscriptionId : undefined);
-  const { isRequesting: invoicesLoading, data: invoices = [], error: invoicesError, refresh: reloadInvoices } = result;
-  // TODO: this should delay calling until we have sub ID
-  const { isRequesting: subscriptionLoading, data: subscription, error: subError, refresh: reloadSubscription } = useReadTransaction(getSubscription, subscriptionId);
+  const { isRequesting: subscriptionLoading, data: subscription, error: subError, refresh: reloadSubscription } = useReadTransaction(getSubscription, { id: subscriptionId }, !subscriptionId);
 
-  const isLoading = loadingMember || (subscriptionId && subscriptionLoading) || invoicesLoading;
-  const error = getMemberError || (subscriptionId && subError) || invoicesError;
+  const isLoading = loadingMember || subscriptionLoading || invoicesLoading;
+  const error = getMemberError || subError || invoicesError;
   const subscriptionInvoice = invoices.find(invoice => invoice.subscriptionId === subscriptionId);
 
   const onChange = React.useCallback(() => {

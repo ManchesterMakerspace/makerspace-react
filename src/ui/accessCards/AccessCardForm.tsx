@@ -18,13 +18,13 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
     error: newCardError,
     refresh: getNewCard,
     data: rejectionCard
-  } = useReadTransaction(adminGetNewCard, [memberId]);
+  } = useReadTransaction(adminGetNewCard, { uid: memberId });
 
   const {
     isRequesting: memberLoading,
     refresh: refreshMember,
     data: member = {} as Member
-  } = useReadTransaction(getMember, memberId);
+  } = useReadTransaction(getMember, { id: memberId });
 
   const onSuccess = React.useCallback(({ reset }) => {
     refreshMember();
@@ -38,8 +38,10 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
       return;
     }
     createCard({
-      memberId: member.id,
-      uid: rejectionCard.uid,
+      createAccessCardDetails: {
+        memberId: member.id,
+        uid: rejectionCard.uid,
+      }
     });
   }, [rejectionCard, createCard, setError, member.id]);
 

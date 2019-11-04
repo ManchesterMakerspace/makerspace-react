@@ -14,7 +14,6 @@ import { Routing } from "app/constants";
 import FormModal from "ui/common/FormModal";
 import useModal from "../hooks/useModal";
 import { useEmptyCart, useAddToCart, InvoiceOptionSelection } from "ui/checkout/cart";
-import useReadTransaction from "../hooks/useReadTransaction";
 
 interface Props {
   member: Member;

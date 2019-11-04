@@ -10,7 +10,7 @@ export const readMemberAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MemberAction.StartReadRequest });
 
-  const result = await getMember(memberId);
+  const result = await getMember({ id: memberId });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -41,9 +41,9 @@ export const updateMemberAction = (
   let updatedMember: Member;
   let result;
   if (isAdmin) {
-    result = await adminUpdateMember(memberId, updateDetails as Member);
+    result = await adminUpdateMember({ id: memberId, updateMemberDetails: updateDetails });
   } else {
-    result = await updateMember(memberId, updateDetails as SelfUpdate);
+    result = await updateMember({ id: memberId, updateMemberDetails: updateDetails });
   }
 
   if (isApiErrorResponse(result)) {

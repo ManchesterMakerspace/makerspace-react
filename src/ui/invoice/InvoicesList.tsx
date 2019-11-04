@@ -14,7 +14,7 @@ const InvoicesList: React.FC = () => {
   const goToCheckout = React.useCallback((selectedInvoice: Invoice) =>  {
     resetCart();
     addToCart(selectedInvoice);
-    history.push(Routing.Checkout); 
+    history.push(Routing.Checkout);
   }, [resetCart, addToCart, history]);
 
   return <InvoicesTable stageInvoice={goToCheckout}/>;

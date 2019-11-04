@@ -122,7 +122,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
     const { selectedPaymentMethodId } = this.state;
     this.setState({ isDeleting: true });
 
-    const result = await deletePaymentMethod(selectedPaymentMethodId);
+    const result = await deletePaymentMethod({ id: selectedPaymentMethodId });
     if (isApiErrorResponse(result)) {
       this.setState({ isDeleting: false, error: result.error.message });
     } else {
