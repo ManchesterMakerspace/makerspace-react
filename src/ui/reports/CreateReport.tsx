@@ -27,14 +27,14 @@ const CreateReport: React.FC<Props> = ({ onCreate }) => {
     error: memberError,
     refresh: refreshMember,
     data: member,
-  } = useReadTransaction(getMember, currentUserId);
+  } = useReadTransaction(getMember, { id: currentUserId });
 
   const {
     isRequesting: loadingEM,
     error: errorEM,
     data: earnedMembership,
     refresh: refreshEM
-  } = useReadTransaction(getEarnedMembership, earnedMembershipId);
+  } = useReadTransaction(getEarnedMembership, { id: earnedMembershipId });
 
   const onSuccess = React.useCallback(({ reset }) => {
     refreshMember();
@@ -59,7 +59,7 @@ const CreateReport: React.FC<Props> = ({ onCreate }) => {
 
     if (!form.isValid()) return;
 
-    return await createReport(earnedMembershipId, validUpdate);
+    return await createReport({ id: earnedMembershipId, createEarnedMembershipReportDetails: validUpdate });
   }, [createReport, formRef]);
 
   return (

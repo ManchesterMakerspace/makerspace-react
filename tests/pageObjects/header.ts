@@ -17,13 +17,11 @@ class HeaderPageObject {
   public openNavMenu = () => utils.clickElement(this.navMenuButton);
 
   public navigateTo = async (menuLinkId: string) => {
-    const element = menuLinkId === this.links.logout ? "li" : "a"; // TODO: these should be consistent
-    const idSelector = `${element}${menuLinkId}`
-    const displayed = await utils.isElementDisplayed(idSelector);
+    const displayed = await utils.isElementDisplayed(menuLinkId);
     if (!displayed) {
       await this.openNavMenu();
     }
-    await utils.clickElement(idSelector);
+    await utils.clickElement(menuLinkId);
   }
 }
 

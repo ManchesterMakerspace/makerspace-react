@@ -33,7 +33,7 @@ const MembershipAgreement: React.FC = () => {
   } = useWriteTransaction(updateMember, onSuccess);
 
   const onContractAccept = React.useCallback(async (signature: string) => {
-    await update(currentUserId, { signature });
+    await update({ id: currentUserId, updateMemberDetails: { signature }});
   }, [update]);
 
   const onConductAccept = React.useCallback(() => {

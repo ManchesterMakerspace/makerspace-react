@@ -17,8 +17,3 @@ export interface QueryParams extends AxiosRequestConfig {
   search?: string;
   [key: string]: any;
 }
-
-export interface ApiErrorResponse {
-  errorMessage?: string;
-  response: AxiosResponse
-}

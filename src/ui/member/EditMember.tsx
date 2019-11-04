@@ -17,7 +17,7 @@ const EditMember: React.FC<{ memberId: string }> = ({ memberId }) => {
     isRequesting: memberLoading,
     refresh: refreshMember,
     data: member = {}
-  } = useReadTransaction(getMember, memberId);
+  } = useReadTransaction(getMember, { id: memberId });
 
   const onSuccess = React.useCallback(() => {
     refreshMember();
@@ -34,7 +34,7 @@ const EditMember: React.FC<{ memberId: string }> = ({ memberId }) => {
 
     if (!form.isValid()) return;
 
-    update(memberId, validUpdate);
+    update({ id: memberId, updateMemberDetails: validUpdate });
   }, [formRef, update]);
 
   return (

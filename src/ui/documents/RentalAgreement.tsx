@@ -28,7 +28,7 @@ const RentalAgreement: React.FC<{ rentalId: string }> = ({ rentalId }) => {
   } = useWriteTransaction(updateRental, onSuccess);
 
   const onContractAccept = React.useCallback(async (signature: string) => {
-    await update(rentalId, { signature });
+    await update({ id: rentalId, updateRentalDetails: { signature }});
   }, [update]);
 
 

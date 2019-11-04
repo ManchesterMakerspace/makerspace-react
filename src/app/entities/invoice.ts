@@ -1,9 +1,7 @@
 import { QueryParams } from "app/interfaces";
-import {Invoice } from "makerspace-ts-api-client";
+import {Invoice, PlanType } from "makerspace-ts-api-client";
 
-export interface MemberInvoice extends Invoice {
-  rental: undefined;
-}
+export interface MemberInvoice extends Omit<Invoice, "rental"> {}
 
 export interface RentalInvoice extends Invoice {}
 
@@ -50,7 +48,7 @@ export enum Properties {
 
 
 export interface InvoiceQueryParams extends QueryParams {
-  [Properties.ResourceId]?: string;
+  [Properties.ResourceId]?: string[];
 }
 
 export interface InvoiceOptionQueryParams extends QueryParams {

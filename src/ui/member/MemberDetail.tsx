@@ -41,7 +41,7 @@ const MemberProfile: React.FC = () => {
     refresh: refreshMember,
     error: memberError,
     data: member = {} as Member
-  } = useReadTransaction(getMember, memberId);
+  } = useReadTransaction(getMember, { id: memberId });
 
   const [notification, setNotification] = React.useState<Notification>();
   React.useEffect(() => {
@@ -50,7 +50,7 @@ const MemberProfile: React.FC = () => {
     }
   }, [initRender, isOwnProfile, memberLoading, member.memberContractOnFile]);
 
-  const { data: rentals = [] } = useReadTransaction(listRentals, memberId);
+  const { data: rentals = [] } = useReadTransaction(listRentals, {});
 
   React.useEffect(() => {
     const missingAgreement = rentals.find(rental => !rental.contractOnFile);

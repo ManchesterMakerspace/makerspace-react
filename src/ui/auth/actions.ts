@@ -3,6 +3,7 @@ import { AnyAction } from "redux";
 
 import { AuthState, AuthForm, SignUpForm, AuthMember } from "ui/auth/interfaces";
 import { Action as AuthAction } from "ui/auth/constants";
+import { TransactionAction } from "ui/reducer";
 import { memberIsAdmin } from "ui/member/utils";
 import {
   signIn,
@@ -14,6 +15,7 @@ import {
   ApiErrorResponse,
   ApiDataResponse
 } from "makerspace-ts-api-client";
+import { CartAction } from "../checkout/cart";
 
 const handleAuthWithPermissions = async (
   response: ApiErrorResponse | ApiDataResponse<Member>,
@@ -27,7 +29,7 @@ const handleAuthWithPermissions = async (
     });
   } else {
     const member = response.data;
-    const permissionsResponse = await listMembersPermissions(member.id);
+    const permissionsResponse = await listMembersPermissions({ id: member.id });
 
     if (isApiErrorResponse(permissionsResponse)) {
       dispatch({
@@ -53,14 +55,15 @@ export const loginUserAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction>  => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  const response = await signIn(loginForm);
+  const response = await signIn({ signInDetails: loginForm });
   await handleAuthWithPermissions(response, dispatch);
 }
 
 export const sessionLoginUserAction = (): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  const response = await signIn();
+  // TODO: SignIn fn fails if no params provided
+  const response = await signIn({});
   await handleAuthWithPermissions(response, dispatch, true);
 }
 
@@ -70,7 +73,8 @@ export const logoutUserAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
   await signOut();
-    // TODO Reset stores
+  dispatch({ type: TransactionAction.Reset });
+  dispatch({ type: CartAction.EmptyCart });
   dispatch({ type: AuthAction.LogoutSuccess });
 }
 
@@ -79,7 +83,7 @@ export const submitSignUpAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  const response = await registerMember(signUpForm);
+  const response = await registerMember({ registerMemberDetails: signUpForm });
   await handleAuthWithPermissions(response, dispatch);
 }
 

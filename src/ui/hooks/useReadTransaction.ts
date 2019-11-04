@@ -13,25 +13,26 @@ export interface ReadTransaction<Args, T> extends TransactionState<T> {
 
 const useReadTransaction = <Args, Resp>(
   transaction: ApiFunction<Args, Resp>,
-  ...args: Args[]
+  args: Args,
+  delay?: boolean,
+  key?: string // Can pass optional key to make transaction distinct in store
 ): ReadTransaction<Args, Resp> => {
-  const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, ...args))
+  const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, args, key as any));
   const [force, setForce] = React.useState(false);
   const refresh = React.useCallback(() => setForce(prevState => !prevState), []);
 
   const getCurrentState = React.useCallback(() => {
-    const key = buildQueryString(transaction, ...args);
-    return getApiState(key, getStore().getState());
-  }, [transaction, stringifyArgs(args)]);
+    const apiKey = buildQueryString(transaction, args, key as any);
+    return getApiState(apiKey, getStore().getState());
+  }, [transaction, stringifyArgs(args), key]);
 
   React.useEffect(() => {
-
     const callTransaction = async () => {
       const currentState = getCurrentState();
       if (!currentState || !currentState.isRequesting) {
         dispatch({ type: TransactionAction.Start });
 
-        const response = await transaction(...args);
+        const response = await transaction(args);
 
         if (isApiErrorResponse(response)) {
           dispatch({
@@ -48,13 +49,13 @@ const useReadTransaction = <Args, Resp>(
             error: ""
           });
         }
-       }
+      }
     };
 
-    callTransaction();
-  }, [stringifyArgs(args), force]);
+    !delay && callTransaction();
+  }, [stringifyArgs(args), key, force, delay]);
 
-   return { ...state, refresh };
+  return { ...state, refresh };
 };
 
 export default useReadTransaction;;

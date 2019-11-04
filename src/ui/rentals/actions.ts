@@ -39,7 +39,7 @@ export const createRentalAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartCreateRequest });
 
-  const result = await adminCreateRental(rentalForm);
+  const result = await adminCreateRental({ createRentalDetails: rentalForm });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -60,7 +60,7 @@ export const updateRentalAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartUpdateRequest });
 
-  const result = await adminUpdateRental(rentalId, updatedRental);
+  const result = await adminUpdateRental({ id: rentalId, updateRentalDetails: updatedRental });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -80,7 +80,7 @@ export const deleteRentalAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: RentalsAction.StartDeleteRequest });
 
-  const result = await adminDeleteRental(rentalId);
+  const result = await adminDeleteRental({ id: rentalId });
 
   if (isApiErrorResponse(result)) {
     dispatch({

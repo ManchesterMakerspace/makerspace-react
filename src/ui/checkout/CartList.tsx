@@ -48,7 +48,6 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
     return emptyCart;
   }, []);
 
-  // TODO: Update this when you update writeTransaction
   const onSuccess = React.useCallback(({ response: { data: transaction } }: SuccessTransactionState<Parameters<typeof createTransaction>[0], Transaction>) => {
     const invoiceId = transaction && transaction.invoice.id;
     if (invoiceId) {
@@ -101,7 +100,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
 
   const submitPayment = React.useCallback(() => {
     if (!paymentMethodId) { return; }
-    call({
+    call({ createTransactionDetails: {
       ...isInvoiceSelection(item) ? {
         invoiceId: item.id
       } : {
@@ -109,7 +108,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
         ...item.discountId && { discountId: item.discountId },
       },
       paymentMethodId
-    });
+    }});
   }, [call, item, paymentMethodId]);
 
   if (!item) {

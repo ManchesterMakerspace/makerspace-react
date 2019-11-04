@@ -21,12 +21,12 @@ const CreateInvoiceModal: React.FC<{ memberId: string, onSuccess: () => void }> 
     onSuccess();
     reset();
   }, [closeModal, onSuccess]);
-  const { call, isRequesting, error, response, reset } = useWriteTransaction(adminCreateInvoices, onCreate);
+  const { call, isRequesting, error } = useWriteTransaction(adminCreateInvoices, onCreate);
   const onSubmit = React.useCallback(async (form: Form) => {
     const validUpdate = formRef.current.validate && await formRef.current.validate(form);
     if (!form.isValid()) return;
 
-    validUpdate && call(validUpdate);
+    validUpdate && call({ createInvoiceDetails: validUpdate });
   }, [formRef, call]);
 
   return (

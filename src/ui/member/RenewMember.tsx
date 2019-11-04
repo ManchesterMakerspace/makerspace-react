@@ -17,7 +17,7 @@ const RenewMember: React.FC<{ memberId: string }> = ({ memberId }) => {
     isRequesting: memberLoading,
     refresh: refreshMember,
     data: member
-  } = useReadTransaction(getMember, memberId);
+  } = useReadTransaction(getMember, { id: memberId });
 
   const onSuccess = React.useCallback(({ reset }) => {
     refreshMember();
@@ -35,7 +35,7 @@ const RenewMember: React.FC<{ memberId: string }> = ({ memberId }) => {
 
     if (!form.isValid()) return;
 
-    renew(memberId, validUpdate);
+    renew({ id: memberId, updateMemberDetails: validUpdate });
   }, [formRef, renew]);
 
   return (

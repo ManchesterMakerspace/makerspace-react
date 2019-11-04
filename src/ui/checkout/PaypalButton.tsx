@@ -60,9 +60,10 @@ class PaypalButton extends React.Component<Props, State> {
       }, (paypalCheckoutErr: any, paypalCheckoutInstance: any) => {
 
         if (paypalCheckoutErr) throw paypalCheckoutErr;
-
+        const env = process.env.NODE_ENV === "production" ? "production" : "sandbox";
+        console.log("Loading PayPal env", env)
         checkoutJs.Button.render({
-          env: process.env.NODE_ENV === "production" ? "production" : "sandbox",
+          env,
           payment: () => {
             return paypalCheckoutInstance.createPayment({
               flow: 'vault',
@@ -74,7 +75,7 @@ class PaypalButton extends React.Component<Props, State> {
             return paypalCheckoutInstance.tokenizePayment(data, async (err: any, payload: any) => {
               if (err) throw err;
               try {
-                await createPaymentMethod({ payment_method_nonce: payload.nonce, make_default: true });
+                await createPaymentMethod({ createPaymentMethodDetails: { payment_method_nonce: payload.nonce, make_default: true }});
                 this.props.paymentMethodCallback && this.props.paymentMethodCallback(payload.nonce);
               } catch (e) {
                 const { errorMessage } = e;

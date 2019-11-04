@@ -27,7 +27,7 @@ const SettleInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
 
   const { call, isRequesting, error } = useWriteTransaction(adminUpdateInvoice, onUpdate);
   const onSubmit = React.useCallback(() => {
-    call(invoice.id, { ...invoice, settled: true });
+    call({ id: invoice.id, updateInvoiceDetails: { ...invoice, settled: true }});
   }, [invoice, call]);
 
   return (

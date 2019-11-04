@@ -11,9 +11,8 @@ import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
 
 import { Routing } from "app/constants";
 import MembershipSelectForm, { invoiceOptionParam, discountParam } from 'ui/membership/MembershipSelectForm';
-import { InvoiceOption, listInvoiceOptions } from 'makerspace-ts-api-client';
-import useReadTransaction from 'ui/hooks/useReadTransaction';
-import { InvoiceableResource } from 'app/entities/invoice';
+import { InvoiceOption } from 'makerspace-ts-api-client';
+import InvoicingGate from '../membership/InvoicingGate';
 
 
 const LandingPage: React.FC = () => {
@@ -30,11 +29,6 @@ const LandingPage: React.FC = () => {
       });
     }
   }, [history, search]);
-
-  // TODO: Remove this when all invoicing released globally
-  const {
-    data: options = []
-  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
   return (
     <Grid container spacing={24} justify="center">
@@ -56,21 +50,23 @@ const LandingPage: React.FC = () => {
               </Grid>
             </Grid>
             <Grid container spacing={24} justify="center">
-              {options.length ? (
-                <Grid item xs={12}>
-                  <Typography variant="h5">To get started, first select a membership option.</Typography>
-                  <MembershipSelectForm onSelect={goToSignup} allowNone={true} />
-                </Grid>
-              ) : (
-                <Grid item md={6} xs={12}>
-                  <Typography variant="subtitle1" align="center">
-                    Please take a moment to register with our online portal.
-                  </Typography>
-                  <Button id="register" variant="outlined" color="secondary" fullWidth onClick={() => goToSignup()}>
-                    Register
-                  </Button>
-                </Grid>
-              )}
+              <InvoicingGate>
+                { (open) => open ? (
+                  <Grid item xs={12}>
+                    <Typography variant="h5">To get started, first select a membership option.</Typography>
+                    <MembershipSelectForm onSelect={goToSignup} allowNone={true} />
+                  </Grid>
+                ) : (
+                  <Grid item md={6} xs={12}>
+                    <Typography variant="subtitle1" align="center">
+                      Please take a moment to register with our online portal.
+                    </Typography>
+                    <Button id="register" variant="outlined" color="secondary" fullWidth onClick={() => goToSignup()}>
+                      Register
+                    </Button>
+                  </Grid>
+                )}
+              </InvoicingGate>
             </Grid>
           </CardContent>
         </Card>

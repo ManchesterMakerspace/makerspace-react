@@ -18,7 +18,7 @@ const ManageRentalSubscriptions: React.FC = () => {
     isRequesting: rentalsLoading,
     data: rentals = [],
     error: rentalsError,
-  } = useReadTransaction(listRentals);;
+  } = useReadTransaction(listRentals, {});;
 
   const subscriptionRentals = rentals.filter(rental => !!rental.subscriptionId);
   const fallbackUI = (rentalsLoading && <LoadingOverlay  id="manage-rental-subscription-loading" contained={true}/>)

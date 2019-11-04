@@ -40,7 +40,7 @@ export const refundTransactionAction = (
   dispatch({ type: TransactionsAction.StartDeleteRequest });
 
   const func = admin ? adminDeleteTransaction : deleteTransaction;
-  const result = await func(transactionId);
+  const result = await func({ id: transactionId });
 
   if (isApiErrorResponse(result)) {
     dispatch({

@@ -6,12 +6,14 @@ import Checkbox from "@material-ui/core/Checkbox";
 import { Subscription, adminListSubscriptions } from "makerspace-ts-api-client";
 
 import { Column } from "../common/table/Table";
-import StatefulTable, { useQueryState } from "../common/table/StatefulTable";
+import StatefulTable from "../common/table/StatefulTable";
 import { numberAsCurrency } from "../utils/numberAsCurrency";
 import { timeToDate } from "../utils/timeToDate";
 import extractTotalItems from "../utils/extractTotalItems";
 import CancelSubscriptionModal from "./CancelSubscriptionModal";
 import useReadTransaction from "../hooks/useReadTransaction";
+import { withQueryContext, useQueryContext } from "../common/Filters/QueryContext";
+import SubscriptionFilters, { subscriptionStatuses } from "./SubscriptionFilters";
 
 const fields: Column<Subscription>[] = [
   {
@@ -41,29 +43,29 @@ const fields: Column<Subscription>[] = [
 const rowId = (sub: Subscription) => sub.id;
 
 const SubscriptionsTable: React.FC = () => {
-  const [hideCanceled, setHideCanceled] = React.useState(true);
-  const toggleHideCanceled = React.useCallback(() => {
-    setHideCanceled(canceled => !canceled);
-  }, [setHideCanceled]);
-
   const [selectedId, setSelectedId] = React.useState<string>();
-  const [queryParams, setQueryState, resetQuery] = useQueryState();
-
-  const {
-    isRequesting,
-    data: subscriptions = [],
-    response,
-    refresh,
-    error
-  } = useReadTransaction(adminListSubscriptions, {
-    ...queryParams,
-    hideCanceled
+  const { 
+    params: { pageNum, order, orderBy, ...restParams }, 
+    changePage 
+  } = useQueryContext({
+    search: undefined,
+    startDate: undefined,
+    endDate: undefined,
+    planId: [],
+    subscriptionStatus: [
+      subscriptionStatuses.active.value,
+    ],
   });
+
+  const { isRequesting, data: subscriptions = [], response, refresh, error } = useReadTransaction(
+    adminListSubscriptions,
+    { ...restParams }
+  );
 
   const onCancel = React.useCallback(() => {
     refresh();
-    resetQuery();
-  }, [refresh, resetQuery]);
+    changePage(0);
+  }, [refresh, changePage]);
 
   const selectedSubscription = subscriptions.find(sub => sub.id === selectedId);
 
@@ -71,23 +73,11 @@ const SubscriptionsTable: React.FC = () => {
     <Grid container spacing={24} justify="center">
       <Grid item xs={12}>
         <Grid>
-          <CancelSubscriptionModal 
+          <CancelSubscriptionModal
             subscription={selectedSubscription}
             onSuccess={onCancel}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="hide-canceled"
-                value="hide-canceled"
-                id="hide-canceled"
-                checked={!!hideCanceled}
-                onChange={toggleHideCanceled}
-                color="default"
-              />
-            }
-            label="Hide canceled subscriptions."
-          />
+          <SubscriptionFilters onChange={refresh}/>
         </Grid>
 
         <StatefulTable
@@ -99,8 +89,6 @@ const SubscriptionsTable: React.FC = () => {
           totalItems={extractTotalItems(response)}
           selectedIds={selectedId}
           setSelectedIds={setSelectedId}
-          queryParams={queryParams}
-          setQuery={setQueryState}
           columns={fields}
           rowId={rowId}
         />
@@ -109,4 +97,4 @@ const SubscriptionsTable: React.FC = () => {
   )
 }
 
-export default SubscriptionsTable;
+export default withQueryContext(SubscriptionsTable);

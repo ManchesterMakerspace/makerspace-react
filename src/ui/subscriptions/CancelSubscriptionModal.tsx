@@ -27,7 +27,7 @@ const CancelSubscriptionModal: React.FC<Props> = ({ subscription = {} as Subscri
   });
 
   const onSubmit = React.useCallback(() => {
-    call(subscriptionId);
+    call({ id: subscriptionId });
   }, [call, subscriptionId]);
 
   const disableButton = !subscriptionId || subscription.status === "Canceled";
