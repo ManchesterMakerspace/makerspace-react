@@ -178,9 +178,3 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
 };
 
 export default withFilterButton(SubscriptionFilters);
-
-// startDate?: string;
-//     endDate?: string;
-//     search?: string;
-//     planId?: string[];
-//     subscriptionStatus?: string[];

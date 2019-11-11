@@ -7,7 +7,7 @@ import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
-import SubscriptionDetails, { SubscriptionDetailsInner } from "./SubscriptionDetails";
+import { SubscriptionDetailsInner } from "./SubscriptionDetails";
 
 interface Props {
   subscription: Subscription;
