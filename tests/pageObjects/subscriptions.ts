@@ -43,10 +43,6 @@ class SubscriptionsPageObject extends TablePageObject {
     error: `${this.cancelSubscriptionModalId}-error`,
     loading: `${this.cancelSubscriptionModalId}-loading`,
   }
-
-  public filters = {
-    hidecanceled: "#hide-canceled",
-  }
 }
 
 export default new SubscriptionsPageObject(tableId, fields);
