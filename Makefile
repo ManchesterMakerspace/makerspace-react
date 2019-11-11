@@ -8,6 +8,7 @@ test: clean-test test-up functional-up
 upload_screenshots:
 	node tests/uploadScreenshots.js
 deploy:
+	yarn install --production=false
 	yarn build
 	node scripts/release.js
 integration:

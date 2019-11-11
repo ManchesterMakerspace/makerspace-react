@@ -15,8 +15,6 @@ import { MemberState } from "ui/member/interfaces";
 import { memberReducer } from "ui/member/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
 import { earnedMembershipsReducer } from "ui/earnedMemberships/actions";
-import { TransactionsState } from "ui/transactions/interfaces";
-import { transactionsReducer } from "ui/transactions/actions";
 import { RequestStatus } from "app/interfaces";
 import { ApiErrorResponse, ApiDataResponse } from "makerspace-ts-api-client";
 import { cartReducer, CartState } from "./checkout/cart";
@@ -34,7 +32,6 @@ export interface State  {
   rentals: RentalsState;
   billing: BillingState;
   earnedMemberships: EarnedMembershipsState;
-  transactions: TransactionsState;
 }
 
 export const getRootReducer = (history: History) => combineReducers({
@@ -47,7 +44,6 @@ export const getRootReducer = (history: History) => combineReducers({
   rentals: rentalsReducer,
   billing: billingReducer,
   earnedMemberships: earnedMembershipsReducer,
-  transactions: transactionsReducer,
 });
 
 export type Transaction<T> = RequestStatus & {
