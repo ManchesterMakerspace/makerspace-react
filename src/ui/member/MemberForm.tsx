@@ -10,12 +10,13 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { Member } from "makerspace-ts-api-client";
 
 import FormModal from "ui/common/FormModal";
-import { fields as memberFormField, MemberStatusOptions, MemberRoleOptions } from "ui/member/constants";
+import { fields as memberFormField, MemberRoleOptions } from "ui/member/constants";
 import Form from "ui/common/Form";
 import { toDatePicker } from "ui/utils/timeToDate";
+import { memberStatusLabelMap } from "./MemberStatusLabel";
 
 interface OwnProps {
-  member: Partial<Member>;
+  member?: Member;
   isAdmin: boolean;
   isOpen: boolean;
   isRequesting: boolean;
@@ -41,7 +42,7 @@ class MemberForm extends React.Component<OwnProps, State> {
       memberContractOnFile: false,
     }
   }
-  
+
   public componentDidMount() {
     const { member } = this.props;
     this.setState({ memberContractOnFile: member && member.memberContractOnFile || false });
@@ -69,7 +70,7 @@ class MemberForm extends React.Component<OwnProps, State> {
   }
 
   private renderFormContents = () => {
-    const { member, isAdmin } = this.props;
+    const { member = {} as Member, isAdmin } = this.props;
     const fields = memberFormField(isAdmin, member);
 
     return (<Grid container spacing={24}>
@@ -128,13 +129,13 @@ class MemberForm extends React.Component<OwnProps, State> {
             <FormLabel component="legend">{fields.status.label}</FormLabel>
             <Select
               name={fields.status.name}
-              value={member.status}
+              value={member.status || Object.keys(memberStatusLabelMap)[0]}
               fullWidth
               native
               required
               placeholder={fields.status.placeholder}
             >
-              {Object.entries(MemberStatusOptions).map(
+              {Object.entries(memberStatusLabelMap).map(
                 ([key, value]) => <option id={`${fields.status.name}-option-${kebabCase(key)}`} key={kebabCase(key)} value={key}>{value}</option>)}
             </Select>
           </Grid>
@@ -142,7 +143,7 @@ class MemberForm extends React.Component<OwnProps, State> {
             <FormLabel component="legend">{fields.role.label}</FormLabel>
             <Select
               name={fields.role.name}
-              value={member.role}
+              value={member.role || Object.keys(MemberRoleOptions)[0]}
               fullWidth
               native
               required

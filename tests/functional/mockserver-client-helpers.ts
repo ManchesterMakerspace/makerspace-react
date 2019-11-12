@@ -222,7 +222,7 @@ export const mockRequests = {
         },
         httpResponse: {
           statusCode: 200,
-          body: JSON.stringify({ ...member, id: memberId })
+          body: JSON.stringify({ member: { ...member, id: memberId }})
         }
       })
     },

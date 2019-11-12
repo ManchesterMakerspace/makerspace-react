@@ -5,14 +5,8 @@ import { connectRouter, RouterState } from 'connected-react-router';
 
 import { AuthState } from "ui/auth/interfaces";
 import { authReducer } from "ui/auth/actions";
-import { membersReducer } from "ui/members/actions";
-import { MembersState } from "ui/members/interfaces";
-import { RentalsState } from "ui/rentals/interfaces";
-import { rentalsReducer } from "ui/rentals/actions";
 import { BillingState } from "ui/billing/interfaces";
 import { billingReducer } from "ui/billing/actions";
-import { MemberState } from "ui/member/interfaces";
-import { memberReducer } from "ui/member/actions";
 import { EarnedMembershipsState } from "ui/earnedMemberships/interfaces";
 import { earnedMembershipsReducer } from "ui/earnedMemberships/actions";
 import { RequestStatus } from "app/interfaces";
@@ -27,9 +21,6 @@ export interface State  {
   base: { [key: string]: Transaction<any> }
   auth: AuthState;
   cart: CartState;
-  members: MembersState;
-  member: MemberState;
-  rentals: RentalsState;
   billing: BillingState;
   earnedMemberships: EarnedMembershipsState;
 }
@@ -39,9 +30,6 @@ export const getRootReducer = (history: History) => combineReducers({
   base: baseReducer,
   auth: authReducer,
   cart: cartReducer,
-  members: membersReducer,
-  member: memberReducer,
-  rentals: rentalsReducer,
   billing: billingReducer,
   earnedMemberships: earnedMembershipsReducer,
 });

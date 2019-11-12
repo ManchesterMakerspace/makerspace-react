@@ -33,7 +33,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
     refunded: undefined,
     pastDue: undefined,
     refundRequested: undefined,
-    memberId: memberId,
+    memberId: [memberId],
   });
 
   const [selectedInvoice, setSelectedInvoice] = React.useState<Invoice>();

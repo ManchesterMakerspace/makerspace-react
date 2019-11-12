@@ -73,6 +73,7 @@ describe("Paid Subscriptions", () => {
 
     it("Displays information about current subscriptions and membership", async () => {
       await autoLogin(basicUser, undefined, { billing: true });
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 
@@ -151,7 +152,7 @@ describe("Paid Subscriptions", () => {
         ...defaultInvoice,
         subscriptionId: initSubscription.id,
       };
-      
+
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 

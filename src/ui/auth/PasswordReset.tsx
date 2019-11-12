@@ -94,13 +94,14 @@ class PasswordReset extends React.Component<Props, State> {
     return (
       <Grid container spacing={24} justify="center">
         <Grid item xs={12} md={6}>
-          <Card style={{minWidth: 275}}>
+          <Card style={{ minWidth: 275 }}>
             <CardContent>
               <Form
                 ref={this.setFormRef}
                 id={passwordId}
                 title="Reset Password"
                 onSubmit={this.submit}
+                loading={passwordRequesting}
                 submitText="Save"
               >
                 <Grid container spacing={16}>
@@ -116,24 +117,26 @@ class PasswordReset extends React.Component<Props, State> {
                       name={passwordFields.password.name}
                       id={passwordFields.password.name}
                       placeholder={passwordFields.password.placeholder}
-                      type={passwordMask ? 'password' : 'text'}
+                      type={passwordMask ? "password" : "text"}
                       InputProps={{
                         endAdornment: (
                           <InputAdornment position="end">
-                            <RemoveRedEye style={{ cursor: 'pointer' }} onClick={this.togglePasswordMask} />
+                            <RemoveRedEye style={{ cursor: "pointer" }} onClick={this.togglePasswordMask} />
                           </InputAdornment>
-                        ),
+                        )
                       }}
                     />
                   </Grid>
                 </Grid>
-                {!passwordRequesting && passwordError && <ErrorMessage id={"password-reset-error"} error={passwordError} />}
+                {!passwordRequesting && passwordError && (
+                  <ErrorMessage id={"password-reset-error"} error={passwordError} />
+                )}
               </Form>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
-    )
+    );
   }
 }
 

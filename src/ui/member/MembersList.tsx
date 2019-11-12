@@ -1,0 +1,100 @@
+import * as React from "react";
+import useReactRouter from "use-react-router";
+import { Link } from 'react-router-dom';
+import Grid from "@material-ui/core/Grid";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+
+import { displayMemberExpiration, buildProfileRouting } from "ui/member/utils";
+import { SortDirection } from "ui/common/table/constants";
+import { Column } from "ui/common/table/Table";
+import MemberStatusLabel from "ui/member/MemberStatusLabel";
+
+import { Member, listMembers } from "makerspace-ts-api-client";
+import CreateMember from "ui/member/CreateMember";
+import RenewMember from "ui/member/RenewMember";
+import extractTotalItems from "../utils/extractTotalItems";
+import useReadTransaction from "ui/hooks/useReadTransaction";
+import StatefulTable from "../common/table/StatefulTable";
+import { useQueryContext } from "../common/Filters/QueryContext";
+import { useAuthState } from "ui/reducer/hooks";
+
+const fields: Column<Member>[] = [
+  {
+    id: "lastname",
+    label: "Name",
+    cell: (row: Member) => <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>,
+    defaultSortDirection: SortDirection.Desc,
+  },
+  {
+    id: "expirationTime",
+    label: "Expiration",
+    cell: displayMemberExpiration,
+    defaultSortDirection: SortDirection.Desc
+  },
+  {
+    id: "status",
+    label: "Status",
+    cell: (row: Member) => <MemberStatusLabel member={row}/>
+  },
+];
+
+const rowId = (member: Member) => member.id;
+
+const MembersList: React.FC = () => {
+  const [selectedId, setSelectedId] = React.useState<string>();
+  const { history } = useReactRouter();
+  const { params } = useQueryContext();
+  const {
+    currentUser: { isAdmin }
+  } = useAuthState();
+  const [currentMembers, setCurrentMembers] = React.useState(true);
+  const updateFilter = React.useCallback(() => setCurrentMembers(curr => !curr), [setCurrentMembers]);
+
+  const { isRequesting, data: members = [], response, refresh, error } = useReadTransaction(listMembers, {
+    ...params
+  });
+
+  const onRenew = React.useCallback(() => {
+    refresh();
+  }, [refresh]);
+
+  const onCreate = React.useCallback((id: string) => {
+    history.push(buildProfileRouting(id));
+  }, [history]);
+
+  const selectedMember = members.find(member => member.id === selectedId);
+
+  return (
+    <Grid container spacing={24} justify="center">
+      <Grid item md={10} xs={12}>
+        {isAdmin && (
+          <Grid>
+            <CreateMember onCreate={onCreate} />
+            <RenewMember member={selectedMember} onRenew={onRenew} />
+            <FormControlLabel
+              control={<Checkbox color="primary" value="true" checked={!!currentMembers} onChange={updateFilter} />}
+              label="View only current members"
+            />
+          </Grid>
+        )}
+
+        <StatefulTable
+          id="members-table"
+          title="Members"
+          loading={isRequesting}
+          data={Object.values(members)}
+          error={error}
+          totalItems={extractTotalItems(response)}
+          selectedIds={selectedId}
+          setSelectedIds={setSelectedId}
+          columns={fields}
+          rowId={rowId}
+          renderSearch={true}
+        />
+      </Grid>
+    </Grid>
+  );
+};
+
+export default MembersList;

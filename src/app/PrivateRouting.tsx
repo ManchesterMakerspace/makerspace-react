@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 
 import { Routing, Whitelists } from "app/constants";
 import NotFound from "ui/common/NotFound";
-import MembersList from "ui/members/MembersList";
+import MembersList from "ui/member/MembersList";
 import RentalsList from 'ui/rentals/RentalsList';
 import EarnedMembershipsList from 'ui/earnedMemberships/EarnedMembershipsList';
 import MemberDetail from 'ui/member/MemberDetail';

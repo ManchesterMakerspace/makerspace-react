@@ -119,8 +119,8 @@ const MemberProfile: React.FC = () => {
               onClick={goToSettings}
             />] : [],
           ...isAdmin ? [
-            <EditMember memberId={memberId} key="edit-member"/>,
-            <RenewMember memberId={memberId} key="renew-member"/>,
+            <EditMember member={member} key="edit-member" onEdit={refreshMember}/>,
+            <RenewMember member={member} key="renew-member" onRenew={refreshMember}/>,
             <AccessCardForm memberId={memberId} key="card-form"/>
           ] : []
         ]}
@@ -145,9 +145,7 @@ const MemberProfile: React.FC = () => {
           ...isEarnedMember ?
           [{
             name: "membership",
-            content: (
-              <ReportList earnedMembershipId={earnedMembershipId}/>
-            )
+            content: <ReportList earnedMembershipId={earnedMembershipId}/>
           }] : [],
           ...billingEnabled ?
           [{
@@ -156,20 +154,12 @@ const MemberProfile: React.FC = () => {
           }] : [],
           {
             name: "rentals",
-            content: (
-              <RentalsList
-                member={member}
-              />
-            )
+            content: <RentalsList member={member}/>
           },
           ...billingEnabled && !!customerId ? [{
             name: "transactions",
             displayName: "Payment History",
-            content: (
-              <TransactionsList
-                member={member}
-              />
-            )
+            content: <TransactionsList member={member} />
           }] : []
         ]}
       />

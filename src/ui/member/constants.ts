@@ -1,17 +1,8 @@
 import { emailValid } from "app/utils";
 import { FormFields } from "ui/common/Form";
-import { MemberStatus, MemberRole } from "app/entities/member";
+import { MemberRole } from "app/entities/member";
 import { dateToTime } from "ui/utils/timeToDate";
 import { Member } from "makerspace-ts-api-client";
-
-export enum Action {
-  StartReadRequest = "MEMBER/START_READ_REQUEST",
-  GetMemberSuccess = "MEMBER/GET_MEMBER_SUCCESS",
-  GetMemberFailure = "MEMBER/GET_MEMBER_FAILURE",
-  StartUpdateRequest = "MEMBER/START_UPDATE_REQUEST",
-  UpdateMemberSuccess = "MEMBER/UPDATE_MEMBER_SUCCESS",
-  UpdateMemberFailure = "MEMBER/UPDATE_MEMBER_FAILURE",
-}
 
 const formPrefix = "member-form";
 export const fields = (admin: boolean, member?: Partial<Member>): FormFields => ({
@@ -74,13 +65,6 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
     }
   },
 })
-
-export const MemberStatusOptions = {
-  [MemberStatus.Active]: "Active",
-  [MemberStatus.Revoked]: "Revoked",
-  [MemberStatus.NonMember]: "Non-Member",
-  [MemberStatus.Inactive]: "Inactive",
-}
 
 export const MemberRoleOptions = {
   [MemberRole.Member]: "Member",
