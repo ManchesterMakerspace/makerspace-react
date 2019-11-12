@@ -14,7 +14,7 @@ import { toDatePicker } from "ui/utils/timeToDate";
 import MemberSearchInput from "../common/MemberSearchInput";
 
 interface OwnProps {
-  rental: Rental;
+  rental?: Rental;
   isOpen: boolean;
   isRequesting: boolean;
   error: string;
@@ -45,7 +45,7 @@ class RentalForm extends React.Component<OwnProps, { contractOnFile: boolean }> 
   public validate = (form: Form): Promise<Rental> => form.simpleValidate<Rental>(fields(this.props.rental));
 
   public render(): JSX.Element {
-    const { title, isOpen, onClose, isRequesting, error, onSubmit, rental } = this.props;
+    const { title, isOpen, onClose, isRequesting, error, onSubmit, rental = {} as Rental } = this.props;
 
     const rentalFields = fields(rental);
 

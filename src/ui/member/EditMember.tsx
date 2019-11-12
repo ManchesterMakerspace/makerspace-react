@@ -1,6 +1,5 @@
 import * as React from "react";
-import useReadTransaction from "../hooks/useReadTransaction";
-import { getMember, adminUpdateMember, Member } from "makerspace-ts-api-client";
+import { adminUpdateMember, Member, updateMember } from "makerspace-ts-api-client";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
@@ -9,54 +8,53 @@ import { useAuthState } from "../reducer/hooks";
 import MemberForm from "./MemberForm";
 
 
-const EditMember: React.FC<{ memberId: string }> = ({ memberId }) => {
+const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boolean }> = ({ member = {} as Member, formOnly, onEdit }) => {
   const { isOpen, openModal, closeModal } = useModal();
-  const { currentUser: { isAdmin } } = useAuthState();
+  const { currentUser: { id, isAdmin } } = useAuthState();
+  const asAdmin = isAdmin && member.id !== id;
   const formRef = React.useRef<MemberForm>();
-  const { 
-    isRequesting: memberLoading,
-    refresh: refreshMember,
-    data: member = {}
-  } = useReadTransaction(getMember, { id: memberId });
 
   const onSuccess = React.useCallback(() => {
-    refreshMember();
     closeModal();
-  }, [refreshMember, closeModal]);
+    onEdit && onEdit();
+  }, [onEdit, closeModal]);
   const {
     isRequesting: memberUpdating,
     error: updateError,
     call: update,
-  } = useWriteTransaction(adminUpdateMember, onSuccess);
+  } = useWriteTransaction(asAdmin ? adminUpdateMember : updateMember, onSuccess);
 
   const onSubmit = React.useCallback(async (form: Form) => {
     const validUpdate: Member = await formRef.current.validate(form);
 
     if (!form.isValid()) return;
 
-    update({ id: memberId, updateMemberDetails: validUpdate });
+    update({ id: member.id, updateMemberDetails: validUpdate });
   }, [formRef, update]);
 
   return (
     <>
-      <ActionButton
-        id="member-detail-open-edit-modal"
-        color="primary"
-        variant="outlined"
-        disabled={memberLoading || memberUpdating}
-        label="Edit"
-        onClick={openModal}
-      />
-      {isOpen && (
+      {!formOnly && (
+        <ActionButton
+          id="member-detail-open-edit-modal"
+          color="primary"
+          variant="outlined"
+          disabled={!member.id}
+          label="Edit"
+          onClick={openModal}
+        />
+      )}
+      {(isOpen || formOnly) && (
         <MemberForm
           ref={formRef}
           member={member}
-          isAdmin={isAdmin}
+          isAdmin={asAdmin}
           isOpen={true}
           isRequesting={memberUpdating}
           error={updateError}
           onClose={closeModal}
           onSubmit={onSubmit}
+          noDialog={formOnly}
         />
       )}
     </>

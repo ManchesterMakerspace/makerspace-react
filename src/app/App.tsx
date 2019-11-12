@@ -1,97 +1,60 @@
 import * as React from 'react';
-import { connect } from "react-redux";
+import useReactRouter from "use-react-router";
+import { useDispatch } from "react-redux";
 
-import { ScopedThunkDispatch, State as ReduxState } from "ui/reducer";
 import { sessionLoginUserAction } from "ui/auth/actions";
 import Header from "ui/common/Header";
 import LoadingOverlay from 'ui/common/LoadingOverlay';
+import { useAuthState } from "ui/reducer/hooks";
 import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
-import { CollectionOf } from 'app/interfaces';
-import { Permission } from "app/entities/permission";
-import { withRouter, RouteComponentProps } from 'react-router';
+import { Routing } from 'app/constants';
+import { buildProfileRouting } from 'ui/member/utils';
 
-interface StateProps {
-  currentUserId: string;
-  isSigningIn: boolean;
-  permissions: CollectionOf<Permission>;
-  isAdmin: boolean;
-}
-interface DispatchProps {
-  attemptLogin: () => void;
-}
-interface OwnProps extends RouteComponentProps<{}> {}
+const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 
-interface State {
-  attemptingLogin: boolean;
-}
+const App: React.FC = () => {
+  const { location: { pathname }, history } = useReactRouter();
+  const dispatch = useDispatch();
+  const { currentUser: { id: currentUserId, isAdmin }, permissions, isRequesting, error } = useAuthState();
+  const [attemptingLogin, setAttemptingLogin] = React.useState(true);
+  const [loginAttempted, setLoginAttempted] = React.useState();
+  const [initialPath] = React.useState(pathname);
 
-interface Props extends StateProps, DispatchProps, OwnProps { }
-
-class App extends React.Component<Props, State> {
-
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      attemptingLogin: true,
+  // Attempt login on mount except when going to password reset
+  React.useEffect(() => {
+    if (initialPath !== Routing.PasswordReset) {
+      dispatch(sessionLoginUserAction());
     }
-  }
+  }, []);
 
-  public componentDidMount() {
-    this.setState({ attemptingLogin: true });
-    this.props.attemptLogin();
-  }
+  React.useEffect(() => {
+    setLoginAttempted(true);
+  }, []);
 
-  public componentDidUpdate(prevProps: Props) {
-    const { isSigningIn: wasSigningIn } = prevProps;
-    const { isSigningIn } = this.props;
-
-    const { attemptingLogin } = this.state;
-    if (wasSigningIn && !isSigningIn) {
-      if (attemptingLogin) {
-        this.setState({ attemptingLogin: false });
+  // Redirect after login if they were navigation elsewhere
+  React.useEffect(() => {
+    if (!error && !isRequesting) {
+      loginAttempted && setAttemptingLogin(false);
+      if (currentUserId) {
+        if (initialPath && initialPath !== Routing.Root && !publicPaths.some(path => initialPath.startsWith(path))) {
+          history.push(initialPath);
+        } else {
+          history.push(buildProfileRouting(currentUserId));
+        }
       }
     }
-  }
+  }, [isRequesting]);
 
-  private renderBody = ():JSX.Element => {
-    const { attemptingLogin } = this.state;
-    const { currentUserId, permissions, isAdmin } = this.props;
-    if (attemptingLogin) {
-      return <LoadingOverlay id="body"/>;
-    } else {
-      return currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin}/> : <PublicRouting/>;
-    }
-  }
-  public render(): JSX.Element {
-    return (
-      <div className="root">
-        <Header/>
-        {this.renderBody()}
-      </div>
-    )
-  }
+  return (
+    <div className="root">
+      <Header />
+      {attemptingLogin ?
+        <LoadingOverlay id="body" />
+        : (currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin} /> : <PublicRouting />)
+      }
+    </div>
+  )
 }
 
-const mapStateToProps = (state: ReduxState, _ownProps: OwnProps): StateProps => {
-  const {
-    auth: { currentUser, permissions, isRequesting: isSigningIn },
-  } = state;
-
-  return {
-    currentUserId: currentUser.id,
-    isAdmin: currentUser.isAdmin,
-    permissions,
-    isSigningIn,
-  }
-}
-
-const mapDispatchToProps = (
-  dispatch: ScopedThunkDispatch
-): DispatchProps => {
-  return {
-    attemptLogin: () => dispatch(sessionLoginUserAction())
-  };
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
+export default App;

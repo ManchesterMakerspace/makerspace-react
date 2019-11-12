@@ -26,7 +26,6 @@ export interface SelectOption {
 }
 interface OwnProps {
   entity: RenewalEntity;
-  renewalOptions: SelectOption[];
   title: string;
   isOpen: boolean;
   isRequesting: boolean;
@@ -34,6 +33,29 @@ interface OwnProps {
   onClose: () => void;
   onSubmit: (form: Form) => void;
 }
+
+export const renewalOptions: SelectOption[] = [
+  {
+    label: "None",
+    value: undefined
+  },
+  {
+    label: "1 month",
+    value: 1
+  },
+  {
+    label: "3 months",
+    value: 3
+  },
+  {
+    label: "6 months",
+    value: 6
+  },
+  {
+    label: "12 months",
+    value: 12
+  }
+];
 
 const formId = "renewal-form";
 const renewalSelectName = `${formId}-renewal-length`;
@@ -70,7 +92,7 @@ class RenewalForm extends React.Component<OwnProps, {}> {
   }
 
   private renderForm = (): JSX.Element => {
-    const { entity, renewalOptions } = this.props;
+    const { entity } = this.props;
 
     return (
       <>

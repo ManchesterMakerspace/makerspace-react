@@ -35,7 +35,7 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false,  o
   const transactions = defaultTransactions.map(t => ({...t, ...memberDetails }));
   // Go to rentals
   // Rentals displayed
-  await mock(mockRequests.rentals.get.ok(rentals, { memberId: member.id }, admin));
+  await mock(mockRequests.rentals.get.ok(rentals, admin && !ownProfile ? { memberId: member.id } : undefined, admin));
   await mock(mockRequests.invoices.get.ok(invoices, undefined, admin));
   await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
 

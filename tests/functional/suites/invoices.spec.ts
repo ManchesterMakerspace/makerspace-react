@@ -103,10 +103,11 @@ describe("Invoicing and Dues", () => {
       };
       await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
 
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settings.pageUrl);
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
         resourceClass: "member"
@@ -145,10 +146,11 @@ describe("Invoicing and Dues", () => {
       };
       await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
 
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settings.pageUrl);
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser)); // Profile load
+      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await mock(mockRequests.invoices.get.ok([{
         ...pastDueInvoice,
         resourceClass: "member"

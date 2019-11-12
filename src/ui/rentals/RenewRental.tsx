@@ -1,14 +1,14 @@
 import * as React from "react";
-import { memberToRenewal } from "ui/member/utils";
+import { rentalToRenewal } from "ui/rentals/utils";
 import RenewalForm, { RenewForm } from "ui/common/RenewalForm";
-import { adminUpdateMember, Member } from "makerspace-ts-api-client";
+import { adminUpdateRental, Rental } from "makerspace-ts-api-client";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import Form from "../common/Form";
 
 
-const RenewMember: React.FC<{ member: Member, onRenew: () => void }> = ({ member = {} as Member, onRenew }) => {
+const RenewRental: React.FC<{ rental: Rental, onRenew: () => void }> = ({ rental = {} as Rental, onRenew }) => {
   const { isOpen, openModal, closeModal } = useModal();
   const formRef = React.useRef<RenewalForm>();
 
@@ -18,36 +18,40 @@ const RenewMember: React.FC<{ member: Member, onRenew: () => void }> = ({ member
     reset();
   }, [closeModal]);
   const {
-    isRequesting: memberRenewing,
+    isRequesting: rentalRenewing,
     error: renewError,
     call: renew,
-  } = useWriteTransaction(adminUpdateMember, onSuccess);
+  } = useWriteTransaction(adminUpdateRental, onSuccess);
 
-  const onSubmit = React.useCallback(async (form: Form) => {
-    const validUpdate: RenewForm = await formRef.current.validate(form);
+  const onSubmit = React.useCallback(
+    async (form: Form) => {
+      const validUpdate: RenewForm = await formRef.current.validate(form);
 
-    if (!form.isValid()) return;
+      if (!form.isValid()) return;
 
-    renew({ id: member.id, updateMemberDetails: validUpdate });
-  }, [formRef, renew, member]);
+      // TODO: renew rental type isn't supported
+      renew({ id: rental.id, updateRentalDetails: (validUpdate as any) as Rental });
+    },
+    [formRef, renew, rental]
+  );
 
   return (
     <>
       <ActionButton
-        id="members-list-renew"
+        id="rentals-list-renew"
         color="primary"
         variant="outlined"
-        disabled={!member.id}
+        disabled={!rental.id}
         label="Renew"
         onClick={openModal}
       />
       {isOpen && (
         <RenewalForm
           ref={formRef}
-          title="Renew Membership"
-          entity={memberToRenewal(member)}
+          title="Renew Rental"
+          entity={rentalToRenewal(rental)}
           isOpen={true}
-          isRequesting={memberRenewing}
+          isRequesting={rentalRenewing}
           error={renewError}
           onClose={closeModal}
           onSubmit={onSubmit}
@@ -57,4 +61,4 @@ const RenewMember: React.FC<{ member: Member, onRenew: () => void }> = ({ member
   );
 }
 
-export default RenewMember;
+export default RenewRental;

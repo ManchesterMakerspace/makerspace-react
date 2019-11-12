@@ -6,7 +6,7 @@ DC_INTEGRATION=docker-compose -f Docker/docker-compose/integration.yml -p $(PROJ
 start: dev-up
 test: clean-test test-up functional-up
 upload_screenshots:
-	node tests/uploadScreenshots.js
+	yarn install --production=false && node tests/uploadScreenshots.js
 deploy:
 	yarn install --production=false
 	yarn build
