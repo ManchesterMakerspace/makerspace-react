@@ -23,59 +23,10 @@ import { useQueryContext, withQueryContext } from "../common/Filters/QueryContex
 import InvoiceFilters from "./InvoiceFilters";
 
 
-const getFields = (memberId: string, onUpdate: () => void): Column<MemberInvoice | RentalInvoice>[] => [
-  ...memberId ? [] : [{
-    id: "member",
-    label: "Member",
-    cell: (row: MemberInvoice | RentalInvoice) => row.memberName,
-    defaultSortDirection: SortDirection.Desc,
-  }],
-  {
-    id: "resourceClass",
-    label: "Type",
-    cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass],
-    defaultSortDirection: SortDirection.Desc,
-  },
-  {
-    id: "dueDate",
-    label: "Due Date",
-    cell: (row: MemberInvoice | RentalInvoice) => renderInvoiceDueDate(row),
-    defaultSortDirection: SortDirection.Desc
-  },
-  {
-    id: "amount",
-    label: "Amount",
-    cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
-    defaultSortDirection: SortDirection.Desc
-  },
-  {
-    id: "status",
-    label: "Status",
-    cell: (row: MemberInvoice | RentalInvoice) => {
-      const statusColor = (row.pastDue && !row.settled) ? Status.Danger : Status.Success;
-      const label = renderInvoiceStatus(row);
-      return (
-        <StatusLabel label={label} color={statusColor} />
-      );
-    },
-  },
-  {
-    id: "view",
-    label: "View",
-    cell: (row: MemberInvoice | RentalInvoice) => {
-      if (row.subscriptionId) {
-        return <ViewSubscriptionModal subscriptionId={row.subscriptionId} memberId={row.memberId}/>;
-      }
-      return <ViewInvoiceModal invoice={row} onUpdate={onUpdate}/>;
-    }
-  }
-];
-
 const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ stageInvoice }) => {
   const { match: { params: { memberId } } } =  useReactRouter<{ memberId: string }>();
   const { currentUser: { isAdmin, id: currentUserId } } = useAuthState();
   const viewingOwnInvoices = memberId === currentUserId;
-  const asAdmin = isAdmin && !viewingOwnInvoices;
 
   const { params } = useQueryContext({
     settled: false,
@@ -89,8 +40,8 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
 
   const { refresh: refreshMember } = useReadTransaction(getMember, { id: memberId });
 
-  const adminInvoiceResponse = useReadTransaction(adminListInvoices, params, !asAdmin);
-  const invoiceResponse = useReadTransaction(listInvoices, params, asAdmin);
+  const adminInvoiceResponse = useReadTransaction(adminListInvoices, params, !isAdmin);
+  const invoiceResponse = useReadTransaction(listInvoices, params, isAdmin);
 
   const {
     isRequesting,
@@ -98,7 +49,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
     data = [],
     response,
     refresh
-  } = asAdmin ? adminInvoiceResponse : invoiceResponse;
+  } = isAdmin ? adminInvoiceResponse : invoiceResponse;
 
   React.useEffect(() => {
     if (Array.isArray(data) && data.length) {
@@ -117,8 +68,55 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
   }, [refresh, refreshMember]);
 
   const rowId = React.useCallback(invoice => invoice.id, []);
-  const fields = getFields(memberId, onSuccess);
-
+  const fields: Column<MemberInvoice | RentalInvoice>[] = [
+    ...(memberId
+      ? []
+      : [
+          {
+            id: "member",
+            label: "Member",
+            cell: (row: MemberInvoice | RentalInvoice) => row.memberName,
+            defaultSortDirection: SortDirection.Desc
+          }
+        ]),
+    {
+      id: "resourceClass",
+      label: "Type",
+      cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass],
+      defaultSortDirection: SortDirection.Desc
+    },
+    {
+      id: "dueDate",
+      label: "Due Date",
+      cell: (row: MemberInvoice | RentalInvoice) => renderInvoiceDueDate(row),
+      defaultSortDirection: SortDirection.Desc
+    },
+    {
+      id: "amount",
+      label: "Amount",
+      cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
+      defaultSortDirection: SortDirection.Desc
+    },
+    {
+      id: "status",
+      label: "Status",
+      cell: (row: MemberInvoice | RentalInvoice) => {
+        const statusColor = row.pastDue && !row.settled ? Status.Danger : Status.Success;
+        const label = renderInvoiceStatus(row);
+        return <StatusLabel label={label} color={statusColor} />;
+      }
+    },
+    {
+      id: "view",
+      label: "View",
+      cell: (row: MemberInvoice | RentalInvoice) => {
+        if (row.subscriptionId && viewingOwnInvoices) {
+          return <ViewSubscriptionModal subscriptionId={row.subscriptionId} memberId={row.memberId} />;
+        }
+        return <ViewInvoiceModal invoice={row} onUpdate={onSuccess} />;
+      }
+    }
+  ];
   const payNow = viewingOwnInvoices && isInvoicePayable(selectedInvoice);
 
   const goToCheckout = React.useCallback(() => stageInvoice(selectedInvoice), [selectedInvoice, stageInvoice]);
