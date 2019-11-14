@@ -30,14 +30,13 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false,  o
     memberId: member.id,
     memberName: `${member.firstname} ${member.lastname}`,
   };
-  const asAdmin = admin && !ownProfile;
   const rentals = defaultRentals.map(r => ({...r, ...memberDetails }));
   const invoices = defaultInvoices.map(i => ({...i, ...memberDetails }));
   const transactions = defaultTransactions.map(t => ({...t, ...memberDetails }));
   // Go to rentals
   // Rentals displayed
   await mock(mockRequests.rentals.get.ok(rentals, { memberId: member.id }, admin));
-  await mock(mockRequests.invoices.get.ok(invoices, undefined, asAdmin));
+  await mock(mockRequests.invoices.get.ok(invoices, undefined, admin));
   await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
 
   await memberPO.goToMemberRentals();
