@@ -17,7 +17,7 @@ import RenewRental from "ui/rentals/RenewRental";
 import EditRental from "ui/rentals/EditRental";
 import extractTotalItems from "../utils/extractTotalItems";
 import { useAuthState } from "../reducer/hooks";
-import { useQueryContext } from "../common/Filters/QueryContext";
+import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
 
 const rowId = (rental: Rental) => rental.id;
 
@@ -123,4 +123,4 @@ const RentalsList: React.FC<{ member?: Member }> = ({ member }) => {
   );
 };
 
-export default RentalsList;
+export default withQueryContext(RentalsList);

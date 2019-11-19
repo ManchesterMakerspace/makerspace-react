@@ -16,3 +16,10 @@ export const toDatePicker = (time: number | string | Date) => {
 export const dateToTime = (date: string): number => {
   return date && moment.tz(date, "YYYY-MM-DD", defaultTZ).valueOf();
 };
+
+export const dateToMidnight = (date: string | number | Date): string => {
+  const asDate = new Date(date);
+  // Normalize to midnight of the next day
+  asDate.setUTCHours(24, 0, 0, 0);
+  return asDate.toUTCString();
+}

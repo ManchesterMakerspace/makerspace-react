@@ -44,9 +44,9 @@ const rowId = (sub: Subscription) => sub.id;
 
 const SubscriptionsTable: React.FC = () => {
   const [selectedId, setSelectedId] = React.useState<string>();
-  const { 
-    params: { pageNum, order, orderBy, ...restParams }, 
-    changePage 
+  const {
+    params: { pageNum, order, orderBy, ...restParams },
+    changePage
   } = useQueryContext({
     search: undefined,
     startDate: undefined,

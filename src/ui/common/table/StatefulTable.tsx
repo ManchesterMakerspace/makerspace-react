@@ -39,12 +39,6 @@ const StatefulTable: React.FC<Props<unknown, unknown>> = ({
     setParam,
   } = useQueryContext();
 
-  React.useEffect(() => {
-    if (renderSearch) {
-      setParam("search", ((curr: string) => curr || ""));
-    }
-  }, [renderSearch]);
-
   const search = React.useCallback((val: string) => {
     setParam("search", val);
   }, [setParam]);

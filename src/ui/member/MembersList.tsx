@@ -16,7 +16,7 @@ import RenewMember from "ui/member/RenewMember";
 import extractTotalItems from "../utils/extractTotalItems";
 import useReadTransaction from "ui/hooks/useReadTransaction";
 import StatefulTable from "../common/table/StatefulTable";
-import { useQueryContext } from "../common/Filters/QueryContext";
+import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
 import { useAuthState } from "ui/reducer/hooks";
 
 const fields: Column<Member>[] = [
@@ -44,12 +44,13 @@ const rowId = (member: Member) => member.id;
 const MembersList: React.FC = () => {
   const [selectedId, setSelectedId] = React.useState<string>();
   const { history } = useReactRouter();
-  const { params } = useQueryContext();
+  const { params, setParam } = useQueryContext({
+    currentMembers: true
+  });
   const {
     currentUser: { isAdmin }
   } = useAuthState();
-  const [currentMembers, setCurrentMembers] = React.useState(true);
-  const updateFilter = React.useCallback(() => setCurrentMembers(curr => !curr), [setCurrentMembers]);
+  const updateFilter = React.useCallback(() => setParam("currentMembers", !params.currentMembers), [params, setParam]);
 
   const { isRequesting, data: members = [], response, refresh, error } = useReadTransaction(listMembers, {
     ...params
@@ -73,7 +74,7 @@ const MembersList: React.FC = () => {
             <CreateMember onCreate={onCreate} />
             <RenewMember member={selectedMember} onRenew={onRenew} />
             <FormControlLabel
-              control={<Checkbox color="primary" value="true" checked={!!currentMembers} onChange={updateFilter} />}
+              control={<Checkbox color="primary" value="true" checked={!!params.currentMembers} onChange={updateFilter} />}
               label="View only current members"
             />
           </Grid>
@@ -97,4 +98,4 @@ const MembersList: React.FC = () => {
   );
 };
 
-export default MembersList;
+export default withQueryContext(MembersList);
