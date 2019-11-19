@@ -12,9 +12,7 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 
 import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
-import { toDatePicker } from "../utils/timeToDate";
-import useReadTransaction from "../hooks/useReadTransaction";
-import { adminListBillingPlans } from "makerspace-ts-api-client";
+import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
 import LoadingOverlay from "../common/LoadingOverlay";
 import ErrorMessage from "../common/ErrorMessage";
 
@@ -72,8 +70,6 @@ export const transactionStatuses = {
 const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> = ({ close, onChange }) => {
   const { params, setParam } = useQueryContext();
 
-  const { data: billingPlans = [], isRequesting: plansLoading, error: plansError } = useReadTransaction(adminListBillingPlans, {});
-
   const onSearch = React.useCallback((event: React.KeyboardEvent<EventTarget>) => {
     if (event.key === "Enter") {
       const searchTerm = (event.target as HTMLInputElement).value;
@@ -108,9 +104,9 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
       close();
     }, [setParam, onChange, close, params]);
 
-  const onInputChange = React.useCallback((param: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onDateChange = React.useCallback((param: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
-    setParam(param, value);
+    setParam(param, dateToMidnight(value));
     onChange();
     close();
   }, [setParam, onChange, close]);
@@ -136,9 +132,6 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
   const paramToVal = (param: any) => {
     return param === true ? "true" : param === false ? "false" : "both"
   }
-
-  const fallbackUI = (plansLoading && <LoadingOverlay  id="plans-loading" contained={true}/>)
-  || (plansError && <ErrorMessage error={plansError} />);
 
   return (
     <>
@@ -182,7 +175,7 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
               name="start-date-filter"
               id="start-date-filter"
               type="date"
-              onChange={onInputChange("startDate")}
+              onChange={onDateChange("startDate")}
             />
         </FormControl>
       </Grid>
@@ -194,7 +187,7 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
               name="end-date-filter"
               id="end-date-filter"
               type="date"
-              onChange={onInputChange("endDate")}
+              onChange={onDateChange("endDate")}
             />
         </FormControl>
       </Grid>

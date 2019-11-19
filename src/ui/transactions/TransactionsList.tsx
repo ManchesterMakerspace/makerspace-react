@@ -5,7 +5,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { SortDirection } from "ui/common/table/constants";
 import { Column } from "ui/common/table/Table";
-import { timeToDate } from "ui/utils/timeToDate";
+import { timeToDate, dateToMidnight } from "ui/utils/timeToDate";
 import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { renderTransactionStatus } from "ui/transactions/utils";
@@ -90,13 +90,13 @@ const rowId = (sub: Transaction) => sub.id;
 const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
   const [selectedId, setSelectedId] = React.useState<string>();
   const { currentUser: { isAdmin } } = useAuthState();
-  const { 
-    params: { pageNum, order, orderBy, ...restParams }, 
-    changePage 
+  const {
+    params: { pageNum, order, orderBy, ...restParams },
+    changePage
   } = useQueryContext({
     search: undefined,
-    startDate: new Date(moment().subtract(1, "day").valueOf()),
-    endDate: new Date(),
+    startDate: dateToMidnight(moment().subtract(1, "day").valueOf()),
+    endDate: dateToMidnight(new Date()),
     type: undefined,
     refund: undefined,
     transactionStatus: []

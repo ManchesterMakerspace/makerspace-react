@@ -20,7 +20,7 @@ interface QueryContextValues {
   params: BaseQueryState;
   sort(by: string, order: SortDirection): void;
   changePage(newPage: number): void;
-  setParam(fieldname: string, value: Param | ((currVal: Param) => void)): void;
+  setParam(fieldname: string, value: Param | ((currVal: Param) => void), resetPage?: boolean): void;
 }
 
 const defaultValues = {
@@ -49,7 +49,7 @@ export const QueryContextProvider: React.FC<{ initialState?: BaseQueryState }> =
       [fieldname]: typeof value === "function" ? value(curr[fieldname]) : value,
       pageNum: resetPage ? 0 : curr.pageNum,
     }));
-  }, [params, setParams]);
+  }, [setParams]);
 
   const sort = React.useCallback(
     (by: string, order: SortDirection) => {
@@ -63,13 +63,12 @@ export const QueryContextProvider: React.FC<{ initialState?: BaseQueryState }> =
     [setParams]
   );
 
-
   const context: QueryContextValues = React.useMemo(() => ({
     params,
     sort,
     changePage,
     setParam
-  }), [params, setParam]);
+  }), [JSON.stringify(params), setParam, sort, changePage]);
 
   return (
     <QueryContext.Provider value={context} >

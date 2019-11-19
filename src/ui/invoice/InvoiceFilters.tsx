@@ -43,22 +43,19 @@ const InvoiceFilters: React.FC<{ close: () => void, onChange: () => void }> = ({
 
   return (
     <>
-      <Typography variant="headline" gutterBottom>Invoice Filters</Typography>
+      <Typography variant="headline" gutterBottom>
+        Invoice Filters
+      </Typography>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Search for dues</FormLabel>
-          <TextField
-                id="invoice-search-input"
-                type="text"
-                placeholder="Search..."
-                onKeyPress={onSearch}
-              />
+          <TextField id="invoice-search-input" type="text" placeholder="Search..." onKeyPress={onSearch} />
         </FormControl>
       </Grid>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filter by Past Due</FormLabel>
-          <RadioGroup name="settled" value={paramToVal(params.pastDue)} onChange={toggleRadio("pastDue")}>
+          <RadioGroup name="pastDue" value={paramToVal(params.pastDue)} onChange={toggleRadio("pastDue")}>
             <FormControlLabel value="true" control={<Radio />} label="Past Due" />
             <FormControlLabel value="false" control={<Radio />} label="Not Past Due" />
             <FormControlLabel value="both" control={<Radio />} label="Both" />
@@ -68,7 +65,7 @@ const InvoiceFilters: React.FC<{ close: () => void, onChange: () => void }> = ({
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filter by Refunded</FormLabel>
-          <RadioGroup name="settled" value={paramToVal(params.refunded)} onChange={toggleRadio("refunded")}>
+          <RadioGroup name="refunded" value={paramToVal(params.refunded)} onChange={toggleRadio("refunded")}>
             <FormControlLabel value="true" control={<Radio />} label="Refunded" />
             <FormControlLabel value="false" control={<Radio />} label="Not Refunded" />
             <FormControlLabel value="both" control={<Radio />} label="Both" />
@@ -78,7 +75,11 @@ const InvoiceFilters: React.FC<{ close: () => void, onChange: () => void }> = ({
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filter by Refund Requested</FormLabel>
-          <RadioGroup name="settled" value={paramToVal(params.refundRequested)} onChange={toggleRadio("refunded")}>
+          <RadioGroup
+            name="refundRequested"
+            value={paramToVal(params.refundRequested)}
+            onChange={toggleRadio("refundRequested")}
+          >
             <FormControlLabel value="true" control={<Radio />} label="Requested" />
             <FormControlLabel value="false" control={<Radio />} label="Not Requestedd" />
             <FormControlLabel value="both" control={<Radio />} label="Both" />
@@ -96,7 +97,7 @@ const InvoiceFilters: React.FC<{ close: () => void, onChange: () => void }> = ({
         </FormControl>
       </Grid>
     </>
-  )
+  );
 
 };
 

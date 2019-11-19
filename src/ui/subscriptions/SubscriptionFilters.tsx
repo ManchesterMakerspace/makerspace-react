@@ -10,7 +10,7 @@ import Typography from "@material-ui/core/Typography";
 
 import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
-import { toDatePicker } from "../utils/timeToDate";
+import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
 import useReadTransaction from "../hooks/useReadTransaction";
 import { adminListBillingPlans } from "makerspace-ts-api-client";
 import LoadingOverlay from "../common/LoadingOverlay";
@@ -53,9 +53,9 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
     }
   }, [setParam, onChange, close]);
 
-  const onInputChange = React.useCallback((param: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onDateChange = React.useCallback((param: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
-    setParam(param, value);
+    setParam(param, dateToMidnight(value));
     onChange();
     close();
   }, [setParam, onChange, close]);
@@ -104,7 +104,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               name="start-date-filter"
               id="start-date-filter"
               type="date"
-              onChange={onInputChange("startDate")}
+              onChange={onDateChange("startDate")}
             />
         </FormControl>
       </Grid>
@@ -116,7 +116,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               name="end-date-filter"
               id="end-date-filter"
               type="date"
-              onChange={onInputChange("endDate")}
+              onChange={onDateChange("endDate")}
             />
         </FormControl>
       </Grid>
@@ -134,7 +134,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
           </FormGroup>
         </FormControl>
       </Grid>
-                
+
       <Grid item xs={12}>
         <Typography variant="subheading">Filter by Billing Plan</Typography>
       </Grid>
