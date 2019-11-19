@@ -1,5 +1,4 @@
 import * as moment from "moment";
-import { WebElement, By } from "selenium-webdriver";
 import { Routing } from "app/constants";
 import { getAdminUserLogin, creditCardNumbers } from "../../constants/api_seed_data";
 import { basicMembers } from "../../constants/member";
@@ -7,7 +6,6 @@ import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import header from "../../pageObjects/header";
-import signup from "../../pageObjects/signup";
 import renewalPO from "../../pageObjects/renewalForm";
 import invoicePO from "../../pageObjects/invoice";
 import { checkout } from "../../pageObjects/checkout";
@@ -22,7 +20,7 @@ const newVisa = {
 }
 const cardIds = ["0001", "0002", "0000"];
 
-describe("Member management", () => {
+fdescribe("Member management", () => {
   describe("Registering", () => {
     beforeEach(() => {
       return browser.get(utils.buildUrl());
@@ -32,6 +30,8 @@ describe("Member management", () => {
       await selfRegisterMember(newMember);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
       await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
+
+      const url = await browser.getCurrentUrl();
       await memberPO.verifyProfileInfo({
         ...newMember,
         expirationTime: null
@@ -86,19 +86,11 @@ describe("Member management", () => {
       await auth.goToLogin();
       await auth.signInUser(getAdminUserLogin());
       await utils.waitForPageToMatch(Routing.Profile);
-      await utils.waitForNotVisible(memberPO.memberDetail.loading);
 
-      // Search for newly created member
-      await header.navigateTo(header.links.members);
-      await utils.waitForPageLoad(memberPO.membersListUrl);
-      await utils.waitForNotVisible(memberPO.membersList.loading);
-      await utils.fillSearchInput(memberPO.membersList.searchInput, newMember.email);
-      await utils.waitForNotVisible(memberPO.getLoadingId());
-      const link: WebElement = await memberPO.getColumnByIndex(0, "lastname");
-      await link.findElement(By.css("a")).click();
+      // View new member's profile
+      await browser.get(url);
       await utils.waitForPageToMatch(Routing.Profile);
-      await utils.waitForNotVisible(memberPO.memberDetail.loading);
-
+      
       // Verify no expiration set from admin POV
       await memberPO.verifyProfileInfo({
         ...newMember,

@@ -56,7 +56,7 @@ export class MemberPageObject extends TablePageObject {
     email: `${this.memberDetailId}-email`,
     expiration: `${this.memberDetailId}-expiration`,
     status: `${this.memberDetailId}-status`,
-    openRenewButton: `${this.memberDetailId}-open-renew-modal`,
+    openRenewButton: "#members-list-renew",
     openEditButton: `${this.memberDetailId}-open-edit-modal`,
     openCardButton: `${this.memberDetailId}-open-card-modal`,
     duesTab: "#dues-tab",
