@@ -104,7 +104,10 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
 
   const adminResponse = useReadTransaction(
     adminListTransaction,
-    { ...restParams },
+    { 
+      ...restParams, 
+      ...member && member.customerId && { customerId: member.customerId } 
+    },
     !isAdmin
   );
 
