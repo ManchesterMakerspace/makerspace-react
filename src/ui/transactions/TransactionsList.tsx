@@ -8,7 +8,7 @@ import { Column } from "ui/common/table/Table";
 import { timeToDate, dateToMidnight } from "ui/utils/timeToDate";
 import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { renderTransactionStatus } from "ui/transactions/utils";
+import { renderTransactionStatus, getTransactionDescription } from "ui/transactions/utils";
 import { Member, Transaction, adminListTransaction, listTransactions } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
@@ -16,6 +16,7 @@ import useReadTransaction from "../hooks/useReadTransaction";
 import StatefulTable from "../common/table/StatefulTable";
 import extractTotalItems from "../utils/extractTotalItems";
 import TransactionsFilter from "./TransactionsFilter";
+import ViewTransactionModal from "./ViewTransactionModal";
 
 const getFields = (includeMember: boolean): Column<Transaction>[] => [
   {
@@ -46,22 +47,7 @@ const getFields = (includeMember: boolean): Column<Transaction>[] => [
   {
     id: "description",
     label: "Description",
-    cell: (row: Transaction) => {
-      let description = "";
-      if (row.refundedTransactionId) {
-        description +=  "Refund"
-      } else if (row.subscriptionId) {
-        description += "Subscription Payment"
-      } else {
-        description += "Standard Payment"
-      }
-
-      if (row.invoice) {
-        description += ` for ${row.invoice.name}`;
-      }
-
-      return description;
-    },
+    cell: getTransactionDescription,
   },
   ...includeMember ? []: [{
     id: "member",
@@ -82,6 +68,11 @@ const getFields = (includeMember: boolean): Column<Transaction>[] => [
     id: "status",
     label: "Status",
     cell: renderTransactionStatus
+  },
+  {
+    id: "view",
+    label: "",
+    cell: (row: Transaction) =>  <ViewTransactionModal transaction={row} />
   }
 ];
 

@@ -29,3 +29,20 @@ export const renderTransactionStatus = (transaction: Transaction) => {
     <StatusLabel label={label} color={color}/>
   );
 }
+
+export const getTransactionDescription = (transaction: Transaction) => {
+  let description = "";
+  if (transaction.refundedTransactionId) {
+    description +=  "Refund"
+  } else if (transaction.subscriptionId) {
+    description += "Subscription Payment"
+  } else {
+    description += "Standard Payment"
+  }
+
+  if (transaction.invoice) {
+    description += ` for ${transaction.invoice.name}`;
+  }
+
+  return description;
+}

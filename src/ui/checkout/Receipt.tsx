@@ -9,7 +9,7 @@ import { useAuthState } from "../reducer/hooks";
 import { ActionButton } from "../common/ButtonRow";
 import DocumentFrame from "../documents/Document";
 
-const buildReceiptUrl = (id: string) => `${process.env.BASE_URL || ""}/api/billing/receipts/${id}`;
+export const buildReceiptUrl = (id: string) => `${process.env.BASE_URL || ""}/api/billing/receipts/${id}`;
 const receiptContainerId = "receipt-container";
 
 const Receipt: React.FC = () => {

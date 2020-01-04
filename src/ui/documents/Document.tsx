@@ -53,26 +53,37 @@ export const documents: { [K in Documents]: DocDetails} = {
 }
 
 const DocumentFrame: React.FC<{ id: string, src: string }> = ({ id, src }) => {
-  const [loading, setLoading] = React.useState(true);
-
   return (
     <Card style={{ height: "75vh" }}>
       <CardContent style={{ height: "100%" }}>
         <Grid container spacing={16} style={{ height: "100%" }}>
           <Grid item xs={12} style={{ height: "100%" }}>
-            {loading && <LoadingOverlay id={id} />}
-            <iframe
+            <DocumentInternalFrame
               id={id}
-              name={id}
               src={src}
               style={{ height: "100%", width: "100%" }}
-              onLoad={() => setLoading(false)}
-              frameBorder={0}
             />
           </Grid>
         </Grid>
       </CardContent>
     </Card>
+  )
+}
+
+export const DocumentInternalFrame: React.FC<{ src: string, id?: string, style?: { [key: string]: any } }> = ({ id, src, style }) => {
+  const [loading, setLoading] = React.useState(true);
+  return (
+    <>
+      {loading && <LoadingOverlay id={id} contained={true}/>}
+      <iframe
+        id={id}
+        name={id}
+        src={src}
+        style={{...style}}
+        onLoad={() => setLoading(false)}
+        frameBorder={0}
+      />
+    </>
   )
 }
 
