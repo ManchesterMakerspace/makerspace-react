@@ -34,23 +34,11 @@ const RefundTransactionModal: React.FC<OwnProps> = ({ transaction = {} as Transa
   );
   
   // Disable if invoice already refunded or not yet settled
-  let disabled: boolean = true;
-  let label: string = "Refund transaction";
-  if (transaction.id) {
-    if (transaction.status !== TransactionStatus.Settled) {
-      disabled = true;
-      label = "Transaction in progress";
-    } else {
-      if (isAdmin) {
-        label = "Refund Transaction";
-        disabled = !!transaction.refundedTransactionId;
-      } else {
-        label = "Request Refund";
-        disabled = !!transaction.refundedTransactionId ||
-                   !!(transaction.invoice && transaction.invoice.refundRequested)
-      }
-    }
-  }
+  let disabled: boolean = transaction.status !== TransactionStatus.Settled || // Already settled
+                          !!transaction.refundedTransactionId ||  // Already refunded
+                          (!isAdmin && !!(transaction.invoice && transaction.invoice.refundRequested)) // Already been requested
+  let label: string =  isAdmin ? "Refund transaction" : "Request Refund";
+
   const onWriteSuccess = React.useCallback(() => {
     closeModal();
     onSuccess && onSuccess();
