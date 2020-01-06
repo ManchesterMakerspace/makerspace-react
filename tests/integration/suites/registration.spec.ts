@@ -126,6 +126,7 @@ fdescribe("Member management", () => {
       await utils.fillInput(memberPO.memberForm.firstname, newMember.firstname);
       await utils.fillInput(memberPO.memberForm.lastname, newMember.lastname);
       await utils.fillInput(memberPO.memberForm.email, newMember.email);
+      await utils.fillInput(memberPO.memberForm.notes, "Some notes could be put in here");
       await utils.clickElement(memberPO.memberForm.submit);
       await utils.waitForNotVisible(memberPO.memberForm.submit);
       await utils.waitForPageToMatch(Routing.Profile);

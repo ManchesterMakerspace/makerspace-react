@@ -38,5 +38,9 @@ export const fields = (rental: Rental) =>  ({
     validate: (val: string) => rental && rental.id ? true : !!val, // Validate contract only on create.
     transform: (val: string) => !!val,
     error: "Member must sign contract"
+  },
+  notes: {
+    label: "Notes",
+    name: `${formPrefix}-notes`,
   }
 });

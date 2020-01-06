@@ -47,6 +47,7 @@ export class MemberPageObject extends TablePageObject {
     submit: `${this.memberFormId}-submit`,
     cancel: `${this.memberFormId}-cancel`,
     loading: `${this.memberFormId}-loading`,
+    notes: `${this.memberFormId}-notes`,
   }
 
   private memberDetailId = "#member-detail";

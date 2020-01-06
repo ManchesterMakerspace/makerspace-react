@@ -48,6 +48,7 @@ class RentalsPageObject extends TablePageObject {
     cancel: `${this.rentalFormId}-cancel`,
     error: `${this.rentalFormId}-error`,
     loading: `${this.rentalFormId}-loading`,
+    notes: `${this.rentalFormId}-notes`,
   }
 
 

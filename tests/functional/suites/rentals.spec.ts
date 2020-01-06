@@ -49,6 +49,7 @@ describe("Rentals", () => {
         await utils.waitForVisible(rentalsPO.rentalForm.submit);
         await utils.fillInput(rentalsPO.rentalForm.number, initRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, initRental.description);
+        await utils.fillInput(rentalsPO.rentalForm.notes, "some random notes for this member");
         await utils.clickElement(rentalsPO.rentalForm.contract);
         await mock(mockRequests.members.get.ok(defaultMembers));
         await utils.fillAsyncSearchInput(
@@ -77,6 +78,7 @@ describe("Rentals", () => {
 
         await utils.fillInput(rentalsPO.rentalForm.number, updatedRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, updatedRental.description);
+        await utils.fillInput(rentalsPO.rentalForm.notes, "some random notes for this member");
         await utils.inputTime(rentalsPO.rentalForm.expiration, updatedRental.expiration);
         await mock(mockRequests.rentals.put.ok(updatedRental));
         await mock(mockRequests.rentals.get.ok([updatedRental], undefined, true));

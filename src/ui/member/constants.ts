@@ -62,6 +62,10 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
       validate: (val) => member && member.id ? true : val, // Validate contract only on create.
       transform: (val) => !!val,
       error: "Member must sign contract"
+    },
+    notes: {
+      label: "Notes",
+      name: `${formPrefix}-notes`,
     }
   },
 })

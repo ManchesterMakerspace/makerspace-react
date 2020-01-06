@@ -75,6 +75,7 @@ describe("Members page", () => {
       await utils.assertInputError(memberPo.memberForm.contract);
       await utils.clickElement(memberPo.memberForm.contract);
       await utils.assertNoInputError(memberPo.memberForm.contract);
+      await utils.fillInput(memberPo.memberForm.notes, "some random notes for this member");
       await utils.fillInput(memberPo.memberForm.email, "foo");
       await utils.assertNoInputError(memberPo.memberForm.email);
       await utils.fillInput(memberPo.memberForm.firstname, newMember.firstname);
