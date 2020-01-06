@@ -108,6 +108,15 @@ class RentalForm extends React.Component<OwnProps, { contractOnFile: boolean }> 
             />
           </Grid>
           <Grid item xs={12}>
+            <FormLabel component="legend">{rentalFields.notes.label}</FormLabel>
+            <TextField
+              name={rentalFields.notes.name}
+              value={rental && rental.notes}
+              fullWidth
+              multiline
+            />
+          </Grid>
+          <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Checkbox

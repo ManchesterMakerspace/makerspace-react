@@ -154,6 +154,15 @@ class MemberForm extends React.Component<OwnProps, State> {
             </Select>
           </Grid>
           <Grid item xs={12}>
+            <FormLabel component="legend">{fields.notes.label}</FormLabel>
+            <TextField
+              name={fields.notes.name}
+              value={member.notes}
+              fullWidth
+              multiline
+            />
+          </Grid>
+          <Grid item xs={12}>
             <FormControlLabel
               control={
                 <Checkbox
