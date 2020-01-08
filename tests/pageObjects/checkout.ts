@@ -26,6 +26,12 @@ export class CheckoutPageObject extends TablePageObject {
   public checkoutError = "#checkout-submitting-error"
   public submit = "#submit-payment-button"
 
+  public nextButton = "#checkout-page-next";
+  public backButton = "#checkout-page-back";
+
+  public authAgreementCheckbox = "#authorization-agreement-checkbox";
+  public authAgreementSubmit = "#authorization-agreement-submit";
+
   public receiptContainer = "#receipt-container";
   public receiptLoading = "#receipt-loading";
   public receiptTransactions = (transactionId: string) => `#transaction-${transactionId}`;

@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 
 import { CreditCard, PayPalAccount } from "makerspace-ts-api-client";
 
-interface Props extends Partial<CreditCard>, Partial<PayPalAccount> {}
+export interface Props extends Partial<CreditCard>, Partial<PayPalAccount> {}
 
 const PaymentMethodComponent: React.SFC<Props> = ({ cardType, last4, debit, imageUrl, email, id }) => {
   const image = imageUrl;

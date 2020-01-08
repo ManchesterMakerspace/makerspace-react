@@ -6,6 +6,7 @@ import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import PaymentMethodsContainer from "../checkout/PaymentMethodsContainer";
+import { AnyPaymentMethod } from "app/entities/paymentMethod";
 
 interface Props {
   subscription: Subscription;
@@ -14,7 +15,11 @@ interface Props {
 
 const ChangePaymentMethodModal: React.FC<Props> = ({ subscription: { id: subscriptionId, paymentMethodToken } = {} }) => {
   const { isOpen, openModal, closeModal } = useModal();
-  const [paymentMethodId, setPaymentMethodId] = React.useState();
+  const [paymentMethodId, setPaymentMethodId] = React.useState<string>(paymentMethodToken);
+
+  React.useEffect(() => {
+    setPaymentMethodId(paymentMethodToken);
+  }, [paymentMethodToken]);
 
   const { isRequesting, error, call } = useWriteTransaction(updateSubscription, () => {
     closeModal();
@@ -24,13 +29,17 @@ const ChangePaymentMethodModal: React.FC<Props> = ({ subscription: { id: subscri
     paymentMethodId && call({ id: subscriptionId, updateSubscriptionDetails: { paymentMethodToken: paymentMethodId }});
   }, [call, subscriptionId, paymentMethodId]);
 
+  const setPaymentMethod = React.useCallback((pm: AnyPaymentMethod) => {
+    setPaymentMethodId(pm.id);
+  }, []);
+
   if (!subscriptionId) {
     return null;
   }
 
   return (
     <>
-     <ActionButton
+      <ActionButton
         id="subscription-option-payment-method"
         color="primary"
         variant="contained"
@@ -48,9 +57,9 @@ const ChangePaymentMethodModal: React.FC<Props> = ({ subscription: { id: subscri
           error={error}
         >
           <PaymentMethodsContainer
-            onPaymentMethodChange={setPaymentMethodId}
+            onPaymentMethodChange={setPaymentMethod}
             title="Select or add a new payment method"
-            paymentMethodToken={paymentMethodToken}
+            paymentMethodToken={paymentMethodId}
           />
         </FormModal>
       )}

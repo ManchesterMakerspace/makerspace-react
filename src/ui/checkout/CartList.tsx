@@ -13,13 +13,14 @@ import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import ErrorMessage from "ui/common/ErrorMessage";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import FormModal from "ui/common/FormModal";
-import { CartItem, useCartState, useEmptyCart, isInvoiceSelection } from "./cart";
+import { CartItem, useCartState, isInvoiceSelection } from "./cart";
 import useModal from "../hooks/useModal";
-import { buildProfileRouting } from "../member/utils";
-import { useAuthState } from "../reducer/hooks";
 import { Routing } from "app/constants";
 import useWriteTransaction, { SuccessTransactionState } from "../hooks/useWriteTransaction";
 import { createTransaction, Transaction } from "makerspace-ts-api-client";
+import SubscriptionAuthorizationModal from "ui/checkout/SubscriptionAuthorizationModal";
+import { AnyPaymentMethod } from "app/entities/paymentMethod";
+import PaymentMethodComponent from "./PaymentMethod";
 
 const getCartId = (item: CartItem) => item.id;
 
@@ -34,19 +35,17 @@ const renderAmount = (item: CartItem) => {
 }
 
 interface Props {
-  paymentMethodId: string;
+  paymentMethod: AnyPaymentMethod;
 }
-const CartList: React.FC<Props> = ({ paymentMethodId }) => {
+const CartList: React.FC<Props> = ({ paymentMethod }) => {
   const { item } = useCartState();
   const { history } = useReactRouter();
-  const { currentUser: { id: currentUserId } } = useAuthState();
-  const emptyCart = useEmptyCart()
 
-  // Redirect to profile if theres nothing in the cart
-  React.useEffect(() => {
-    !item && history.push(buildProfileRouting(currentUserId))
-    return emptyCart;
-  }, []);
+  const {
+    isOpen: subscriptionAuthOpen,
+    openModal: openSubscriptionAuth,
+    closeModal: closeSubscriptionAuth
+  } = useModal();
 
   const onSuccess = React.useCallback(({ response: { data: transaction } }: SuccessTransactionState<Parameters<typeof createTransaction>[0], Transaction>) => {
     const invoiceId = transaction && transaction.invoice.id;
@@ -65,7 +64,7 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
   // Open error modal on error
   React.useEffect(() => {
     !isRequesting && error && openModal();
-  }, [isRequesting, error, openModal]);
+  }, [isRequesting, error]);
 
   const getFields = React.useCallback((withError: boolean) => [
     {
@@ -99,17 +98,28 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
   ], [error]);
 
   const submitPayment = React.useCallback(() => {
-    if (!paymentMethodId) { return; }
-    call({ createTransactionDetails: {
-      ...isInvoiceSelection(item) ? {
-        invoiceId: item.id
-      } : {
-        invoiceOptionId: item.id,
-        ...item.discountId && { discountId: item.discountId },
-      },
-      paymentMethodId
-    }});
-  }, [call, item, paymentMethodId]);
+    if (!paymentMethod) {
+      return;
+    }
+    call({
+      createTransactionDetails: {
+        ...(isInvoiceSelection(item)
+          ? {
+              invoiceId: item.id
+            }
+          : {
+              invoiceOptionId: item.id,
+              ...(item.discountId && { discountId: item.discountId })
+            }),
+        paymentMethodId: paymentMethod.id
+      }
+    });
+  }, [call, item, paymentMethod]);
+
+  const onSubscriptionAuthConfirm = React.useCallback(() => {
+    submitPayment();
+    closeSubscriptionAuth();
+  }, [closeSubscriptionAuth, submitPayment]);
 
   if (!item) {
     return null;
@@ -130,10 +140,23 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
               />
             </Grid>
             <Grid item xs={12} style={{ textAlign: "right" }}>
-              <Typography id="total" variant="h6" color="inherit">Total {renderAmount(item)}</Typography>
+              <Typography id="total" variant="h6" color="inherit">
+                Total {renderAmount(item)}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} style={{ marginBottom: "1rem" }}>
+              <PaymentMethodComponent {...paymentMethod} />
             </Grid>
             <Grid item xs={12} style={{ textAlign: "left" }}>
-              <Button id="submit-payment-button" variant="contained" disabled={!paymentMethodId} onClick={submitPayment}>Submit Payment</Button>
+              <Button
+                id="submit-payment-button"
+                variant="contained"
+                color="primary"
+                disabled={!paymentMethod}
+                onClick={item.planId ? openSubscriptionAuth : submitPayment}
+              >
+                Submit Payment
+              </Button>
             </Grid>
           </Grid>
           {isRequesting && <LoadingOverlay id="checkout-submitting-overlay" />}
@@ -149,7 +172,9 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
         >
           <Grid container spacing={16}>
             <Grid item xs={12}>
-              <Typography variant="body1">There was an error processing one or more transactions. Please review these errors and try again</Typography>
+              <Typography variant="body1">
+                There was an error processing one or more transactions. Please review these errors and try again
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <Table
@@ -162,6 +187,8 @@ const CartList: React.FC<Props> = ({ paymentMethodId }) => {
           </Grid>
         </FormModal>
       )}
+
+      {subscriptionAuthOpen && <SubscriptionAuthorizationModal onConfirm={onSubscriptionAuthConfirm} item={item} />}
     </>
   );
 };
