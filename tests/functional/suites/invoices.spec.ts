@@ -78,6 +78,7 @@ describe("Invoicing and Dues", () => {
       await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
 
+      await utils.clickElement(checkout.nextButton);
       expect(await utils.getElementText(checkout.total)).toEqual(
         `Total ${numberAsCurrency(Number(pastDueInvoice.amount))}`
       );

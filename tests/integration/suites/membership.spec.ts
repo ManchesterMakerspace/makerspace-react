@@ -68,13 +68,21 @@ describe("Membership", () => {
     await utils.waitForNotVisible(creditCard.creditCardForm.submit);
 
     // Select the payment method
-    // TODO: new payment methods should be auto selected
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
     expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
-    // Submit payment, view receipt & return to profile
+    await utils.clickElement(checkoutPo.nextButton);
+    // Submit payment
     await utils.clickElement(checkoutPo.submit);
+
+    // Accept recurring payment authorization
+    await utils.waitForVisible(checkoutPo.authAgreementCheckbox);
+    await utils.clickElement(checkoutPo.authAgreementCheckbox);
+    await utils.clickElement(checkoutPo.authAgreementSubmit);
+    await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
+
+    // view receipt & return to profile
     await utils.waitForPageToMatch(Routing.Receipt);
     await utils.waitForNotVisible(checkoutPo.receiptLoading);
     await utils.clickElement(checkoutPo.backToProfileButton);

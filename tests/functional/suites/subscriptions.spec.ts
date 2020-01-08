@@ -106,10 +106,19 @@ describe("Paid Subscriptions", () => {
         subscriptionId: initSubscription.id,
       } as LoginMember));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
-      const total = numberAsCurrency(initSubscription.amount);
 
+      await utils.clickElement(checkoutPo.nextButton);
+      const total = numberAsCurrency(initSubscription.amount);
       expect(await utils.getElementText(checkoutPo.total)).toEqual(`Total ${total}`);
       await utils.clickElement(checkoutPo.submit);
+
+      // Accept recurring payment authorization
+      await utils.waitForVisible(checkoutPo.authAgreementCheckbox);
+      await utils.clickElement(checkoutPo.authAgreementCheckbox);
+      await utils.clickElement(checkoutPo.authAgreementSubmit);
+      await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
+
+
       await utils.assertNoInputError(checkoutPo.checkoutError, true);
       // Wait for receipt
       await utils.waitForPageToMatch(Routing.Receipt)

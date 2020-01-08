@@ -18,7 +18,7 @@ import PaymentMethodComponent from "ui/checkout/PaymentMethod";
 import { listPaymentMethods, isApiErrorResponse, deletePaymentMethod } from "makerspace-ts-api-client";
 
 interface OwnProps {
-  onPaymentMethodChange?: (newId: string) => void;
+  onPaymentMethodChange?: (paymentMethod: AnyPaymentMethod) => void;
   managingMethods?: boolean;
   title?: string;
   paymentMethodToken?: string;
@@ -36,7 +36,7 @@ interface State {
 
 class PaymentMethodsContainer extends React.Component<Props, State> {
   public formRef: Form;
-  private setFormRef = (ref: Form) => this.formRef = ref;
+  private setFormRef = (ref: Form) => (this.formRef = ref);
 
   constructor(props: Props) {
     super(props);
@@ -48,7 +48,7 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
       error: "",
       openAddPayment: false,
       openDeleteModal: false,
-      selectedPaymentMethodId: paymentMethodToken,
+      selectedPaymentMethodId: paymentMethodToken
     };
   }
 
@@ -64,28 +64,33 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
     } else {
       this.setState({ isRequesting: false, paymentMethods: result.data as any, error: "" });
     }
-  }
+  };
 
   private addNewPaymentMethod = () => this.setState({ openAddPayment: true });
 
   private closeAddPaymentMethod = () => this.setState({ openAddPayment: false });
 
+  private paymentMethodFromNonce = (nonce: string) =>
+    this.state.paymentMethods.find(method => method.id === nonce);
+
   private onAddSuccess = (nonce: string) => {
-    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(nonce);
+    const selectedPaymentMethod = this.paymentMethodFromNonce(nonce);
     this.setState({ selectedPaymentMethodId: nonce });
     this.fetchPaymentMethods();
     this.closeAddPaymentMethod();
-  }
+    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethod);
+  };
 
   private selectPaymentMethod = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedPaymentMethodId = event.currentTarget.value;
-    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethodId);
     this.setState({ selectedPaymentMethodId });
-  }
+    const selectedPaymentMethod = this.paymentMethodFromNonce(selectedPaymentMethodId);
+    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethod);
+  };
 
   private renderDeletePaymentModal = () => {
-    const { isRequesting, isDeleting, error, openDeleteModal, paymentMethods, selectedPaymentMethodId } = this.state;
-    const selectedPaymentMethod = paymentMethods.find(method => method.id === selectedPaymentMethodId);
+    const { isRequesting, isDeleting, error, openDeleteModal, selectedPaymentMethodId } = this.state;
+    const selectedPaymentMethod = this.paymentMethodFromNonce(selectedPaymentMethodId);
     if (!selectedPaymentMethod) {
       return;
     }
@@ -112,8 +117,8 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
           </Grid>
         </Grid>
       </FormModal>
-    )
-  }
+    );
+  };
 
   private openDeleteModal = () => this.setState({ openDeleteModal: true });
   private closeDeleteModal = () => this.setState({ openDeleteModal: false });
@@ -131,38 +136,52 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
       this.closeDeleteModal();
       this.fetchPaymentMethods();
     }
-  }
+  };
 
-  private renderPaymentMethod = (paymentMethod: AnyPaymentMethod, displayDelete: boolean = false, displayRadio: boolean = false): JSX.Element => {
-    const label = <PaymentMethodComponent
-      {...paymentMethod}
-      key={`${paymentMethod.id}-label`}
-      id={`select-payment-method-${paymentMethod.id}`}
-    />;
+  private renderPaymentMethod = (
+    paymentMethod: AnyPaymentMethod,
+    displayDelete: boolean = false,
+    displayRadio: boolean = false
+  ): JSX.Element => {
+    const label = (
+      <PaymentMethodComponent
+        {...paymentMethod}
+        key={`${paymentMethod.id}-label`}
+        id={`select-payment-method-${paymentMethod.id}`}
+      />
+    );
 
-    return displayRadio ? <FormControlLabel
-            classes={{label: "flex"}}
-            key={paymentMethod.id}
-            value={paymentMethod.id}
-            label={label}
-            labelPlacement="end"
-            control={<Radio color="primary"/>}
-            /> : label;
-  }
+    return displayRadio ? (
+      <FormControlLabel
+        classes={{ label: "flex" }}
+        key={paymentMethod.id}
+        value={paymentMethod.id}
+        label={label}
+        labelPlacement="end"
+        control={<Radio color="primary" />}
+      />
+    ) : (
+      label
+    );
+  };
 
   private getActionButtons = () => {
     const { isRequesting, selectedPaymentMethodId } = this.state;
     const { managingMethods } = this.props;
 
-    return ([
-      ...managingMethods ? [{
-        color: "secondary",
-        variant: "outlined",
-        id: "delete-payment-button",
-        disabled: isRequesting || !selectedPaymentMethodId,
-        onClick: this.openDeleteModal,
-        label: "Delete Payment Method"
-      }] : [],
+    return [
+      ...(managingMethods
+        ? [
+            {
+              color: "secondary",
+              variant: "outlined",
+              id: "delete-payment-button",
+              disabled: isRequesting || !selectedPaymentMethodId,
+              onClick: this.openDeleteModal,
+              label: "Delete Payment Method"
+            }
+          ]
+        : []),
       {
         color: "primary",
         variant: "contained",
@@ -171,9 +190,8 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
         onClick: this.addNewPaymentMethod,
         label: "Add New Payment Method"
       }
-    ] as ActionButtonProps[])
-  }
-
+    ] as ActionButtonProps[];
+  };
 
   public render(): JSX.Element {
     const { isRequesting, paymentMethods, error, selectedPaymentMethodId, openAddPayment } = this.state;
@@ -183,12 +201,14 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
       <>
         <Grid container justify="center" spacing={16}>
           <Grid item xs={12}>
-            <Typography variant="h6" color="inherit">{title ? title : "Please Select a Payment Method"}</Typography>
+            <Typography variant="h6" color="inherit">
+              {title ? title : "Please Select a Payment Method"}
+            </Typography>
           </Grid>
         </Grid>
         <Grid container justify="flex-start" spacing={16}>
-          {isRequesting && <LoadingOverlay id="get-payment-methods" contained={true} /> ||
-            Array.isArray(paymentMethods) && paymentMethods.length && (
+          {(isRequesting && <LoadingOverlay id="get-payment-methods" contained={true} />) ||
+            (Array.isArray(paymentMethods) && paymentMethods.length && (
               <Grid item xs={12}>
                 <FormControl component="fieldset" fullWidth={true}>
                   <RadioGroup
@@ -197,20 +217,22 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
                     value={selectedPaymentMethodId}
                     onChange={this.selectPaymentMethod}
                   >
-                    {paymentMethods.map((paymentMethod) => (
+                    {paymentMethods.map(paymentMethod =>
                       this.renderPaymentMethod(paymentMethod, managingMethods, true)
-                    ))}
+                    )}
                   </RadioGroup>
                 </FormControl>
-            </Grid>
-            ) ||
-            <Grid item xs={12}>
-              <Typography variant="body1" color="inherit" id="none-found">No payment methods found.  Click "Add New Payment Method" to add one.</Typography>
-            </Grid>
-          }
+              </Grid>
+            )) || (
+              <Grid item xs={12}>
+                <Typography variant="body1" color="inherit" id="none-found">
+                  No payment methods found. Click "Add New Payment Method" to add one.
+                </Typography>
+              </Grid>
+            )}
           <ErrorMessage id={`get-payment-methods-error`} error={!isRequesting && error} />
           <Grid item xs={12}>
-              <ButtonRow actionButtons={this.getActionButtons()} />
+            <ButtonRow actionButtons={this.getActionButtons()} />
           </Grid>
         </Grid>
         <PaymentMethodForm

@@ -61,8 +61,17 @@ fdescribe("Member management", () => {
       await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
       expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
 
-      // Submit payment, view receipt & return to profile
+      await utils.clickElement(checkout.nextButton);
+      // Submit payment
       await utils.clickElement(checkout.submit);
+
+      // Accept recurring payment authorization
+      await utils.waitForVisible(checkout.authAgreementCheckbox);
+      await utils.clickElement(checkout.authAgreementCheckbox);
+      await utils.clickElement(checkout.authAgreementSubmit);
+      await utils.waitForNotVisible(checkout.authAgreementSubmit);
+
+      // view receipt & return to profile
       await utils.waitForPageToMatch(Routing.Receipt);
       await utils.waitForNotVisible(checkout.receiptLoading);
       await utils.clickElement(checkout.backToProfileButton);
@@ -90,7 +99,7 @@ fdescribe("Member management", () => {
       // View new member's profile
       await browser.get(url);
       await utils.waitForPageToMatch(Routing.Profile);
-      
+
       // Verify no expiration set from admin POV
       await memberPO.verifyProfileInfo({
         ...newMember,
