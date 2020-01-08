@@ -21,5 +21,5 @@ export const dateToMidnight = (date: string | number | Date): string => {
   const asDate = new Date(date);
   // Normalize to midnight of the next day
   asDate.setUTCHours(24, 0, 0, 0);
-  return asDate.toUTCString();
+  return date && asDate.toUTCString();
 }

@@ -10,13 +10,14 @@ import Form, { FormFields } from "ui/common/Form";
 import ErrorMessage from "ui/common/ErrorMessage";
 import HostedInput from "ui/checkout/HostedInput";
 import { createPaymentMethod, isApiErrorResponse } from "makerspace-ts-api-client";
+import { AnyPaymentMethod } from "app/entities/paymentMethod";
 
 interface OwnProps {
   braintreeInstance: any;
   clientToken: string;
   toggleLoading: (on: boolean) => void;
   closeHandler: () => void;
-  onSuccess?: (paymentMethodNonce: string) => void;
+  onSuccess?: (paymentMethod: AnyPaymentMethod) => void;
 }
 
 interface Props extends OwnProps {}
@@ -148,7 +149,7 @@ class CreditCardForm extends React.Component<Props, State> {
           if (isApiErrorResponse(result)) {
             this.setState({ braintreeError: result.error.message });
           } else {
-            this.props.onSuccess && this.props.onSuccess(result.data.id);
+            this.props.onSuccess && this.props.onSuccess(result.data);
             this.setState({ braintreeError: undefined });
           }
           toggleLoading(false);
@@ -176,7 +177,7 @@ class CreditCardForm extends React.Component<Props, State> {
                 label={CreditCardFields.number.label}
                 id={CreditCardFields.number.name}
               />
-              {inputErrors["number"] && 
+              {inputErrors["number"] &&
                 <ErrorMessage error={inputErrors["number"]}/>
               }
             </Grid>
@@ -187,7 +188,7 @@ class CreditCardForm extends React.Component<Props, State> {
                 label={CreditCardFields.expirationDate.label}
                 id={CreditCardFields.expirationDate.name}
               />
-              {inputErrors["expirationDate"] && 
+              {inputErrors["expirationDate"] &&
                 <ErrorMessage error={inputErrors["expirationDate"]}/>
               }
             </Grid>
@@ -196,7 +197,7 @@ class CreditCardForm extends React.Component<Props, State> {
                 label={CreditCardFields.cvv.label}
                 id={CreditCardFields.cvv.name}
               />
-              {inputErrors["cvv"] && 
+              {inputErrors["cvv"] &&
                 <ErrorMessage error={inputErrors["cvv"]}/>
               }
             </Grid>
@@ -207,7 +208,7 @@ class CreditCardForm extends React.Component<Props, State> {
                 label={CreditCardFields.postalCode.label}
                 id={CreditCardFields.postalCode.name}
               />
-              {inputErrors["postalCode"] && 
+              {inputErrors["postalCode"] &&
                 <ErrorMessage error={inputErrors["postalCode"]}/>
               }
             </Grid>

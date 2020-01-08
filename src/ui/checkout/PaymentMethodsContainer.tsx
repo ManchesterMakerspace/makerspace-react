@@ -73,9 +73,8 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
   private paymentMethodFromNonce = (nonce: string) =>
     this.state.paymentMethods.find(method => method.id === nonce);
 
-  private onAddSuccess = (nonce: string) => {
-    const selectedPaymentMethod = this.paymentMethodFromNonce(nonce);
-    this.setState({ selectedPaymentMethodId: nonce });
+  private onAddSuccess = (selectedPaymentMethod: AnyPaymentMethod) => {
+    this.setState({ selectedPaymentMethodId: selectedPaymentMethod.id });
     this.fetchPaymentMethods();
     this.closeAddPaymentMethod();
     this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethod);
