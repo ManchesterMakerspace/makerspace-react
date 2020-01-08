@@ -12,11 +12,12 @@ import ErrorMessage from "ui/common/ErrorMessage";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import Typography from "@material-ui/core/Typography";
 import { createPaymentMethod } from "makerspace-ts-api-client";
+import { AnyPaymentMethod } from "app/entities/paymentMethod";
 
 interface OwnProps {
   braintreeInstance: any;
   clientToken: string;
-  paymentMethodCallback?: (paymentMethodNonce: string) => void;
+  paymentMethodCallback?: (paymentMethod: AnyPaymentMethod) => void;
 }
 
 interface Props extends OwnProps {}
@@ -74,7 +75,7 @@ class PaypalButton extends React.Component<Props, State> {
               if (err) throw err;
               try {
                 await createPaymentMethod({ createPaymentMethodDetails: { payment_method_nonce: payload.nonce, make_default: true }});
-                this.props.paymentMethodCallback && this.props.paymentMethodCallback(payload.nonce);
+                this.props.paymentMethodCallback && this.props.paymentMethodCallback(payload);
               } catch (e) {
                 const { errorMessage } = e;
                 this.setState({ braintreeError: errorMessage });

@@ -86,7 +86,7 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
     changePage
   } = useQueryContext({
     search: undefined,
-    startDate: dateToMidnight(moment().subtract(1, "day").valueOf()),
+    startDate: dateToMidnight(moment().subtract(2, "months").valueOf()),
     endDate: dateToMidnight(new Date()),
     type: undefined,
     refund: undefined,
@@ -95,9 +95,9 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
 
   const adminResponse = useReadTransaction(
     adminListTransaction,
-    { 
-      ...restParams, 
-      ...member && member.customerId && { customerId: member.customerId } 
+    {
+      ...restParams,
+      ...member && member.customerId && { customerId: member.customerId }
     },
     !isAdmin
   );

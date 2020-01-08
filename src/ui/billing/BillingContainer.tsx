@@ -5,61 +5,63 @@ import SubscriptionsList from "ui/subscriptions/SubscriptionsList";
 import TransactionsList from "ui/transactions/TransactionsList";
 import OptionsList from "ui/billing/OptionsList";
 import BillingContextContainer from "./BillingContextContainer";
+import KeyValueItem from "../common/KeyValueItem";
+import useReadTransaction from "../hooks/useReadTransaction";
+import { listAnalytics } from "makerspace-ts-api-client";
+import LoadingOverlay from "../common/LoadingOverlay";
+import ErrorMessage from "../common/ErrorMessage";
 
-interface StateProps {}
-interface DispatchProps {}
-interface OwnProps {}
-interface Props extends StateProps, DispatchProps, OwnProps {}
-interface State {}
 
-class BillingContainer extends React.Component<Props, State> {
+const BillingContainer: React.FC = () => {
+  const { isRequesting, data, error } = useReadTransaction(listAnalytics, {});
 
-  public componentDidMount() {
-    // Fetch member stats
-  }
+  const {
+    totalMembers,
+    newMembers,
+    subscribedMembers,
+    pastDueInvoices,
+    refundsPending
+  } = data || {} as any; // TODO: this any can be removed when newMembers spelling is fixed in api client
 
-  private renderBillingInfo = () => {
-    return (
-      <>
-        Statistics to be rendered here.
-        {/* TODO <KeyValueItem label="Number of Members">100</KeyValueItem>
-        <KeyValueItem label="Number of Members on Subscription">100</KeyValueItem>
-        <KeyValueItem label="Number of Rentals">100</KeyValueItem>
-        <KeyValueItem label="Active Membership">100</KeyValueItem> */}
-      </>
-    )
-  }
-  public render(): JSX.Element {
-    return (
-      <BillingContextContainer>
-        <DetailView
-          title="Billing Central"
-          basePath={Routing.Billing}
-          information={this.renderBillingInfo()}
-          actionButtons={[]}
-          resources={[
-            {
-              name: "subscriptions",
-              content: (
-                <SubscriptionsList/>
-              )
-            }, {
-              name: "transactions",
-              content: (
-                <TransactionsList />
-              )
-            }, {
-              name: "options",
-              displayName: "Billing Options",
-              content: (
-                <OptionsList />
-              )
-            }
-          ]}
-        />
-      </BillingContextContainer>
-    );
-  }
+  const fallbackUI = (isRequesting && <LoadingOverlay id="plans-loading" contained={true} />)
+    || (error && <ErrorMessage error={error} />);
+
+
+  return (
+    <BillingContextContainer>
+      <DetailView
+        title="Billing Central"
+        basePath={Routing.Billing}
+        information={
+          fallbackUI || (
+            <>
+              <KeyValueItem label="Number of Members">{String(totalMembers)}</KeyValueItem>
+              <KeyValueItem label="New Members (Prior 30 days)">{String(newMembers)}</KeyValueItem>
+              <KeyValueItem label="Number of Members on Subscription">{String(subscribedMembers)}</KeyValueItem>
+              <KeyValueItem label="Number of Past Due Invoices">{String(pastDueInvoices)}</KeyValueItem>
+              <KeyValueItem label="Number of Refunds Pending">{String(refundsPending)}</KeyValueItem>
+            </>
+          )
+        }
+        actionButtons={[]}
+        resources={[
+          {
+            name: "subscriptions",
+            content: <SubscriptionsList />
+          },
+          {
+            name: "transactions",
+            content: <TransactionsList />
+          },
+          {
+            name: "options",
+            displayName: "Billing Options",
+            content: <OptionsList />
+          }
+        ]}
+      />
+    </BillingContextContainer>
+  );
 }
 
 export default BillingContainer;

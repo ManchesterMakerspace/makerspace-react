@@ -5,7 +5,7 @@ import Form from "ui/common/Form";
 
 //@ts-ignore
 import * as Braintree from "braintree-web";
-import { PaymentMethodType } from "app/entities/paymentMethod";
+import { PaymentMethodType, AnyPaymentMethod } from "app/entities/paymentMethod";
 
 import CreditCardForm from "ui/checkout/CreditCardForm";
 import PaypalButton from "ui/checkout/PaypalButton";
@@ -15,7 +15,7 @@ import { getNewPaymentMethod, isApiErrorResponse } from "makerspace-ts-api-clien
 
 interface OwnProps {
   closeHandler: () => void;
-  onSuccess: (paymentMethodNonce: string) => void;
+  onSuccess: (paymentMethod: AnyPaymentMethod) => void;
   isOpen: boolean;
 }
 interface Props extends OwnProps {}
