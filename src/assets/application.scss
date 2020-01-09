@@ -4,7 +4,7 @@
   flex-grow: 1;
 }
 
-h6 > svg { 
+h6 > svg {
   height: 60px;
   width: 100%;
 }
@@ -103,4 +103,8 @@ h6 > svg {
 
 .instruction-list li, .instruction-list div {
   margin-bottom: .5em;
+}
+
+.preformatted {
+  white-space: pre-wrap;
 }

@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import Grid from "@material-ui/core/Grid";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+import InfoOutlined from "@material-ui/icons/InfoOutlined";
 
-import { displayMemberExpiration, buildProfileRouting } from "ui/member/utils";
+import { displayMemberExpiration, buildProfileRouting, } from "ui/member/utils";
 import { SortDirection } from "ui/common/table/constants";
 import { Column } from "ui/common/table/Table";
 import MemberStatusLabel from "ui/member/MemberStatusLabel";
@@ -23,7 +26,18 @@ const fields: Column<Member>[] = [
   {
     id: "lastname",
     label: "Name",
-    cell: (row: Member) => <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>,
+    cell: (row: Member) => (
+      <>
+        <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>
+        {row.notes && (
+          <Tooltip title={row.notes} classes={{ tooltip: "preformatted" }}>
+            <IconButton aria-label={row.notes}>
+              <InfoOutlined fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </>
+    ),
     defaultSortDirection: SortDirection.Desc,
   },
   {
