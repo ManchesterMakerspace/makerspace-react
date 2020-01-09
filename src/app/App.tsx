@@ -10,6 +10,7 @@ import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { Routing } from 'app/constants';
 import { buildProfileRouting } from 'ui/member/utils';
+import Help from "ui/common/Help";
 
 const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 
@@ -53,6 +54,7 @@ const App: React.FC = () => {
         <LoadingOverlay id="body" />
         : (currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin} /> : <PublicRouting />)
       }
+      <Help/>
     </div>
   )
 }

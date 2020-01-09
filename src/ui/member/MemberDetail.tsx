@@ -138,6 +138,9 @@ const MemberProfile: React.FC = () => {
             {billingEnabled && <KeyValueItem label="Membership Type">
               <span id="member-detail-type">{getDetailsForMember(member).type}</span>
             </KeyValueItem>}
+            {member.notes && <KeyValueItem label="Notes">
+              <div id="member-detail-notes" className="preformatted">{member.notes}</div>
+            </KeyValueItem>}
           </>
         )}
         activeResourceName={resource}
