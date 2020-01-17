@@ -6,8 +6,7 @@ import { RouteComponentProps } from "react-router-dom";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
+import Paper from "@material-ui/core/Paper";
 import RemoveRedEye from "@material-ui/icons/RemoveRedEye";
 import Typography from "@material-ui/core/Typography";
 
@@ -94,8 +93,7 @@ class PasswordReset extends React.Component<Props, State> {
     return (
       <Grid container spacing={24} justify="center">
         <Grid item xs={12} md={6}>
-          <Card style={{ minWidth: 275 }}>
-            <CardContent>
+          <Paper style={{ minWidth: 275, padding: "1rem" }}>
               <Form
                 ref={this.setFormRef}
                 id={passwordId}
@@ -132,8 +130,7 @@ class PasswordReset extends React.Component<Props, State> {
                   <ErrorMessage id={"password-reset-error"} error={passwordError} />
                 )}
               </Form>
-            </CardContent>
-          </Card>
+          </Paper>
         </Grid>
       </Grid>
     );
