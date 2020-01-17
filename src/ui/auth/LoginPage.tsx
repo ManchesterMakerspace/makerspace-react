@@ -2,8 +2,7 @@ import * as React from 'react';
 import useReactRouter from "use-react-router";
 
 import Grid from '@material-ui/core/Grid';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Hidden from '@material-ui/core/Hidden';
 
@@ -25,11 +24,9 @@ const LoginPage: React.FC = () => {
       <Grid item md={6} sm={12}>
         <Grid container justify="center" spacing={24}>
           <Grid item xs={12}>
-            <Card style={{ minWidth: 275 }}>
-              <CardContent>
+            <Paper style={{ minWidth: 275, padding: "1rem" }}>
                 <LoginForm />
-              </CardContent>
-            </Card>
+            </Paper>
           </Grid>
           <Grid item container xs={12} justify="center" alignItems="center">
             <Button id="auth-toggle" variant="outlined" color="secondary" fullWidth onClick={goToRegister}>

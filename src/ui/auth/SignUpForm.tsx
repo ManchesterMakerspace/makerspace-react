@@ -6,11 +6,12 @@ import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
+import Paper from "@material-ui/core/Paper";
 import CardContent from "@material-ui/core/CardContent";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import RemoveRedEye from "@material-ui/icons/RemoveRedEye";
 
-import { createInvoice, InvoiceOption, listInvoiceOptions } from "makerspace-ts-api-client";
+import { createInvoice, InvoiceOption } from "makerspace-ts-api-client";
 import { SignUpFields, EmailExistsError, signUpPrefix } from "ui/auth/constants";
 import { SignUpForm } from "ui/auth/interfaces";
 import ErrorMessage from "ui/common/ErrorMessage";
@@ -67,8 +68,7 @@ const SignUpFormComponent: React.FC = () => {
       <Grid item md={10} xs={12}>
         <Grid container justify="center" spacing={16}>
           <Grid item xs={12}>
-            <Card style={{ minWidth: 275 }}>
-              <CardContent>
+            <Paper style={{ minWidth: 275, padding: "1rem" }}>
                 <Form
                   id={signUpPrefix}
                   loading={isRequesting}
@@ -136,8 +136,7 @@ const SignUpFormComponent: React.FC = () => {
                     {!isRequesting && error && <ErrorMessage id={`${signUpPrefix}-error`} error={error} />}
                   </Grid>
                 </Form>
-              </CardContent>
-            </Card>
+            </Paper>
           </Grid>
           <Grid item xs={12}>
             <Button id="auth-toggle" variant="outlined" color="secondary" fullWidth onClick={goToLogin}>
@@ -157,9 +156,9 @@ const SignUpFormComponent: React.FC = () => {
         closeHandler={closeEmailNote}
       >
         <Card style={{minWidth: 275}}>
-        <CardContent>
+          <CardContent>
             An account with this email already exists.  Please login to continue.
-        </CardContent>
+          </CardContent>
       </Card>
       </FormModal>
     )}

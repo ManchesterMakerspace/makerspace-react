@@ -2,8 +2,7 @@ import * as React from 'react';
 import useReactRouter from "use-react-router";
 
 import Grid from '@material-ui/core/Grid';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Paper from '@material-ui/core/Paper';
 import Button from "@material-ui/core/Button";
 import Typography from '@material-ui/core/Typography';
 
@@ -32,9 +31,8 @@ const LandingPage: React.FC = () => {
 
   return (
     <Grid container spacing={24} justify="center">
-      <Grid item xs={10}>
-        <Card style={{ minWidth: 275 }}>
-          <CardContent>
+      <Grid item xs={12} md={10}>
+        <Paper style={{ minWidth: 275, padding: "1rem" }}>
             <Grid container spacing={24}>
               <Grid item md={6} sm={12} id="landing-page-graphic">
                 <Logo style={{ width: "100%", height: "200px" }} alt="Manchester Makerspace" viewBox="0 0 960 580" />
@@ -68,8 +66,7 @@ const LandingPage: React.FC = () => {
                 )}
               </InvoicingGate>
             </Grid>
-          </CardContent>
-        </Card>
+        </Paper>
       </Grid>
     </Grid>
   );
