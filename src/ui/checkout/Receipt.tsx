@@ -9,7 +9,7 @@ import { useAuthState } from "../reducer/hooks";
 import { ActionButton } from "../common/ButtonRow";
 import DocumentFrame from "../documents/Document";
 
-export const buildReceiptUrl = (id: string) => `${process.env.BASE_URL || ""}/api/billing/receipts/${id}`;
+export const buildReceiptUrl = (id: string, admin: boolean) => `${process.env.BASE_URL || ""}/api/${admin ? "admin/" : ""}billing/receipts/${id}`;
 const receiptContainerId = "receipt-container";
 
 const Receipt: React.FC = () => {
@@ -46,7 +46,7 @@ const Receipt: React.FC = () => {
           />
         </Grid>
       </Grid>
-      <DocumentFrame id={receiptContainerId} src={buildReceiptUrl(invoiceId)} />
+      <DocumentFrame id={receiptContainerId} src={buildReceiptUrl(invoiceId, false)} />
     </>
   )
 }
