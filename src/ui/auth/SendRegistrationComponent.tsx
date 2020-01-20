@@ -14,7 +14,7 @@ const SendRegistrationComponent: React.FC = () => {
   const [success, setSuccess] = React.useState(false);
 
   const submitRequest = React.useCallback(async () => {
-    await call(email);
+    await call({ registrationEmailDetails: email });
     if (!error) {
       setSuccess(true);
     }
