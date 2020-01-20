@@ -7,13 +7,13 @@ import OptionsList from "ui/billing/OptionsList";
 import BillingContextContainer from "./BillingContextContainer";
 import KeyValueItem from "../common/KeyValueItem";
 import useReadTransaction from "../hooks/useReadTransaction";
-import { listAnalytics } from "makerspace-ts-api-client";
+import { adminListAnalytics } from "makerspace-ts-api-client";
 import LoadingOverlay from "../common/LoadingOverlay";
 import ErrorMessage from "../common/ErrorMessage";
 
 
 const BillingContainer: React.FC = () => {
-  const { isRequesting, data, error } = useReadTransaction(listAnalytics, {});
+  const { isRequesting, data, error } = useReadTransaction(adminListAnalytics, {});
 
   const {
     totalMembers,
