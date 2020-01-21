@@ -1,8 +1,7 @@
 import * as React from "react";
 
 import Grid from "@material-ui/core/Grid";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
+import Paper from "@material-ui/core/Paper";
 
 import LoadingOverlay from "../common/LoadingOverlay";
 import { FormField } from "../common/Form";
@@ -54,24 +53,23 @@ export const documents: { [K in Documents]: DocDetails} = {
 
 const DocumentFrame: React.FC<{ id: string, src: string }> = ({ id, src }) => {
   return (
-    <Card style={{ height: "75vh" }}>
-      <CardContent style={{ height: "100%" }}>
-        <Grid container spacing={16} style={{ height: "100%" }}>
-          <Grid item xs={12} style={{ height: "100%" }}>
-            <DocumentInternalFrame
-              id={id}
-              src={src}
-              style={{ height: "100%", width: "100%" }}
-            />
-          </Grid>
+    <Paper>
+      <Grid container spacing={16}>
+        <Grid item xs={12}>
+          <DocumentInternalFrame id={id} src={src} style={{ height: "100%", width: "100%" }} />
         </Grid>
-      </CardContent>
-    </Card>
-  )
+      </Grid>
+    </Paper>
+  );
 }
 
-export const DocumentInternalFrame: React.FC<{ src: string, id?: string, style?: { [key: string]: any } }> = ({ id, src, style }) => {
+export const DocumentInternalFrame: React.FC<{ src: string, id: string, style?: { [key: string]: any } }> = ({ id, src, style }) => {
   const [loading, setLoading] = React.useState(true);
+  const [height, setHeight] = React.useState(style.height);
+  const onLoad = React.useCallback(() => {
+    setHeight((document.getElementById(id) as any).contentWindow.document.documentElement.scrollHeight + "px");
+    setLoading(false);
+  }, [setLoading]);
   return (
     <>
       {loading && <LoadingOverlay id={id} contained={true}/>}
@@ -79,8 +77,8 @@ export const DocumentInternalFrame: React.FC<{ src: string, id?: string, style?:
         id={id}
         name={id}
         src={src}
-        style={{...style}}
-        onLoad={() => setLoading(false)}
+        style={{ ...style, height}}
+        onLoad={onLoad}
         frameBorder={0}
       />
     </>

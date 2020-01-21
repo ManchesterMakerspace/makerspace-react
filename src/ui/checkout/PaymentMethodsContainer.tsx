@@ -56,13 +56,13 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
     this.fetchPaymentMethods();
   }
 
-  private fetchPaymentMethods = async () => {
+  private fetchPaymentMethods = async (callback?: () => void) => {
     this.setState({ isRequesting: true, paymentMethods: [] });
     const result = await listPaymentMethods();
     if (isApiErrorResponse(result)) {
-      this.setState({ isRequesting: false, error: result.error.message });
+      this.setState({ isRequesting: false, error: result.error.message }, callback);
     } else {
-      this.setState({ isRequesting: false, paymentMethods: result.data as any, error: "" });
+      this.setState({ isRequesting: false, paymentMethods: result.data as any, error: "" }, callback);
     }
   };
 
@@ -75,9 +75,11 @@ class PaymentMethodsContainer extends React.Component<Props, State> {
 
   private onAddSuccess = (selectedPaymentMethod: AnyPaymentMethod) => {
     this.setState({ selectedPaymentMethodId: selectedPaymentMethod.id });
-    this.fetchPaymentMethods();
+    this.fetchPaymentMethods(() => {
+      const fullPaymentMethod = this.paymentMethodFromNonce(selectedPaymentMethod.id);
+      this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(fullPaymentMethod);
+    });
     this.closeAddPaymentMethod();
-    this.props.onPaymentMethodChange && this.props.onPaymentMethodChange(selectedPaymentMethod);
   };
 
   private selectPaymentMethod = (event: React.ChangeEvent<HTMLInputElement>) => {

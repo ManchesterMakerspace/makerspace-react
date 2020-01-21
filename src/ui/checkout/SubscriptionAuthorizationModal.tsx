@@ -65,7 +65,7 @@ const SubscriptionAuthorizationModal: React.FC<{ onConfirm(): void, item: CartIt
             I, {currentUser.firstname} {currentUser.lastname}, authorize Manchester Makerspace to charge ${item.amount}{" "}
             to the payment method I have selected every {item.quantity} month(s). I understand that this authorization
             will remain in effect until I notify Manchester Makerspace of cancellation in writing or electronically
-            through <a href={`${buildProfileRouting(currentUser.id)}/settings`}>Subscription Settings</a>.
+            through <a target="_blank" href={`${buildProfileRouting(currentUser.id)}/settings`}>Subscription Settings</a>.
           </Typography>
 
           <FormControlLabel
