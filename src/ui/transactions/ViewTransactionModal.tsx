@@ -36,8 +36,8 @@ const ViewTransactionModal: React.FC<OwnProps> = ({ transaction = {} as Transact
           closeHandler={closeModal}
           title={getTransactionDescription(transaction)}
         >
-          {transaction.invoice ? 
-            <DocumentInternalFrame style={{ width: "100%", height: "600px" }} src={buildReceiptUrl(transaction.invoice.id, isAdmin)} />
+          {transaction.invoice ?
+            <DocumentInternalFrame id="view-transaction-frame" style={{ width: "100%" }} src={buildReceiptUrl(transaction.invoice.id, isAdmin)} />
           : (<>
               <KeyValueItem label="Date">
                 <span id="refund-transaction-date">{timeToDate(transaction.createdAt)}</span>

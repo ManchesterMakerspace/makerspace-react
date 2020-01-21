@@ -18,19 +18,18 @@ const Help: React.FC = () => {
 
   return (
     <>
-    <div style={{ position: "absolute", bottom: "2rem", right: "2rem" }}>
-      <Tooltip title="Help">
-          <IconButton aria-label="Help" onClick={openModal}>
-            <HelpOutlineOutlined fontSize="large" color="primary"/>
-          </IconButton>
-      </Tooltip>
-    </div>
+    <Tooltip title="Help">
+      <IconButton aria-label="Help" onClick={openModal}>
+        <HelpOutlineOutlined fontSize="large" color="primary"/>
+      </IconButton>
+    </Tooltip>
     {isOpen && (
       <FormModal
         isOpen={true}
         id="help-modal"
         title="Contact Us"
         closeHandler={closeModal}
+        cancelText="Close"
       >
         <Typography variant="body1">
           Having trouble using our software? Please don't hesitate to

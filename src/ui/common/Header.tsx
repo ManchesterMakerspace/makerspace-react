@@ -18,6 +18,7 @@ import { logoutUserAction } from "ui/auth/actions";
 import { AuthMember } from "ui/auth/interfaces";
 import { memberIsAdmin } from "ui/member/utils";
 import { Routing, Whitelists } from "app/constants";
+import Help from "ui/common/Help";
 
 interface OwnProps extends RouteComponentProps<any> {
 }
@@ -137,6 +138,7 @@ class Header extends React.Component<Props, State> {
           <Typography variant="h6" color="inherit" className="flex">
             <Logo alt="Manchester Makerspace" viewBox="0 0 960 580" preserveAspectRatio="xMinYMin"/>
           </Typography>
+          <Help />
           {currentUser.id ? this.renderHambMenu() : (!authRequesting && this.renderLoginLink()) }
         </Toolbar>
       </AppBar>

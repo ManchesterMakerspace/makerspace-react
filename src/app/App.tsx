@@ -10,7 +10,6 @@ import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { Routing } from 'app/constants';
 import { buildProfileRouting } from 'ui/member/utils';
-import Help from "ui/common/Help";
 
 const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 
@@ -38,7 +37,12 @@ const App: React.FC = () => {
     if (!error && !isRequesting) {
       loginAttempted && setAttemptingLogin(false);
       if (currentUserId) {
-        if (initialPath && initialPath !== Routing.Root && !publicPaths.some(path => initialPath.startsWith(path))) {
+        if (
+            initialPath &&
+            initialPath !== Routing.Root && // Don't nav to initial if initial is root
+            !publicPaths.some(path => initialPath.startsWith(path)) && // or initial is a public path
+            !pathname.startsWith(Routing.SignUp) // or user just signed up
+          ) {
           history.push(initialPath);
         } else {
           history.push(buildProfileRouting(currentUserId));
@@ -54,7 +58,6 @@ const App: React.FC = () => {
         <LoadingOverlay id="body" />
         : (currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin} /> : <PublicRouting />)
       }
-      <Help/>
     </div>
   )
 }
