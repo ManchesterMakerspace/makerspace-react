@@ -6,7 +6,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from "@material-ui/core/Button";
 import Typography from '@material-ui/core/Typography';
 
-import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
+import Logo from "../../assets/FilledLaserableLogo.svg";
 
 import { Routing } from "app/constants";
 import MembershipSelectForm, { invoiceOptionParam, discountParam } from 'ui/membership/MembershipSelectForm';

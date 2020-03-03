@@ -1,6 +1,8 @@
 /**
  * Main injection point for application.  Webpacker compiles everything in this folder by default.
  */
+import "react-app-polyfill/ie11";
+import "react-app-polyfill/stable";
 import "assets/application";
 import { composeWithDevTools } from 'redux-devtools-extension';
 import * as React from 'react';

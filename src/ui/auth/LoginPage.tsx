@@ -8,7 +8,7 @@ import Hidden from '@material-ui/core/Hidden';
 
 import LoginForm from "ui/auth/LoginForm";
 import { Routing } from 'app/constants';
-import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
+import Logo from "../../assets/FilledLaserableLogo.svg";
 
 const LoginPage: React.FC = () => {
   const { history } = useReactRouter();
