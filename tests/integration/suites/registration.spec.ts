@@ -20,7 +20,7 @@ const newVisa = {
 }
 const cardIds = ["0001", "0002", "0000"];
 
-fdescribe("Member management", () => {
+describe("Member management", () => {
   describe("Registering", () => {
     beforeEach(() => {
       return browser.get(utils.buildUrl());

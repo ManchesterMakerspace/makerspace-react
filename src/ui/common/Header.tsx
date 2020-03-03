@@ -11,7 +11,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuIcon from "@material-ui/icons/Menu";
 
-import Logo from "-!react-svg-loader!assets/FilledLaserableLogo.svg";
+import Logo from "../../assets/FilledLaserableLogo.svg";
 
 import { ScopedThunkDispatch, State as ReduxState } from "ui/reducer";
 import { logoutUserAction } from "ui/auth/actions";
