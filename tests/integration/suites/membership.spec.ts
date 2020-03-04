@@ -9,18 +9,21 @@ import settingsPO from "../../pageObjects/settings";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { Routing } from "app/constants";
 import { getAdminUserLogin, getBasicUserLogin, creditCardNumbers, invoiceOptionIds } from "../../constants/api_seed_data";
-import { By } from "selenium-webdriver";
+
+const expiry = new Date();
+expiry.setFullYear(expiry.getFullYear() + 3);
+const expiration = `12${expiry.getFullYear()}`; // December, 3yrs from test run
 
 const newVisa = {
+  expiration,
   number: creditCardNumbers.visa,
-  expiration: "022020",
   csv: "123",
   postalCode: "90210",
 }
 
 const newMastercard = {
+  expiration,
   number: creditCardNumbers.mastercard,
-  expiration: "022020",
   csv: "123",
   postalCode: "90210",
 }
