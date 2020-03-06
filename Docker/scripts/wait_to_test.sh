@@ -6,10 +6,11 @@ if [ "${LOCAL}" == "TRUE" ]; then
   echo "Setting --interactive local env"
   API_DOMAIN=http://0.0.0.0:1080
   APP_DOMAIN=0.0.0.0
+  PORT=3035
   MOCKSERVER_DOMAIN=0.0.0.0
 fi
 
-  app="http://${APP_DOMAIN}:${PORT}"
+app="http://${APP_DOMAIN}:${PORT}"
 if [ -z "${PORT}" ]; then
   app="http://${APP_DOMAIN}"
 fi

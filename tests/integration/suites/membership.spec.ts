@@ -8,25 +8,8 @@ import { checkout as checkoutPo } from "../../pageObjects/checkout";
 import settingsPO from "../../pageObjects/settings";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { Routing } from "app/constants";
-import { getAdminUserLogin, getBasicUserLogin, creditCardNumbers, invoiceOptionIds } from "../../constants/api_seed_data";
-
-const expiry = new Date();
-expiry.setFullYear(expiry.getFullYear() + 3);
-const expiration = `12${expiry.getFullYear()}`; // December, 3yrs from test run
-
-const newVisa = {
-  expiration,
-  number: creditCardNumbers.visa,
-  csv: "123",
-  postalCode: "90210",
-}
-
-const newMastercard = {
-  expiration,
-  number: creditCardNumbers.mastercard,
-  csv: "123",
-  postalCode: "90210",
-}
+import { getAdminUserLogin, getBasicUserLogin, invoiceOptionIds } from "../../constants/api_seed_data";
+import { newVisa, newMastercard } from "../../constants/paymentMethod";
 
 describe("Membership", () => {
   beforeEach(() => {
@@ -38,6 +21,7 @@ describe("Membership", () => {
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
     await utils.waitForPageToMatch(settingsPO.pageUrl);
+    await settingsPO.waitForLoad();
     await settingsPO.goToMembershipSettings();
 
     // Non subscription details displayed
@@ -94,6 +78,7 @@ describe("Membership", () => {
 
     await header.navigateTo(header.links.settings);
     await utils.waitForPageToMatch(settingsPO.pageUrl);
+    await settingsPO.waitForLoad();
     await settingsPO.goToMembershipSettings();
 
     // Subscription details displayed
@@ -143,13 +128,14 @@ describe("Membership", () => {
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
     expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
-  }, 300000);
+  }, 600000);
 
   test("Admins can cancel a membership", async () => {
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
     await utils.waitForPageToMatch(settingsPO.pageUrl);
+    await settingsPO.waitForLoad();
     await settingsPO.goToMembershipSettings();
 
     // Non subscription details displayed
@@ -188,10 +174,21 @@ describe("Membership", () => {
     expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
+    await utils.clickElement(checkoutPo.nextButton);
     // Submit payment, view receipt & return to profile
     await utils.clickElement(checkoutPo.submit);
+
+    // Accept recurring payment authorization
+    await utils.waitForVisible(checkoutPo.authAgreementCheckbox);
+    await utils.clickElement(checkoutPo.authAgreementCheckbox);
+    await utils.clickElement(checkoutPo.authAgreementSubmit);
+    await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
+
+    // view receipt & logout
     await utils.waitForPageToMatch(Routing.Receipt);
     await utils.waitForNotVisible(checkoutPo.receiptLoading);
+    await utils.clickElement(checkoutPo.backToProfileButton);
+    await utils.waitForPageToMatch(Routing.Profile);
     await header.navigateTo(header.links.logout);
     await utils.waitForVisible(header.loginLink);
 

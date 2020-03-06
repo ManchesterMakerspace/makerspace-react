@@ -53,7 +53,7 @@ const SettingsContainer: React.FC = () => {
               <Grid item xs={12}>
                 {selectedIndex === 0 && (
                   <>
-                    {loadingMember && <LoadingOverlay />}
+                    {loadingMember && <LoadingOverlay id="settings-loading" />}
                     <EditMember formOnly={true} member={member} />
                   </>
                 )}
