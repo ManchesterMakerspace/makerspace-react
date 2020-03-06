@@ -1,6 +1,6 @@
 import * as moment from "moment";
 import { Routing } from "app/constants";
-import { getAdminUserLogin, creditCardNumbers } from "../../constants/api_seed_data";
+import { getAdminUserLogin } from "../../constants/api_seed_data";
 import { basicMembers } from "../../constants/member";
 import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
@@ -11,13 +11,8 @@ import invoicePO from "../../pageObjects/invoice";
 import { checkout } from "../../pageObjects/checkout";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { selfRegisterMember } from "../utils/auth";
+import { newVisa } from "../../constants/paymentMethod";
 
-const newVisa = {
-  number: creditCardNumbers.visa,
-  expiration: "022020",
-  csv: "123",
-  postalCode: "90210",
-}
 const cardIds = ["0001", "0002", "0000"];
 
 describe("Member management", () => {

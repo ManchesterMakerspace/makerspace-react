@@ -9,6 +9,7 @@ class Settings {
     profile: "#settings-profile",
     membership: "#settings-membership",
     paymentMethods: "#settings-payment-methods",
+    loading: "#settings-loading"
   }
 
   public subscriptionDetails = {
@@ -29,6 +30,7 @@ class Settings {
     createSubscription: "#settings-create-membership-button",
   }
 
+  public waitForLoad = () => utils.waitForNotVisible(this.menu.loading);
   public goToProfileSettings = () => utils.clickElement(this.menu.profile);
   public goToMembershipSettings = () => utils.clickElement(this.menu.membership);
   public goToPaymentMethods = () => utils.clickElement(this.menu.paymentMethods);

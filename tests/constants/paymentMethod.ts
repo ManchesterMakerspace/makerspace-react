@@ -1,5 +1,6 @@
 import { PaymentMethodType } from "app/entities/paymentMethod";
 import { CreditCard } from "makerspace-ts-api-client";
+import { creditCardNumbers } from "./api_seed_data";
 
 const expiry = new Date();
 expiry.setFullYear(expiry.getFullYear() + 3);
@@ -19,9 +20,17 @@ export const creditCard: CreditCard = {
   subscriptions: []
 }
 
-export const creditCardForm = {
-  cardNumber: "4111 1111 1111 1111",
-  expirationDate: `${expiry.getMonth()}/${expiry.getFullYear()}`,
-  postalCode: "90210",
+const expiration = `12${expiry.getFullYear()}`; // December, 3yrs from test run
+export const newVisa = {
+  expiration,
+  number: creditCardNumbers.visa,
   csv: "123",
+  postalCode: "90210",
+}
+
+export const newMastercard = {
+  expiration,
+  number: creditCardNumbers.mastercard,
+  csv: "123",
+  postalCode: "90210",
 }
