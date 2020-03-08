@@ -4,6 +4,10 @@
   flex-grow: 1;
 }
 
+body {
+  margin: 0;
+}
+
 h6 > svg {
   height: 60px;
   width: 100%;
@@ -38,7 +42,6 @@ h6 > svg {
     position: relative;
     transform: translateY(calc(50% - 20px));
     text-align: center;
-    height: 100%;
   }
 }
 
