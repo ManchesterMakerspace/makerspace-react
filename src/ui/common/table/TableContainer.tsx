@@ -80,7 +80,7 @@ class TableContainer<T> extends React.Component<Props<T>, {}> {
             }
           </Toolbar>
         )}
-        <div className="table-wrapper">
+        <div className="table-wrapper" style={{ overflowX: "auto" }}>
           <Table
             id={id}
             page={pageNum}
