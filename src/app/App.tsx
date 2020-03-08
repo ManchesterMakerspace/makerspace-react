@@ -10,6 +10,7 @@ import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { Routing } from 'app/constants';
 import { buildProfileRouting } from 'ui/member/utils';
+import ErrorBoundary from 'src/ui/common/ErrorBoundary';
 
 const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 
@@ -52,13 +53,16 @@ const App: React.FC = () => {
   }, [isRequesting]);
 
   return (
-    <div className="root">
-      <Header />
-      {attemptingLogin ?
-        <LoadingOverlay id="body" />
-        : (currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin} /> : <PublicRouting />)
-      }
-    </div>
+    <ErrorBoundary>
+      <div className="root">
+        <Header />
+        {attemptingLogin ?
+          <LoadingOverlay id="body" />
+          : (currentUserId ? <PrivateRouting permissions={permissions} currentUserId={currentUserId} isAdmin={isAdmin} /> : <PublicRouting />)
+        }
+      </div>
+    </ErrorBoundary>
+
   )
 }
 
