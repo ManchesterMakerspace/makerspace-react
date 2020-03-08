@@ -1,5 +1,6 @@
 import * as React from "react";
 import capitalize from "lodash-es/capitalize";
+import useReactRouter from "use-react-router";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
@@ -26,57 +27,51 @@ interface State {
 
 const sectionBorderStyle = { border: "1px solid black", borderRadius: "3px" }
 
-class DetailView extends React.Component<OwnProps, State> {
+const DetailView: React.FC<OwnProps> = ({
+  activeResourceName,
+  resources,
+  title,
+  actionButtons,
+  information,
+}) => {
+  const resourcesExist = Array.isArray(resources) && !!resources.length;
+  const [activeResource, setActiveResource] = React.useState<Resource>(resourcesExist ? resources[0] : undefined);
+  const { match: { params: { resource }}, history, location: { pathname } } = useReactRouter();
 
-  constructor(props: OwnProps) {
-    super(props);
-    this.state = {
-      activeResource: undefined
-    };
-  }
+  React.useEffect(() => {
+    resource && changeResource(resource);
+  }, [resource]);
 
-  public componentDidMount() {
-    this.setActiveResourceFromProps();
-  }
-
-  private setActiveResourceFromProps = (newActiveName?: string) => {
-    const { activeResourceName, resources } = this.props;
+  const changeResource = React.useCallback((newActiveName?: string) => {
     const resourceLookupName = newActiveName || activeResourceName;
-    if (this.resourcesExist()) {
-      const activeResource = resourceLookupName && resources.find(resource => resource.name === resourceLookupName) || resources[0];
-      this.setState({ activeResource });
+    if (resourcesExist) {
+      const newResource = resourceLookupName && resources.find(resource => resource.name === resourceLookupName) || resources[0];
+      if (newResource) {
+        setActiveResource(newResource);
+        if (resource !== newResource.name) {
+          const hasSubpath = resources.some(resource => pathname.endsWith(`/${resource.name}`));
+          const newPath = hasSubpath ? pathname.replace(/\/[^\/]*$/, `/${newResource.name}`) : `${pathname}/${newResource.name}`;
+          history.push(newPath);
+        }        
+      }
     }
-  }
+  }, [activeResourceName, resources]);
 
-  private resourcesExist = () => {
-    const { resources } = this.props;
-    return Array.isArray(resources) && resources.length;
-  }
+  const onTabChange = React.useCallback((_: React.ChangeEvent<{}>, value: string) => {
+    changeResource(value);
+  }, [changeResource]);
 
-  private renderInformation = (): JSX.Element => {
-    const { information, title, actionButtons } = this.props;
-    return (
-      <>
-        <Grid item md={10} xs={12}>
-          <Typography id="detail-view-title" gutterBottom variant="h6">{title}</Typography>
-          {actionButtons}
-        </Grid>
-        <Grid item md={10} xs={12} style={sectionBorderStyle}>
-          {information}
-        </Grid>
-      </>
-    )
-  }
-
-  private changeResource = (_event: React.ChangeEvent, value: string) => {
-    this.setActiveResourceFromProps(value);
-  }
-
-  private renderResources = (): JSX.Element => {
-    const { activeResource } = this.state;
-    const { resources } = this.props;
-    return (
-      <Grid item md={10} xs={12} style={{ ...sectionBorderStyle, marginTop: "0.5em"}}>
+  return (
+    <Grid container spacing={24} justify="center">
+      <Grid item md={10} xs={12}>
+        <Typography id="detail-view-title" gutterBottom variant="h6">{title}</Typography>
+        {actionButtons}
+      </Grid>
+      <Grid item md={10} xs={12} style={sectionBorderStyle}>
+        {information}
+      </Grid>
+      {resourcesExist && (
+        <Grid item md={10} xs={12} style={{ ...sectionBorderStyle, marginTop: "0.5em"}}>
         {activeResource && (
           <>
             {resources.length > 1 && (<Tabs
@@ -84,7 +79,7 @@ class DetailView extends React.Component<OwnProps, State> {
               indicatorColor="primary"
               textColor="primary"
               style={{marginBottom: "1em"}}
-              onChange={this.changeResource}
+              onChange={onTabChange}
             >
               {resources.map(resource => {
                 return (
@@ -103,17 +98,9 @@ class DetailView extends React.Component<OwnProps, State> {
           </>
         ) || <LoadingOverlay id="detail-view"/>}
       </Grid>
-    )
-  }
-
-  public render(): JSX.Element {
-    return (
-      <Grid container spacing={24} justify="center">
-        {this.renderInformation()}
-        {this.resourcesExist() && this.renderResources()}
-      </Grid>
-    );
-  }
-}
+      )}
+    </Grid>
+  );
+};
 
 export default DetailView;
