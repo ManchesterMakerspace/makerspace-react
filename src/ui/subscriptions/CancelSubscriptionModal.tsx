@@ -31,7 +31,7 @@ const CancelSubscriptionModal: React.FC<Props> = ({ subscription = {} as Subscri
   }, [call, subscriptionId]);
 
   const disableButton = !subscriptionId || subscription.status === "Canceled";
-
+  const whosSubscription = asAdmin ? (subscription.memberName ? `${subscription.memberName}'s` : "this") : "your";
   return (
     <>
      <ActionButton
@@ -55,7 +55,7 @@ const CancelSubscriptionModal: React.FC<Props> = ({ subscription = {} as Subscri
           error={error}
         >
           <Typography gutterBottom>
-            Are you sure you want to cancel your subscription?  This action cannot be undone.
+            Are you sure you want to cancel {whosSubscription} subscription?  This action cannot be undone.
           </Typography>
           <SubscriptionDetailsInner subscription={subscription} />
         </FormModal>
