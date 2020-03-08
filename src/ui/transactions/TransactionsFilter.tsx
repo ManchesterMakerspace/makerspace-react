@@ -70,15 +70,6 @@ export const transactionStatuses = {
 const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> = ({ close, onChange }) => {
   const { params, setParam } = useQueryContext();
 
-  const onSearch = React.useCallback((event: React.KeyboardEvent<EventTarget>) => {
-    if (event.key === "Enter") {
-      const searchTerm = (event.target as HTMLInputElement).value;
-      setParam("search", searchTerm);
-      onChange();
-      close();
-    }
-  }, [setParam, onChange, close]);
-
   const setType =  React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setParam("type", event.target.value);
@@ -136,17 +127,6 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
   return (
     <>
       <Typography variant="headline" gutterBottom>Transaction Filters</Typography>
-      <Grid item xs={12} style={{ marginBottom: "1em" }}>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Search for transactions</FormLabel>
-          <TextField
-                id="transaction-search-input"
-                type="text"
-                placeholder="Search..."
-                onKeyPress={onSearch}
-              />
-        </FormControl>
-      </Grid>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filter by Transaction Type</FormLabel>

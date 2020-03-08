@@ -85,7 +85,6 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
     params: { pageNum, order, orderBy, ...restParams },
     changePage
   } = useQueryContext({
-    search: undefined,
     startDate: dateToMidnight(moment().subtract(2, "months").valueOf()),
     endDate: dateToMidnight(new Date()),
     type: undefined,
