@@ -72,4 +72,9 @@ export const fields = {
     name: `${formPrefix}-disabled`,
     transform: (val: string) => !!val,
   },
+  [Properties.IsPromotion]: {
+    label: "Mark as a Promotion. This will list it at the top, separate of other options in the billing  menu",
+    name: `${formPrefix}-promotion`,
+    transform: (val: string) => !!val,
+  },
 }

@@ -43,18 +43,35 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
   } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
 
-  const allOptions = React.useMemo(() => {
-    return options.sort(byAmount)
-                  .concat(allowNone ? [{
-                    id: "none",
-                    name: "None",
-                    description: "Paid with cash or select an option later",
-                    amount: "0",
-                    resourceClass: undefined,
-                    quantity: 0,
-                    disabled: false,
-                    operation: undefined,
-                  }] : []);
+  const [promotions, allOptions] = React.useMemo(() => {
+    const promotionOptions: InvoiceOption[] = [];
+    const trailingOptions: InvoiceOption[] = allowNone ? [{
+      id: "none",
+      name: "None",
+      description: "Paid with cash or select an option later",
+      amount: "0",
+      resourceClass: undefined,
+      quantity: 0,
+      disabled: false,
+      operation: undefined,
+      isPromotion: false
+    }] : [];
+
+    const normalOptions = options.reduce((opts, option) => {
+      if ((option).isPromotion) {
+        promotionOptions.push(option);
+      } else {
+        opts.push(option);
+      }
+      return opts;
+    }, []);
+    return [
+      promotionOptions,
+      [
+        ...normalOptions.sort(byAmount),
+      ...trailingOptions
+      ]
+    ]
   }, [allowNone, options]);
 
   // Select bookmarked option on load
@@ -129,13 +146,24 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
       </>
     ));
 
-
   return (
     <>
+      {promotions && !!promotions.length && (
+        <div className="membership-promotion-options">
+          <TableContainer
+            id="membership-promotion-select-table"
+            title="Current Promotions"
+            data={promotions}
+            columns={fields}
+            rowId={(row: InvoiceOption) => row.id}
+            loading={isRequesting}
+          />
+        </div>
+      )}
       <DuplicateInvoiceModal type={selectedOption && selectedOption.resourceClass} />
       <TableContainer
         id="membership-select-table"
-        title={typeof title === undefined && "Select a Membership"}
+        title={typeof title === undefined && "Select a Membership" || promotions && !!promotions.length && "Standard Membership Options"}
         data={allOptions}
         columns={fields}
         rowId={(row: InvoiceOption) => row.id}

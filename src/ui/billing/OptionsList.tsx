@@ -68,6 +68,12 @@ const fields: Column<InvoiceOption>[] = [
     label: "Disabled",
     cell: (row: InvoiceOption) => row.disabled ? <StatusLabel label="Disabled" color={Status.Info}/>
                                                 : <StatusLabel label="Enabled" color={Status.Success} />,
+  },
+  {
+    id: "isPromotion",
+    label: "Promotion",
+    cell: (row: InvoiceOption) => (row).isPromotion ? <StatusLabel label="" color={Status.Primary}/>
+                                                : <StatusLabel label="" color={Status.Info} />,
   }
 ];
 
