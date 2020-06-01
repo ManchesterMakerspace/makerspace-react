@@ -21,7 +21,7 @@ const BillingContainer: React.FC = () => {
     subscribedMembers,
     pastDueInvoices,
     refundsPending
-  } = data || {} as any; // TODO: this any can be removed when newMembers spelling is fixed in api client
+  } = data || {}; 
 
   const fallbackUI = (isRequesting && <LoadingOverlay id="plans-loading" contained={true} />)
     || (error && <ErrorMessage error={error} />);

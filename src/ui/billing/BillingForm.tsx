@@ -39,13 +39,15 @@ interface State {
   planId: string;
   planMatchError: string;
   disableOption: boolean;
+  isPromotion: boolean;
 }
 
 const defaultState = {
   type: InvoiceableResource.Membership,
   planId: "",
   planMatchError: "",
-  disableOption: false
+  disableOption: false,
+  isPromotion: false
 }
 export class BillingFormComponent extends React.Component<OwnProps, State>{
   public formRef: Form;
@@ -53,7 +55,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
 
   public constructor(props: OwnProps) {
     super(props);
-    this.state = defaultState;
+    this.state = { ...defaultState };
   }
 
   public componentDidMount() {
@@ -79,9 +81,9 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     const oldOptionType = oldOption && oldOption.resourceClass;
     // Reset on form open
     if (isOpen && !wasOpen) {
-      this.setState(defaultState);
+      this.setState({ planMatchError: "" });
       if (option) {
-        this.setState({ disableOption: option.disabled });
+        this.setState({ disableOption: option.disabled, isPromotion: (option).isPromotion });
       }
     }
     // Reload plans if type changes
@@ -140,7 +142,8 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     return await form.simpleValidate<InvoiceOption>(fields);
   }
 
-  private toggleDisableOption = (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => this.setState({ disableOption: checked });
+  private toggleDisableOption = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ disableOption: event.currentTarget.checked });
+  private togglePromotionOption = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ isPromotion: event.currentTarget.checked });
 
   private renderPlanOptions = () => {
     const { plans } = this.props.context;
@@ -178,7 +181,10 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
 
   public render() {
     const { isOpen, onClose, isRequesting, error, onSubmit, option } = this.props;
-    const { type, planId, disableOption } = this.state;
+    const { type, planId, disableOption, isPromotion } = this.state;
+
+
+    console.error("type", type);
 
     // TODO: The validation / when things are disabled doesn't make a lot of sense
     // Need to work out how selecting discounts & plans will relate to fields
@@ -294,6 +300,21 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
                 />
               }
               label={fields.disabled.label}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name={fields.isPromotion.name}
+                  value={fields.isPromotion.name}
+                  checked={isPromotion}
+                  onChange={this.togglePromotionOption}
+                  disabled={isRequesting}
+                  color="default"
+                />
+              }
+              label={fields.isPromotion.label}
             />
           </Grid>
         </Grid>

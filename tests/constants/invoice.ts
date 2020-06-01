@@ -13,6 +13,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     resourceClass: InvoiceableResource.Membership,
     operation: InvoiceOperation.Renew,
     disabled: false,
+    isPromotion: false
   }, {
     id: "foo",
     name: "Foo",
@@ -24,6 +25,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     disabled: false,
     resourceClass: InvoiceableResource.Rental,
     operation: InvoiceOperation.Renew,
+    isPromotion: false
   }, {
     id: "bar",
     name: "Bar",
@@ -35,6 +37,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     resourceClass: InvoiceableResource.Rental,
     operation: InvoiceOperation.Renew,
     disabled: false,
+    isPromotion: false
   }
 ];
 export const defaultBillingOption = defaultBillingOptions[0];

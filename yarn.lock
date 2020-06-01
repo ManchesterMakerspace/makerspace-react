@@ -5486,9 +5486,9 @@ makeerror@1.0.x:
   dependencies:
     tmpl "1.0.x"
 
-makerspace-ts-api-client@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-1.6.0.tgz#254ab04a5ae2398b9b54d965385e81c412401e77"
+makerspace-ts-api-client@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-1.7.0.tgz#c6017804e843a718872b134e4911eb0208410e16"
 
 mamacro@^0.0.3:
   version "0.0.3"

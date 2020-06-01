@@ -43,6 +43,7 @@ export enum Properties {
   PlanId = "planId",
   Disabled = "disabled",
   DiscountId = "discountId",
+  IsPromotion = "isPromotion"
 }
 
 

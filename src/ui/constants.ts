@@ -4,6 +4,7 @@ export enum Status {
   Info = "info",
   Warn = "warn",
   Default = "default",
+  Primary = "primary"
 }
 
 export enum ItemsPerPage {
