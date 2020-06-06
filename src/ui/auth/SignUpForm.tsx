@@ -1,7 +1,10 @@
 import * as React from "react";
 import { useDispatch } from "react-redux";
 import useReactRouter from "use-react-router";
+import kebabCase from "lodash/kebabCase";
 
+import FormLabel from "@material-ui/core/FormLabel";
+import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
@@ -25,6 +28,7 @@ import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import MembershipSelectForm, { invoiceOptionParam, discountParam } from "ui/membership/MembershipSelectForm";
 import InvoicingGate from "../membership/InvoicingGate";
+import { states } from "../member/states";
 
 const SignUpFormComponent: React.FC = () => {
   const { isOpen: emailNoteOpen, openModal: openEmailNote, closeModal: closeEmailNote } = useModal();
@@ -42,9 +46,21 @@ const SignUpFormComponent: React.FC = () => {
   const toggleMask = React.useCallback(() => setMask(curr => !curr), [setMask]);
 
   const submit = React.useCallback(async (form: Form) => {
-    const validSignUp: SignUpForm = await form.simpleValidate<SignUpForm>(SignUpFields);
+    const validSignUp: Record<string, any> = await form.simpleValidate<SignUpForm>(SignUpFields);
     if (!form.isValid()) return;
-    await dispatch(submitSignUpAction(validSignUp));
+
+    const { street, unit, city, state, postalCode, ...rest } = validSignUp;
+
+    await dispatch(submitSignUpAction({
+      ...rest as SignUpForm,
+      address: {
+        street,
+        unit,
+        city,
+        state,
+        postalCode
+      }
+    }));
     if (option) {
       await buildInvoice({ createInvoiceDetails: option});
     }
@@ -77,7 +93,7 @@ const SignUpFormComponent: React.FC = () => {
                   submitText="Sign Up"
                 >
                   <Grid container spacing={16}>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         required
@@ -87,7 +103,7 @@ const SignUpFormComponent: React.FC = () => {
                         placeholder={SignUpFields.firstname.placeholder}
                       />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         required
@@ -97,7 +113,7 @@ const SignUpFormComponent: React.FC = () => {
                         placeholder={SignUpFields.lastname.placeholder}
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         required
@@ -108,7 +124,7 @@ const SignUpFormComponent: React.FC = () => {
                         type="email"
                       />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         required
@@ -124,6 +140,70 @@ const SignUpFormComponent: React.FC = () => {
                             </InputAdornment>
                           ),
                         }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        required
+                        label={SignUpFields.street.label}
+                        name={SignUpFields.street.name}
+                        id={SignUpFields.street.name}
+                        placeholder={SignUpFields.street.placeholder}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label={SignUpFields.unit.label}
+                        name={SignUpFields.unit.name}
+                        id={SignUpFields.unit.name}
+                        placeholder={SignUpFields.unit.placeholder}
+                      />
+                    </Grid>
+                    <Grid item sm={12} md={5}>
+                      <TextField
+                        fullWidth
+                        required
+                        label={SignUpFields.city.label}
+                        name={SignUpFields.city.name}
+                        id={SignUpFields.city.name}
+                        placeholder={SignUpFields.city.placeholder}
+                      />
+                    </Grid>
+
+                    <Grid item sm={6} md={4}>
+                    <FormLabel component="legend">{SignUpFields.state.label}</FormLabel>
+                      <Select
+                        name={SignUpFields.state.name}
+                        fullWidth
+                        native
+                        required
+                        placeholder={SignUpFields.state.placeholder}
+                      >
+                        {[<option id={`${SignUpFields.state.name}-option-none`} key={"none"} value={""}>{SignUpFields.state.placeholder}</option>].concat(Object.keys(states).map(
+                          (key) => <option id={`${SignUpFields.state.name}-option-${kebabCase(key)}`} key={kebabCase(key)} value={key}>{key}</option>))}
+                      </Select>
+                    </Grid>
+
+                    <Grid item sm={6} md={3}>
+                      <TextField
+                        fullWidth
+                        required
+                        label={SignUpFields.postalCode.label}
+                        name={SignUpFields.postalCode.name}
+                        id={SignUpFields.postalCode.name}
+                        placeholder={SignUpFields.postalCode.placeholder}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label={SignUpFields.phone.label}
+                        name={SignUpFields.phone.name}
+                        id={SignUpFields.phone.name}
+                        placeholder={SignUpFields.phone.placeholder}
+                        type="phone"
                       />
                     </Grid>
                     <InvoicingGate>

@@ -19,6 +19,13 @@ export interface SignUpForm {
   lastname: string;
   email: string;
   password: string;
+  address: {
+    street: string;
+    unit?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  }
 }
 
 export type AuthMember = Member & {

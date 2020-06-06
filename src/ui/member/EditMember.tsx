@@ -25,11 +25,22 @@ const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boo
   } = useWriteTransaction(asAdmin ? adminUpdateMember : updateMember, onSuccess);
 
   const onSubmit = React.useCallback(async (form: Form) => {
-    const validUpdate: Member = await formRef.current.validate(form);
+    const validUpdate: Record<string, any> = await formRef.current.validate(form);
 
     if (!form.isValid()) return;
 
-    update({ id: member.id, updateMemberDetails: validUpdate });
+    const { street, unit, city, state, postalCode, ...rest } = validUpdate;
+
+    update({ id: member.id, updateMemberDetails: {
+      ...rest,
+      address: {
+        street,
+        unit,
+        city,
+        state,
+        postalCode
+      }
+    } });
   }, [formRef, update]);
 
   return (

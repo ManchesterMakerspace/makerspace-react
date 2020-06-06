@@ -43,7 +43,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
   } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
 
 
-  const [promotions, allOptions] = React.useMemo(() => {
+  const [promotions, normalOptions] = React.useMemo(() => {
     const promotionOptions: InvoiceOption[] = [];
     const trailingOptions: InvoiceOption[] = allowNone ? [{
       id: "none",
@@ -73,6 +73,8 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
       ]
     ]
   }, [allowNone, options]);
+
+  const allOptions = React.useMemo(() => normalOptions.concat(promotions), [normalOptions, promotions]);
 
   // Select bookmarked option on load
   React.useEffect(() => {
@@ -164,7 +166,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
       <TableContainer
         id="membership-select-table"
         title={typeof title === undefined && "Select a Membership" || promotions && !!promotions.length && "Standard Membership Options"}
-        data={allOptions}
+        data={normalOptions}
         columns={fields}
         rowId={(row: InvoiceOption) => row.id}
         loading={isRequesting}

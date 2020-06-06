@@ -69,4 +69,40 @@ export const SignUpFields: FormFields = {
     label: "Apply 10% Student, Senior and Military discount (ID required at orientation)",
     name: `${signUpPrefix}-discount`,
   },
+  phone: {
+    label: "Phone Number",
+    name: `${signUpPrefix}-phone`,
+  },
+  street: {
+    label: "Street Address",
+    name: `${signUpPrefix}-street`,
+    placeholder: "Enter street address",
+    validate: (val: string) => !!val,
+    error: "Required"
+  },
+  unit: {
+    label: "Unit or Apt #",
+    name: `${signUpPrefix}-unit`,
+  },
+  city: {
+    label: "City",
+    name: `${signUpPrefix}-city`,
+    placeholder: "Enter city",
+    validate: (val: string) => !!val,
+    error: "Required"
+  },
+  state: {
+    label: "State",
+    name: `${signUpPrefix}-state`,
+    placeholder: "Select a state",
+    validate: (val: string) => !!val,
+    error: "Required"
+  },
+  postalCode: {
+    label: "Postal Code",
+    name: `${signUpPrefix}-postalCode`,
+    placeholder: "Postal Code",
+    validate: (val: string) => !!val,
+    error: "Required"
+  },
 }

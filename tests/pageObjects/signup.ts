@@ -21,6 +21,11 @@ export class SignUpPageObject {
     firstnameInput: `${this.signUpFormId}-firstname`,
     lastnameInput: `${this.signUpFormId}-lastname`,
     emailInput: `${this.signUpFormId}-email`,
+    streetInput: `${this.signUpFormId}-street`,
+    unitInput: `${this.signUpFormId}-unit`,
+    cityInput: `${this.signUpFormId}-city`,
+    stateSelect: `${this.signUpFormId}-state`,
+    zipInput: `${this.signUpFormId}-postalCode`,
     passwordInput: `${this.signUpFormId}-password`,
     submitButton: `${this.signUpFormId}-submit`,
     error: `${this.signUpFormId}-error`,
@@ -68,6 +73,10 @@ export class SignUpPageObject {
     await utils.fillInput(this.signUpForm.lastnameInput, user.lastname);
     await utils.fillInput(this.signUpForm.emailInput, user.email);
     await utils.fillInput(this.signUpForm.passwordInput, user.password);
+    await utils.fillInput(this.signUpForm.streetInput, "12 Main St.");
+    await utils.fillInput(this.signUpForm.cityInput, "Roswell");
+    await utils.fillInput(this.signUpForm.zipInput, "90210");
+    await utils.selectDropdownByValue(this.signUpForm.stateSelect, "GA");
     await utils.clickElement(this.signUpForm.submitButton);
   }
 
