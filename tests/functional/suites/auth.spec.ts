@@ -159,6 +159,10 @@ describe("Authentication", () => {
       await utils.fillInput(lastnameInput, newMember.lastname);
       await utils.fillInput(passwordInput, newMember.password);
       await utils.fillInput(emailInput, "foo");
+      await utils.fillInput(signup.signUpForm.streetInput, "12 Main St.");
+      await utils.fillInput(signup.signUpForm.cityInput, "Roswell");
+      await utils.fillInput(signup.signUpForm.zipInput, "90210");
+      await utils.selectDropdownByValue(signup.signUpForm.stateSelect, "GA");
       await utils.clickElement(submitButton);
       await utils.assertNoInputError(firstnameInput);
       await utils.assertNoInputError(lastnameInput);

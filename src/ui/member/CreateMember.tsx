@@ -24,11 +24,22 @@ const CreateMember: React.FC<{ onCreate: (id: string) => void }> = ({ onCreate }
   } = useWriteTransaction(adminCreateMember, onSuccess);
 
   const onSubmit = React.useCallback(async (form: Form) => {
-    const validUpdate: Member = await formRef.current.validate(form);
+    const validUpdate: Record<string, any> = await formRef.current.validate(form);
 
     if (!form.isValid()) return;
 
-    create({ createMemberDetails: validUpdate });
+    const { street, unit, city, state, postalCode, ...rest } = validUpdate;
+
+    create({ createMemberDetails: {
+      ...rest as Member,
+      address: {
+        street,
+        unit,
+        city,
+        state,
+        postalCode
+      }
+    } });
   }, [formRef, create]);
 
   return (

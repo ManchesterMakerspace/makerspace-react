@@ -11,21 +11,57 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
     name: `${formPrefix}-firstname`,
     placeholder: "Enter first name",
     validate: (val) => !!val,
-    error: "Invalid name",
+    error: "Required"
   },
   lastname: {
     label: "Last Name",
     name: `${formPrefix}-lastname`,
     placeholder: "Enter last name",
     validate: (val) => !!val,
-    error: "Invalid name"
+    error: "Required"
   },
   email: {
     label: "Email / Username",
     name: `${formPrefix}-email`,
     placeholder: "Enter email",
     validate: (val: string) => val && emailValid(val),
-    error: "Invalid email"
+    error: "Required"
+  },
+  phone: {
+    label: "Phone Number",
+    name: `${formPrefix}-phone`,
+  },
+  street: {
+    label: "Street Address",
+    name: `${formPrefix}-street`,
+    placeholder: "Enter street address",
+    validate: (val: string) => member && member.id ? true : !!val,
+    error: "Required"
+  },
+  unit: {
+    label: "Unit or Apt #",
+    name: `${formPrefix}-unit`,
+  },
+  city: {
+    label: "City",
+    name: `${formPrefix}-city`,
+    placeholder: "Enter city",
+    validate: (val: string) => member && member.id ? true : !!val,
+    error: "Required"
+  },
+  state: {
+    label: "State",
+    name: `${formPrefix}-state`,
+    placeholder: "Select a state",
+    validate: (val: string) => member && member.id ? true : !!val,
+    error: "Required"
+  },
+  postalCode: {
+    label: "Postal Code",
+    name: `${formPrefix}-postalCode`,
+    placeholder: "Postal Code",
+    validate: (val: string) => member && member.id ? true : !!val,
+    error: "Required"
   },
   ...admin && {
     status: {

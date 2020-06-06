@@ -14,6 +14,7 @@ import { fields as memberFormField, MemberRoleOptions } from "ui/member/constant
 import Form from "ui/common/Form";
 import { toDatePicker } from "ui/utils/timeToDate";
 import { memberStatusLabelMap } from "./MemberStatusLabel";
+import { states } from "./states";
 
 interface OwnProps {
   member?: Member;
@@ -106,6 +107,76 @@ class MemberForm extends React.Component<OwnProps, State> {
           id={fields.email.name}
           placeholder={fields.email.placeholder}
           type="email"
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          value={member.phone}
+          label={fields.phone.label}
+          name={fields.phone.name}
+          id={fields.phone.name}
+          placeholder={fields.phone.placeholder}
+          type="phone"
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          required
+          value={member.address && member.address.street}
+          label={fields.street.label}
+          name={fields.street.name}
+          id={fields.street.name}
+          placeholder={fields.street.placeholder}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          value={member.address && member.address.unit}
+          label={fields.unit.label}
+          name={fields.unit.name}
+          id={fields.unit.name}
+          placeholder={fields.unit.placeholder}
+        />
+      </Grid>
+      <Grid item sm={12} md={5}>
+        <TextField
+          fullWidth
+          required
+          value={member.address && member.address.city}
+          label={fields.city.label}
+          name={fields.city.name}
+          id={fields.city.name}
+          placeholder={fields.city.placeholder}
+        />
+      </Grid>
+
+      <Grid item sm={6} md={4}>
+      <FormLabel component="legend">{fields.state.label}</FormLabel>
+        <Select
+          name={fields.state.name}
+          value={member.address && member.address.state}
+          fullWidth
+          native
+          required
+          placeholder={fields.state.placeholder}
+        >
+          {[<option id={`${fields.state.name}-option-none`} key={"none"} value={""}>{fields.state.placeholder}</option>].concat(Object.keys(states).map(
+            (key) => <option id={`${fields.state.name}-option-${kebabCase(key)}`} key={kebabCase(key)} value={key}>{key}</option>))}
+        </Select>
+      </Grid>
+
+        <Grid item sm={6} md={3}>
+        <TextField
+          fullWidth
+          required
+          value={member.address && member.address.postalCode}
+          label={fields.postalCode.label}
+          name={fields.postalCode.name}
+          id={fields.postalCode.name}
+          placeholder={fields.postalCode.placeholder}
         />
       </Grid>
       {isAdmin && (

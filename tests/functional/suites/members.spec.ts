@@ -72,7 +72,11 @@ describe("Members page", () => {
       await utils.assertInputError(memberPo.memberForm.firstname);
       await utils.assertInputError(memberPo.memberForm.lastname);
       await utils.assertInputError(memberPo.memberForm.email);
-      await utils.assertInputError(memberPo.memberForm.contract);
+      await utils.assertInputError(memberPo.memberForm.street);
+      await utils.assertInputError(memberPo.memberForm.city);
+      await utils.assertInputError(memberPo.memberForm.state);
+      await utils.assertInputError(memberPo.memberForm.zip);
+      await utils.assertNoInputError(memberPo.memberForm.unit);
       await utils.clickElement(memberPo.memberForm.contract);
       await utils.assertNoInputError(memberPo.memberForm.contract);
       await utils.fillInput(memberPo.memberForm.notes, "some random notes for this member");
@@ -83,6 +87,11 @@ describe("Members page", () => {
       await utils.fillInput(memberPo.memberForm.email, "");
       await utils.fillInput(memberPo.memberForm.lastname, newMember.lastname);
       await utils.assertNoInputError(memberPo.memberForm.lastname);
+
+      await utils.fillInput(memberPo.memberForm.street, "12 Main St.");
+      await utils.fillInput(memberPo.memberForm.city, "Roswell");
+      await utils.fillInput(memberPo.memberForm.zip, "90210");
+      await utils.selectDropdownByValue(memberPo.memberForm.state, "GA");
 
       await utils.clickElement(memberPo.memberForm.submit);
       await utils.assertInputError(memberPo.memberForm.email);

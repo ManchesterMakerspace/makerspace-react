@@ -129,6 +129,10 @@ describe("Member management", () => {
       await utils.clickElement(memberPO.memberForm.contract);
       await utils.fillInput(memberPO.memberForm.firstname, newMember.firstname);
       await utils.fillInput(memberPO.memberForm.lastname, newMember.lastname);
+      await utils.fillInput(memberPO.memberForm.street, "12 Main St.");
+      await utils.fillInput(memberPO.memberForm.city, "Roswell");
+      await utils.fillInput(memberPO.memberForm.zip, "90210");
+      await utils.selectDropdownByValue(memberPO.memberForm.state, "GA");
       await utils.fillInput(memberPO.memberForm.email, newMember.email);
       await utils.fillInput(memberPO.memberForm.notes, "Some notes could be put in here");
       await utils.clickElement(memberPO.memberForm.submit);
