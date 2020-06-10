@@ -11,7 +11,7 @@ import InvoicesList from "ui/invoice/InvoicesList";
 import RentalsList from "ui/rentals/RentalsList";
 import { ActionButton } from "ui/common/ButtonRow";
 import { Whitelists, Routing } from "app/constants";
-import { getDetailsForMember } from "./constants";
+import { getDetailsForMember, membershipDetails } from "./constants";
 import AccessCardForm from "ui/accessCards/AccessCardForm";
 import ReportList from "ui/reports/ReportList";
 import TransactionsList from "ui/transactions/TransactionsList";
@@ -20,6 +20,7 @@ import { useAuthState } from "../reducer/hooks";
 import EditMember from "./EditMember";
 import RenewMember from "./RenewMember";
 import NotificationModal, { Notification } from "./NotificationModal";
+import CancelSubscriptionModal from "../subscriptions/CancelSubscriptionModal";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
@@ -102,6 +103,8 @@ const MemberProfile: React.FC = () => {
     return <LoadingOverlay />;
   }
 
+  const memberSubscription = getDetailsForMember(member);
+
   return (
     <>
       <DetailView
@@ -136,7 +139,9 @@ const MemberProfile: React.FC = () => {
               <MemberStatusLabel id="member-detail-status" member={member} />
             </KeyValueItem>
             {billingEnabled && <KeyValueItem label="Membership Type">
-              <span id="member-detail-type">{getDetailsForMember(member).type}</span>
+              <span id="member-detail-type" style={{ marginRight: "1em" }}>{memberSubscription.type}</span> 
+                {isAdmin && !isOwnProfile && memberSubscription === membershipDetails.subscription &&
+                  <CancelSubscriptionModal subscriptionId={member.subscriptionId} memberId={memberId} onSuccess={refreshMember}/>}
             </KeyValueItem>}
             {member.notes && <KeyValueItem label="Notes">
               <div id="member-detail-notes" className="preformatted">{member.notes}</div>

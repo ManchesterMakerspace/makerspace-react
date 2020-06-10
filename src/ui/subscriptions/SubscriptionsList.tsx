@@ -75,6 +75,7 @@ const SubscriptionsTable: React.FC = () => {
         <Grid>
           <CancelSubscriptionModal
             subscription={selectedSubscription}
+            subscriptionId={selectedId}
             onSuccess={onCancel}
           />
           <SubscriptionFilters onChange={refresh}/>

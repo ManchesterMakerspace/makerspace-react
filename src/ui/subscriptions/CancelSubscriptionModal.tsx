@@ -2,21 +2,33 @@ import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
 import FormModal from "ui/common/FormModal";
-import { adminCancelSubscription, cancelSubscription, Subscription } from "makerspace-ts-api-client";
+import { adminCancelSubscription, cancelSubscription, Subscription, getSubscription } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import { SubscriptionDetailsInner } from "./SubscriptionDetails";
+import useReadTransaction from "../hooks/useReadTransaction";
 
 interface Props {
-  subscription: Subscription;
+  subscriptionId: string
+  subscription?: Subscription;
   memberId?: string;
   onSuccess?: () => void;
 }
 
-const CancelSubscriptionModal: React.FC<Props> = ({ subscription = {} as Subscription, memberId, onSuccess }) => {
-  const { id: subscriptionId } = subscription;
+const CancelSubscriptionModal: React.FC<Props> = ({ subscription: propsSub = {} as Subscription, subscriptionId, memberId, onSuccess }) => {
+  const { 
+    isRequesting: subscriptionLoading, 
+    data, 
+    error: subError, 
+  } = useReadTransaction(
+    getSubscription, 
+    { id: subscriptionId }, 
+    !subscriptionId || !!propsSub.id
+  );
+
+  const subscription = data || propsSub;
   const { currentUser: { id, isAdmin } } = useAuthState();
   const { isOpen, openModal, closeModal } = useModal();
   const asAdmin = isAdmin && id !== memberId;
@@ -38,14 +50,14 @@ const CancelSubscriptionModal: React.FC<Props> = ({ subscription = {} as Subscri
         id="subscription-option-cancel"
         color="secondary"
         variant="outlined"
-        disabled={disableButton}
+        disabled={disableButton || !!subError}
         label="Cancel Subscription"
         onClick={openModal}
       />
       {isOpen && (
         <FormModal
           id="cancel-subscription"
-          loading={isRequesting}
+          loading={subscriptionLoading || isRequesting}
           isOpen={isOpen}
           closeHandler={closeModal}
           title="Cancel Subscription"

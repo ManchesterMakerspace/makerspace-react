@@ -99,6 +99,11 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
       transform: (val) => !!val,
       error: "Member must sign contract"
     },
+    subscription: {
+      label: "On PayPal Subscription (Warning: Don't touch this)",
+      name: `${formPrefix}-subscription`,
+      transform: (val) => !!val,
+    },
     notes: {
       label: "Notes",
       name: `${formPrefix}-notes`,
@@ -111,7 +116,7 @@ export const MemberRoleOptions = {
   [MemberRole.Admin]: "Admin"
 }
 
-const membershipDetails = {
+export const membershipDetails = {
   none: {
     description: "No membership on file. Create a membership to add one.",
     type: "No membership found",
