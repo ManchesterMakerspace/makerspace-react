@@ -27,7 +27,7 @@ export const subscriptionStatuses = {
   },
   pastDue: {
     label: "Past Due",
-    value: "PastDue"
+    value: "Past Due"
   },
   pending: {
     label: "Pending",

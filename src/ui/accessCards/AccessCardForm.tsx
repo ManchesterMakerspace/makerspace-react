@@ -1,6 +1,9 @@
 
 import * as React from "react";
 import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
+import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Typography from "@material-ui/core/Typography";
 import { adminGetNewCard, adminCreateCard, getMember, Member } from "makerspace-ts-api-client";
 
@@ -12,6 +15,11 @@ import { ActionButton } from "../common/ButtonRow";
 
 const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
   const [error, setError] = React.useState();
+  const [idVerified, setIdVerified] = React.useState(false);
+  const toggleVerified = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setIdVerified(event.currentTarget.checked);
+  }, [setIdVerified]);
+
   const { isOpen, openModal, closeModal } = useModal();
   const {
     isRequesting: newCardLoading,
@@ -37,6 +45,12 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
       setError("Import new key fob before proceeding.");
       return;
     }
+
+    if (!idVerified) {
+      setError("Member ID verification required to issue key.");
+      return;
+    }
+
     createCard({
       createAccessCardDetails: {
         memberId: member.id,
@@ -98,6 +112,22 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
             <li>If ID displayed, click 'Submit' button</li>
           </ul>
         </ol>
+
+         <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="id-verified"
+                  id="card-form-id-verified"
+                  value="id-verified"
+                  checked={idVerified}
+                  onChange={toggleVerified}
+                  color="default"
+                />
+              }
+              label="Verified member's name and address with valid identification"
+            />
+          </Grid>
       </FormModal>}
     </>
   );

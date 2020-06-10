@@ -100,6 +100,7 @@ export class MemberPageObject extends TablePageObject {
     stolenButton: `${this.cardFormId}-stolen`,
     importButton: `${this.cardFormId}-import-new-key`,
     importConfirmation: `${this.cardFormId}-key-confirmation`,
+    idVerification: `${this.cardFormId}-id-verified`,
     submit: `${this.cardFormId}-submit`,
     cancel: `${this.cardFormId}-cancel`,
     loading: `${this.cardFormId}-loading`,

@@ -81,6 +81,7 @@ const SubscriptionDetails: React.FC<{ memberId: string, rentalSubId?: string }> 
             />
             <CancelSubscriptionModal
               subscription={subscription}
+              subscriptionId={subscriptionId}
               memberId={memberId}
               onSuccess={onChange}
             />

@@ -105,6 +105,7 @@ describe("Member management", () => {
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
       expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).toBeFalsy();
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
@@ -153,6 +154,7 @@ describe("Member management", () => {
       // Get them a fob
       expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
       await utils.clickElement(memberPO.memberDetail.openCardButton);
+      await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);

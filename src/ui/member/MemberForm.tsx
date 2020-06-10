@@ -31,6 +31,7 @@ interface OwnProps {
 
 interface State {
   memberContractOnFile: boolean;
+  subscription: boolean;
 }
 
 class MemberForm extends React.Component<OwnProps, State> {
@@ -41,18 +42,25 @@ class MemberForm extends React.Component<OwnProps, State> {
     super(props);
     this.state = {
       memberContractOnFile: false,
+      subscription: false
     }
   }
 
   public componentDidMount() {
     const { member } = this.props;
-    this.setState({ memberContractOnFile: member && member.memberContractOnFile || false });
+    this.setState({ 
+      memberContractOnFile: member && member.memberContractOnFile || false,
+      subscription: member && member.subscription || false
+    });
   }
 
   public componentDidUpdate(prevProps: OwnProps) {
     const { isOpen, member } = this.props;
     if (isOpen && !prevProps.isOpen) {
-      this.setState({ memberContractOnFile: member && member.memberContractOnFile || false });
+      this.setState({ 
+        memberContractOnFile: member && member.memberContractOnFile || false,
+        subscription: member && member.subscription || false
+      });
     }
     if (member && member !== prevProps.member) {
       this.formRef && this.formRef.resetForm();
@@ -62,6 +70,11 @@ class MemberForm extends React.Component<OwnProps, State> {
   public toggleContract = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.currentTarget;
     this.setState({ memberContractOnFile: checked });
+  }
+
+  public togglePaypal = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.currentTarget;
+    this.setState({ subscription: checked });
   }
 
   public validate = async (form: Form): Promise<Member> => {
@@ -249,6 +262,23 @@ class MemberForm extends React.Component<OwnProps, State> {
               label={fields.memberContractOnFile.label}
             />
           </Grid>
+          {member && (
+             <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name={fields.subscription.name}
+                    id={fields.subscription.name}
+                    value={fields.subscription.name}
+                    checked={this.state.subscription}
+                    onChange={this.togglePaypal}
+                    color="default"
+                  />
+                }
+                label={fields.subscription.label}
+              />
+            </Grid>
+          )}
         </>
       )}
       {/* TODO Permissions (Select) */}

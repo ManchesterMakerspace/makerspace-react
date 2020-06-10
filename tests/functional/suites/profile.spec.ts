@@ -234,6 +234,7 @@ describe("Member Profiles", () => {
         expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(openingCard.uid); // Verify auto request works
 
         await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
+        await utils.clickElement(memberPO.accessCardForm.idVerification);
         await utils.clickElement(memberPO.accessCardForm.importButton);
         expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId);// Verify manual import works
         await mock(mockRequests.accessCard.post.ok(newCard));
@@ -291,6 +292,7 @@ describe("Member Profiles", () => {
         expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(openingCard.uid); // Verify auto request works
 
         await mock(mockRequests.rejectionCard.get.ok(rejectionCard));
+        await utils.clickElement(memberPO.accessCardForm.idVerification);
         await utils.clickElement(memberPO.accessCardForm.importButton);
         expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).toEqual(cardId); // Verify manual import works
         await mock(mockRequests.accessCard.post.ok(newCard));
