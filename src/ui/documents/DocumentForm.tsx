@@ -21,7 +21,7 @@ interface Props {
 const DocumentForm: React.FC<Props> = ({ error, loading, onAccept, doc, requestSignature }) => {
   const { id, name, src, label } = doc;
 
-  const [signatureError, setError ] = React.useState();
+  const [signatureError, setError ] = React.useState<string>();
   const signatureRef = React.useRef<any>();
   const clearSignature = React.useCallback(() => {
     signatureRef.current && signatureRef.current.clear();
@@ -54,6 +54,7 @@ const DocumentForm: React.FC<Props> = ({ error, loading, onAccept, doc, requestS
       onSubmit={onSubmit}
       error={signatureError || error}
       loading={loading}
+      style={{ maxWidth: "900px", margin: "auto" }}
     >
       <DocumentFrame id={id} src={src} />
       <div key={name}>

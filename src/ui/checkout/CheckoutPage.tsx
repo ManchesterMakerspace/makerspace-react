@@ -36,7 +36,7 @@ const CheckoutPage: React.FC = () => {
 
   const [paymentMethod, setPaymentMethod] = React.useState<AnyPaymentMethod>();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [paymentMethodError, setPaymentMethodError] = React.useState();
+  const [paymentMethodError, setPaymentMethodError] = React.useState<string>();
 
   const onSelect = React.useCallback((paymentMethod: AnyPaymentMethod) => {
     setPaymentMethod(paymentMethod);
