@@ -21,6 +21,7 @@ import EditMember from "./EditMember";
 import RenewMember from "./RenewMember";
 import NotificationModal, { Notification } from "./NotificationModal";
 import CancelSubscriptionModal from "../subscriptions/CancelSubscriptionModal";
+import PreviewMemberContract from "../documents/PreviewMemberContract";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
@@ -146,6 +147,7 @@ const MemberProfile: React.FC = () => {
             {member.notes && <KeyValueItem label="Notes">
               <div id="member-detail-notes" className="preformatted">{member.notes}</div>
             </KeyValueItem>}
+            <PreviewMemberContract />
           </>
         )}
         activeResourceName={resource}

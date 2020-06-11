@@ -14,7 +14,7 @@ import useModal from "../hooks/useModal";
 import { ActionButton } from "../common/ButtonRow";
 
 const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
-  const [error, setError] = React.useState();
+  const [error, setError] = React.useState<string>();
   const [idVerified, setIdVerified] = React.useState(false);
   const toggleVerified = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setIdVerified(event.currentTarget.checked);

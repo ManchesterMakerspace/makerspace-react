@@ -19,7 +19,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
   const { currentUser: { id: currentUserId, isAdmin }, permissions, isRequesting, error } = useAuthState();
   const [attemptingLogin, setAttemptingLogin] = React.useState(true);
-  const [loginAttempted, setLoginAttempted] = React.useState();
+  const [loginAttempted, setLoginAttempted] = React.useState<boolean>();
   const [initialPath] = React.useState(pathname);
 
   // Attempt login on mount except when going to password reset

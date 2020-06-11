@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Member, adminCreateMember } from "makerspace-ts-api-client";
+import { Member, adminCreateMember, NewMember } from "makerspace-ts-api-client";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
@@ -31,7 +31,7 @@ const CreateMember: React.FC<{ onCreate: (id: string) => void }> = ({ onCreate }
     const { street, unit, city, state, postalCode, ...rest } = validUpdate;
 
     create({ createMemberDetails: {
-      ...rest as Member,
+      ...rest as NewMember,
       address: {
         street,
         unit,

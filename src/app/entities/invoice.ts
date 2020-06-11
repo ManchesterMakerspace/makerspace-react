@@ -1,9 +1,9 @@
 import { QueryParams } from "app/interfaces";
-import {Invoice, PlanType } from "makerspace-ts-api-client";
+import {Invoice as ApiInvoice } from "makerspace-ts-api-client";
 
-export interface MemberInvoice extends Omit<Invoice, "rental"> {}
+export interface MemberInvoice extends Omit<ApiInvoice, "rental"> {}
 
-export interface RentalInvoice extends Invoice {}
+export interface RentalInvoice extends ApiInvoice {}
 
 export type Invoice = MemberInvoice | RentalInvoice;
 export const isMemberInvoice = (item: any): item is MemberInvoice => {

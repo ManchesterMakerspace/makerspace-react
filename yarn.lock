@@ -5486,9 +5486,9 @@ makeerror@1.0.x:
   dependencies:
     tmpl "1.0.x"
 
-makerspace-ts-api-client@1.8.5:
-  version "1.8.5"
-  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-1.8.5.tgz#2b82d9b2b3c7ef18dfa29e1c2cdee714532ec3d6"
+makerspace-ts-api-client@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-1.9.0.tgz#2a21c75a11845f1c71d4cd4a2090e1a683f1eaf4"
 
 mamacro@^0.0.3:
   version "0.0.3"
@@ -8263,8 +8263,8 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
 
 typescript@^3.5.3:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.6.2.tgz#105b0f1934119dde543ac8eb71af3a91009efe54"
+  version "3.9.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.5.tgz#586f0dba300cde8be52dd1ac4f7e1009c1b13f36"
 
 ua-parser-js@^0.7.18:
   version "0.7.18"
