@@ -18,7 +18,8 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
   const [idVerified, setIdVerified] = React.useState(false);
   const toggleVerified = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setIdVerified(event.currentTarget.checked);
-  }, [setIdVerified]);
+    setError("");
+  }, [setError, setIdVerified]);
 
   const { isOpen, openModal, closeModal } = useModal();
   const {
@@ -57,7 +58,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
         uid: rejectionCard.uid,
       }
     });
-  }, [rejectionCard, createCard, setError, member.id]);
+  }, [rejectionCard, createCard, setError, member.id, idVerified]);
 
   return (
     <>
