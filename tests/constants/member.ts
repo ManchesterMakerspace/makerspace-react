@@ -14,6 +14,12 @@ export const basicUser: LoginMember = {
   expirationTime: (moment().add(1, "months").valueOf()),
   memberContractOnFile: true,
   customerId: "test_customer_1",
+  address: {
+    street: "12 Main St.",
+    city: "Boston",
+    state: "MA",
+    postalCode: "00001"
+  }
 };
 export const adminUser: LoginMember = {
   id: "admin_member",
@@ -27,6 +33,12 @@ export const adminUser: LoginMember = {
   expirationTime: (moment().add(1, "months").valueOf()),
   memberContractOnFile: true,
   customerId: "test_admin_customer_1",
+  address: {
+    street: "12 Main St.",
+    city: "Boston",
+    state: "MA",
+    postalCode: "00001"
+  }
 };
 export const defaultMembers: LoginMember[] = new Array(20).fill(undefined).map((_v, index) => {
   const expirationNum = (Date.now() % 6);

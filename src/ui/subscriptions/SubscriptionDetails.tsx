@@ -37,7 +37,13 @@ export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, in
   )
 }
 
-const SubscriptionDetails: React.FC<{ memberId: string, rentalSubId?: string }> = ({ memberId, rentalSubId }) => {
+interface Props {
+  memberId: string;
+  rentalSubId?: string;
+  onChange?: () => void;
+}
+
+const SubscriptionDetails: React.FC<Props> = ({ memberId, rentalSubId, onChange: propsOnChange }) => {
   const { currentUser: { id, isAdmin } } = useAuthState();
   const asAdmin = isAdmin && id !== memberId;
 
@@ -64,6 +70,7 @@ const SubscriptionDetails: React.FC<{ memberId: string, rentalSubId?: string }> 
     reloadMember();
     reloadInvoices();
     reloadSubscription();
+    propsOnChange && propsOnChange();
   }, [reloadMember, reloadInvoices, reloadSubscription]);
 
   const fallbackUI = (isLoading && <LoadingOverlay  id="update-membership-modal-loading" contained={true}/>)

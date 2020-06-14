@@ -10,6 +10,7 @@ export enum Notification {
   MembershipExpired = "membershipExpired",
   PaymentRequired = "paymentRequired",
   SignRental = "SignRental",
+  IdentifcationDetails = "IdentifcationDetails"
 }
 
 const Notifications = {
@@ -30,6 +31,12 @@ const Notifications = {
     submit: "Review Documents",
     body: `We are missing a signed rental agreement for one of your plot, shelf or locker rentals.  Please take a moment to review these documents before continuing`,
     required: true,
+  },
+  [Notification.IdentifcationDetails]: {
+    title: "Please complete your profile",
+    submit: "Review profile",
+    body: "Your profile is missing some required information such as your address. Please take a moment to review and update your account.",
+    required: true
   }
 }
 

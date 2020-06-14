@@ -10,8 +10,7 @@ import MemberForm from "./MemberForm";
 
 const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boolean }> = ({ member = {} as Member, formOnly, onEdit }) => {
   const { isOpen, openModal, closeModal } = useModal();
-  const { currentUser: { id, isAdmin } } = useAuthState();
-  const asAdmin = isAdmin && member.id !== id;
+  const { currentUser: { isAdmin } } = useAuthState();
   const formRef = React.useRef<MemberForm>();
 
   const onSuccess = React.useCallback(() => {
@@ -22,7 +21,7 @@ const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boo
     isRequesting: memberUpdating,
     error: updateError,
     call: update,
-  } = useWriteTransaction(asAdmin ? adminUpdateMember : updateMember, onSuccess);
+  } = useWriteTransaction(isAdmin ? adminUpdateMember : updateMember, onSuccess);
 
   const onSubmit = React.useCallback(async (form: Form) => {
     const validUpdate: Record<string, any> = await formRef.current.validate(form);
@@ -59,7 +58,7 @@ const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boo
         <MemberForm
           ref={formRef}
           member={member}
-          isAdmin={asAdmin}
+          isAdmin={isAdmin}
           isOpen={true}
           isRequesting={memberUpdating}
           error={updateError}
