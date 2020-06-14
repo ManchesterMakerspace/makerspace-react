@@ -111,7 +111,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       label: "View",
       cell: (row: MemberInvoice | RentalInvoice) => {
         if (row.subscriptionId && viewingOwnInvoices) {
-          return <ViewSubscriptionModal subscriptionId={row.subscriptionId} memberId={row.memberId} />;
+          return <ViewSubscriptionModal memberId={row.memberId} />;
         }
         return <ViewInvoiceModal invoice={row} onUpdate={onSuccess} />;
       }

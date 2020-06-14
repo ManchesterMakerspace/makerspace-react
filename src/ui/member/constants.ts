@@ -35,7 +35,7 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
     label: "Street Address",
     name: `${formPrefix}-street`,
     placeholder: "Enter street address",
-    validate: (val: string) => member && member.id ? true : !!val,
+    validate: (val: string) => admin && member && member.id ? true : !!val,
     error: "Required"
   },
   unit: {
@@ -46,21 +46,21 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
     label: "City",
     name: `${formPrefix}-city`,
     placeholder: "Enter city",
-    validate: (val: string) => member && member.id ? true : !!val,
+    validate: (val: string) => admin && member && member.id ? true : !!val,
     error: "Required"
   },
   state: {
     label: "State",
     name: `${formPrefix}-state`,
     placeholder: "Select a state",
-    validate: (val: string) => member && member.id ? true : !!val,
+    validate: (val: string) => admin && member && member.id ? true : !!val,
     error: "Required"
   },
   postalCode: {
     label: "Postal Code",
     name: `${formPrefix}-postalCode`,
     placeholder: "Postal Code",
-    validate: (val: string) => member && member.id ? true : !!val,
+    validate: (val: string) => admin && member && member.id ? true : !!val,
     error: "Required"
   },
   ...admin && {

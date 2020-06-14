@@ -5,11 +5,11 @@ import FormModal from "ui/common/FormModal";
 import SubscriptionDetails from "./SubscriptionDetails";
 
 interface Props {
-  subscriptionId: string;
   memberId: string;
+  onChange?: () => void;
 }
 
-const ViewSubscriptionModal: React.FC<Props> = ({ subscriptionId, memberId }) => {
+const ViewSubscriptionModal: React.FC<Props> = ({ memberId, onChange }) => {
   const {isOpen, openModal, closeModal} = useModal();
 
   return (
@@ -31,6 +31,7 @@ const ViewSubscriptionModal: React.FC<Props> = ({ subscriptionId, memberId }) =>
         >
           <SubscriptionDetails
             memberId={memberId}
+            onChange={onChange}
           />
         </FormModal>
       )}

@@ -22,6 +22,7 @@ import RenewMember from "./RenewMember";
 import NotificationModal, { Notification } from "./NotificationModal";
 import CancelSubscriptionModal from "../subscriptions/CancelSubscriptionModal";
 import PreviewMemberContract from "../documents/PreviewMemberContract";
+import ViewSubscriptionModal from "ui/subscriptions/ViewSubscriptionModal";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
@@ -51,6 +52,12 @@ const MemberProfile: React.FC = () => {
       setNotification(Notification.Welcome);
     }
   }, [initRender, isOwnProfile, memberLoading, member.memberContractOnFile]);
+
+  React.useEffect(() => {
+    if (!initRender && isOwnProfile && !memberLoading && (member.id && !(member.address && member.address.street))) {
+      setNotification(Notification.IdentifcationDetails);
+    }
+  }, [initRender, isOwnProfile, memberLoading, member.address]);
 
   const { data: rentals = [] } = useReadTransaction(listRentals, {});
 
@@ -91,8 +98,10 @@ const MemberProfile: React.FC = () => {
             .replace(Routing.PathPlaceholder.ResourceId, "")
         );
         break;
+      case Notification.IdentifcationDetails:
+        goToSettings();
     }
-  }, [history, rentals, notification]);
+  }, [history, rentals, notification, goToSettings]);
 
   React.useEffect(() => {
     if (memberError && !member.id) {
@@ -140,14 +149,14 @@ const MemberProfile: React.FC = () => {
               <MemberStatusLabel id="member-detail-status" member={member} />
             </KeyValueItem>
             {billingEnabled && <KeyValueItem label="Membership Type">
-              <span id="member-detail-type" style={{ marginRight: "1em" }}>{memberSubscription.type}</span> 
+              <span id="member-detail-type" style={{ marginRight: "1em" }}>{memberSubscription.type}</span>
                 {isAdmin && !isOwnProfile && memberSubscription === membershipDetails.subscription &&
-                  <CancelSubscriptionModal subscriptionId={member.subscriptionId} memberId={memberId} onSuccess={refreshMember}/>}
+                  <ViewSubscriptionModal memberId={memberId} onChange={refreshMember}/>}
             </KeyValueItem>}
             {member.notes && <KeyValueItem label="Notes">
               <div id="member-detail-notes" className="preformatted">{member.notes}</div>
             </KeyValueItem>}
-            <PreviewMemberContract />
+            {isOwnProfile && <PreviewMemberContract />}
           </>
         )}
         activeResourceName={resource}
