@@ -122,8 +122,15 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
       // Find related form field
       const field = fields[optionMap];
       if (field) {
+        let value = val;
+        if (key === BillingPlanProps.Amount) {
+          value -= billingPlan.discounts.reduce((amt, discount) => {
+            return amt + Number(discount.amount);
+          }, 0)
+        }
+
         // Apply to form values update object
-        invoiceOptionForm[field.name] = val;
+        invoiceOptionForm[field.name] = value;
       }
       return invoiceOptionForm;
     }, {});
