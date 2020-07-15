@@ -1,6 +1,6 @@
 import { AnyAction } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { omit } from "lodash-es";
+import omit from "lodash-es/omit";
 
 import { Action as BillingAction } from "ui/billing/constants";
 import { BillingState } from "ui/billing/interfaces";
