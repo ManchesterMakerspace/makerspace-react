@@ -8,7 +8,7 @@ import Select from "@material-ui/core/Select";
 import Form from "ui/common/Form";
 import { reportRequirementFields, formPrefix } from "ui/reports/constants";
 import ButtonRow, { ActionButtonProps } from "ui/common/ButtonRow";
-import { mapValues } from "lodash-es";
+import mapValues from "lodash-es/mapValues";
 import {
   Requirement,
   ReportRequirement,

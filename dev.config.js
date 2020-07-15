@@ -5,6 +5,9 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+ 
+
 
 module.exports = env => ({
   mode: "development",
@@ -107,6 +110,7 @@ module.exports = env => ({
       checkSyntacticErrors: true,
       async: false
     }),
+    new BundleAnalyzerPlugin(),
     new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
       filename: `makerspace-react.css`
