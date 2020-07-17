@@ -82,6 +82,9 @@ describe("Membership", () => {
     await settingsPO.goToMembershipSettings();
 
     // Subscription details displayed
+    try {
+      await utils.waitForVisible(settingsPO.subscriptionDetails.loading);
+    } catch {}
     await utils.waitForNotVisible(settingsPO.subscriptionDetails.loading);
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
     expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
