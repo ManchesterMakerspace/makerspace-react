@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const { currentUser: { id: currentUserId, isAdmin }, permissions, isRequesting, error } = useAuthState();
   const [attemptingLogin, setAttemptingLogin] = React.useState(true);
   const [loginAttempted, setLoginAttempted] = React.useState<boolean>();
+  const [authSettled, setAuthSettled] = React.useState<boolean>();
   const [initialPath] = React.useState(pathname);
 
   // Attempt login on mount except when going to password reset
@@ -35,7 +36,7 @@ const App: React.FC = () => {
 
   // Redirect after login if they were navigation elsewhere
   React.useEffect(() => {
-    if (!error && !isRequesting) {
+    if (!error && !isRequesting && !authSettled) {
       loginAttempted && setAttemptingLogin(false);
       if (currentUserId) {
         if (
@@ -48,6 +49,7 @@ const App: React.FC = () => {
         } else {
           history.push(buildProfileRouting(currentUserId));
         }
+        setAuthSettled(true);
       }
     }
   }, [isRequesting]);

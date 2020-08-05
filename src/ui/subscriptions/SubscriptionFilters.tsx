@@ -89,11 +89,12 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
         <FormControl component="fieldset">
           <FormLabel component="legend">Search for subscriptions</FormLabel>
           <TextField
-                id="subscription-search-input"
-                type="text"
-                placeholder="Search..."
-                onKeyPress={onSearch}
-              />
+            value={params.search}
+            id="subscription-search-input"
+            type="text"
+            placeholder="Search..."
+            onKeyPress={onSearch}
+          />
         </FormControl>
       </Grid>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>

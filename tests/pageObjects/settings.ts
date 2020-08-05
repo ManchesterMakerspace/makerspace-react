@@ -13,7 +13,7 @@ class Settings {
   }
 
   public subscriptionDetails = {
-    loading: "#update-membership-modal-loading",
+    loading: "#subscription-settings-loading",
     name: "#cancel-subscription-name",
     description: "#cancel-subscription-description",
     status: "#subscription-status",
@@ -23,7 +23,7 @@ class Settings {
   }
 
   public nonSubscriptionDetails = {
-    loading: "#update-membership-modal-loading",
+    loading: "#subscription-settings-loading",
     expiration: "#member-detail-expiration",
     status: "#member-detail-status",
     membershipType: "#member-detail-type",

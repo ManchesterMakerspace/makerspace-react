@@ -1,6 +1,7 @@
 import { Subscription } from "makerspace-ts-api-client";
 
-export const renderPlanType = (planId: string) => {
+export const renderPlanType = (id: string) => {
+  const planId = id || "";
   const membership = planId.match(/membership/);
   if (membership) {
     return "Membership";
@@ -22,4 +23,5 @@ export const renderPlanType = (planId: string) => {
   }
 }
 
-export const isCanceled = (subscription: Subscription) => subscription && subscription.status.toLowerCase() === "canceled";
+export const isCanceled = (subscription: Subscription) => 
+  subscription && subscription.status && subscription.status.toLowerCase() === "canceled";

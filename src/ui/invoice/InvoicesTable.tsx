@@ -1,6 +1,6 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
-
+import { Link } from "react-router-dom";
 
 import { adminListInvoices, listInvoices, getMember, Invoice } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
@@ -18,9 +18,10 @@ import DeleteInvoiceModal from "../invoice/DeleteInvoiceModal";
 import { ActionButton } from "../common/ButtonRow";
 import { isInvoicePayable, renderInvoiceDueDate, renderInvoiceStatus } from "./utils";
 import ViewInvoiceModal from "./ViewInvoiceModal";
-import ViewSubscriptionModal from "../subscriptions/ViewSubscriptionModal";
 import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
 import InvoiceFilters from "./InvoiceFilters";
+import { SubRoutes } from "ui/settings/SettingsContainer";
+import { Routing } from "app/constants";
 
 
 const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ stageInvoice }) => {
@@ -111,8 +112,12 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       label: "View",
       cell: (row: MemberInvoice | RentalInvoice) => {
         if (row.subscriptionId && viewingOwnInvoices) {
-          return <ViewSubscriptionModal memberId={row.memberId} />;
-        }
+          return (
+            <Link to={`${Routing.Billing}/${SubRoutes.Subscriptions}?q=${encodeURIComponent(row.memberName)}`}>
+              Manage Subscription
+            </Link>
+          )
+        };
         return <ViewInvoiceModal invoice={row} onUpdate={onSuccess} />;
       }
     }

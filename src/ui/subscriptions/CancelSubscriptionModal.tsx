@@ -2,47 +2,34 @@ import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
 import FormModal from "ui/common/FormModal";
-import { adminCancelSubscription, cancelSubscription, Subscription, getSubscription } from "makerspace-ts-api-client";
+import { isCanceled } from "ui/subscriptions/utils";
+import { adminCancelSubscription, cancelSubscription, Subscription } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import { SubscriptionDetailsInner } from "./SubscriptionDetails";
-import useReadTransaction from "../hooks/useReadTransaction";
 
 interface Props {
-  subscriptionId: string
-  subscription?: Subscription;
-  memberId?: string;
-  onSuccess?: () => void;
+  subscription: Subscription;
+  onSuccess: () => void;
 }
 
-const CancelSubscriptionModal: React.FC<Props> = ({ subscription: propsSub = {} as Subscription, subscriptionId, memberId, onSuccess }) => {
-  const { 
-    isRequesting: subscriptionLoading, 
-    data, 
-    error: subError, 
-  } = useReadTransaction(
-    getSubscription, 
-    { id: subscriptionId }, 
-    !subscriptionId || !!propsSub.id
-  );
-
-  const subscription = data || propsSub;
+const CancelSubscriptionModal: React.FC<Props> = ({ subscription, onSuccess }) => {
   const { currentUser: { id, isAdmin } } = useAuthState();
   const { isOpen, openModal, closeModal } = useModal();
-  const asAdmin = isAdmin && id !== memberId;
+  const asAdmin = isAdmin && id !== subscription.memberId;
 
   const { isRequesting, error, call } = useWriteTransaction(asAdmin ? adminCancelSubscription : cancelSubscription, () => {
     closeModal();
-    onSuccess && onSuccess();
+    onSuccess();
   });
 
   const onSubmit = React.useCallback(() => {
-    call({ id: subscriptionId });
-  }, [call, subscriptionId]);
+    call({ id: subscription.id });
+  }, [call, subscription.id]);
 
-  const disableButton = !subscriptionId || subscription.status === "Canceled";
+  const disableButton = isCanceled(subscription);
   const whosSubscription = asAdmin ? (subscription.memberName ? `${subscription.memberName}'s` : "this") : "your";
   return (
     <>
@@ -50,14 +37,14 @@ const CancelSubscriptionModal: React.FC<Props> = ({ subscription: propsSub = {} 
         id="subscription-option-cancel"
         color="secondary"
         variant="outlined"
-        disabled={disableButton || !!subError}
+        disabled={disableButton}
         label="Cancel Subscription"
         onClick={openModal}
       />
       {isOpen && (
         <FormModal
           id="cancel-subscription"
-          loading={subscriptionLoading || isRequesting}
+          loading={isRequesting}
           isOpen={isOpen}
           closeHandler={closeModal}
           title="Cancel Subscription"

@@ -1,8 +1,9 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import useReactRouter from "use-react-router";
 import { Member, getMember, listRentals } from "makerspace-ts-api-client";
 
-import { displayMemberExpiration, buildProfileRouting } from "ui/member/utils";
+import { displayMemberExpiration } from "ui/member/utils";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import KeyValueItem from "ui/common/KeyValueItem";
 import DetailView from "ui/common/DetailView";
@@ -11,7 +12,7 @@ import InvoicesList from "ui/invoice/InvoicesList";
 import RentalsList from "ui/rentals/RentalsList";
 import { ActionButton } from "ui/common/ButtonRow";
 import { Whitelists, Routing } from "app/constants";
-import { getDetailsForMember, membershipDetails } from "./constants";
+import { getDetailsForMember } from "./constants";
 import AccessCardForm from "ui/accessCards/AccessCardForm";
 import ReportList from "ui/reports/ReportList";
 import TransactionsList from "ui/transactions/TransactionsList";
@@ -20,9 +21,8 @@ import { useAuthState } from "../reducer/hooks";
 import EditMember from "./EditMember";
 import RenewMember from "./RenewMember";
 import NotificationModal, { Notification } from "./NotificationModal";
-import CancelSubscriptionModal from "../subscriptions/CancelSubscriptionModal";
 import PreviewMemberContract from "../documents/PreviewMemberContract";
-import ViewSubscriptionModal from "ui/subscriptions/ViewSubscriptionModal";
+import { SubRoutes } from "ui/settings/SettingsContainer";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
@@ -150,8 +150,21 @@ const MemberProfile: React.FC = () => {
             </KeyValueItem>
             {billingEnabled && <KeyValueItem label="Membership Type">
               <span id="member-detail-type" style={{ marginRight: "1em" }}>{memberSubscription.type}</span>
-                {isAdmin && !isOwnProfile && memberSubscription === membershipDetails.subscription &&
-                  <ViewSubscriptionModal memberId={memberId} onChange={refreshMember}/>}
+                {member.subscriptionId && (
+                  <>
+                    {isOwnProfile && (
+                      <Link to={`${Routing.Settings}/${SubRoutes.Subscriptions}`}>
+                        Manage Subscription
+                      </Link>
+                    )}
+                    {!isOwnProfile && isAdmin && (
+                      <Link to={`${Routing.Billing}/${SubRoutes.Subscriptions}?q=${encodeURIComponent(`${member.firstname} ${member.lastname}`)}`}>
+                        Manage Subscription
+                      </Link>
+                    )}
+                    
+                  </>
+                )}
             </KeyValueItem>}
             {member.notes && <KeyValueItem label="Notes">
               <div id="member-detail-notes" className="preformatted">{member.notes}</div>

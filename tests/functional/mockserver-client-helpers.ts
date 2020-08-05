@@ -343,7 +343,7 @@ export const mockRequests = {
   },
   permission: {
     get: {
-      ok: (memberId: string, memberPermissions: CollectionOf<Permission>) => ({
+      ok: (memberId: string, memberPermissions: CollectionOf<boolean>) => ({
         httpRequest: {
           method: Method.Get,
           path: `/${Url.Members}/${memberId}/permissions`,

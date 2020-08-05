@@ -82,10 +82,8 @@ describe("Membership", () => {
     await settingsPO.goToMembershipSettings();
 
     // Subscription details displayed
-    try {
-      await utils.waitForVisible(settingsPO.subscriptionDetails.loading);
-    } catch {}
     await utils.waitForNotVisible(settingsPO.subscriptionDetails.loading);
+    await utils.waitForVisible(settingsPO.subscriptionDetails.status);
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
     expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
     // Change payment method
@@ -129,6 +127,7 @@ describe("Membership", () => {
 
     // Non subscription details displayed
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
+    await utils.waitForVisible(settingsPO.nonSubscriptionDetails.status);
     expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
   }, 600000);
@@ -143,6 +142,7 @@ describe("Membership", () => {
 
     // Non subscription details displayed
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
+    await utils.waitForVisible(settingsPO.nonSubscriptionDetails.status);
     expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
 

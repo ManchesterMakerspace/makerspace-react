@@ -9,9 +9,9 @@ interface LoadingProps {
 const LoadingOverlay: React.SFC<LoadingProps> = (props) => {
   const id = `${props.id}-loading`
   return (
-    <div className="loading-overlay" style={props.contained && {position: "relative"}}>
+    <div id={id} className="loading-overlay" style={props.contained && {position: "relative"}}>
       <div className="spinner-container">
-        <CircularProgress id={id}/>
+        <CircularProgress />
       </div>
     </div>
   )
