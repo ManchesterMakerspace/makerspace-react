@@ -191,8 +191,6 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
     const { type, planId, disableOption, isPromotion } = this.state;
 
 
-    console.error("type", type);
-
     // TODO: The validation / when things are disabled doesn't make a lot of sense
     // Need to work out how selecting discounts & plans will relate to fields
 

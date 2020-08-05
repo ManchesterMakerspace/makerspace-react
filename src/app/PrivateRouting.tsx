@@ -29,7 +29,7 @@ const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin 
     <Switch>
       <Route exact path={Routing.Members} component={MembersList} />
       <Route exact path={`${Routing.Documents}`} component={AgreementContainer} />
-      <Route exact path={Routing.Settings} component={SettingsContainer} />
+      <Route exact path={`${Routing.Settings}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={SettingsContainer} />
       <Route exact path={`${Routing.Profile}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={MemberDetail} />
       <Route exact path={Routing.Rentals} component={RentalsList} />
       {billingEnabled && <Route exact path={`${Routing.Billing}/${Routing.PathPlaceholder.Resource}${Routing.PathPlaceholder.Optional}`} component={BillingContainer} />}

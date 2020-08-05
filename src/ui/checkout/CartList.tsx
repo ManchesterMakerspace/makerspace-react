@@ -1,5 +1,6 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
+import { useDispatch } from "react-redux";
 
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -13,6 +14,7 @@ import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import ErrorMessage from "ui/common/ErrorMessage";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import FormModal from "ui/common/FormModal";
+import { sessionLoginUserAction } from "ui/auth/actions";
 import { CartItem, useCartState, isInvoiceSelection } from "./cart";
 import useModal from "../hooks/useModal";
 import { Routing } from "app/constants";
@@ -40,6 +42,7 @@ interface Props {
 const CartList: React.FC<Props> = ({ paymentMethod }) => {
   const { item } = useCartState();
   const { history } = useReactRouter();
+  const dispatch = useDispatch();
 
   const {
     isOpen: subscriptionAuthOpen,
@@ -49,10 +52,12 @@ const CartList: React.FC<Props> = ({ paymentMethod }) => {
 
   const onSuccess = React.useCallback(({ response: { data: transaction } }: SuccessTransactionState<Parameters<typeof createTransaction>[0], Transaction>) => {
     const invoiceId = transaction && transaction.invoice.id;
+    dispatch(sessionLoginUserAction());
+
     if (invoiceId) {
       history.push(`${Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoiceId)}`)
     }
-  }, [history]);
+  }, [history, dispatch]);
   const { call, isRequesting, error, reset } = useWriteTransaction(createTransaction, onSuccess);
   const { isOpen: errorIsOpen, openModal, closeModal } = useModal();
 

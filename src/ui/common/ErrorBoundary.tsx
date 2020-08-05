@@ -20,7 +20,11 @@ class ErrorBoundaryInternal extends React.Component<Props, { hasError: boolean }
 
   public componentDidCatch(error: Error) {
     this.setState({ hasError: true });
-    this.props.reportError(error.toString());
+    let errorMsg = error.toString();
+    if (error.stack) {
+      errorMsg += `\nStack: ${error.stack}`;
+    }
+    this.props.reportError(errorMsg);
   }
 
   render() {

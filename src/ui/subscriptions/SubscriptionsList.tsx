@@ -1,7 +1,6 @@
 import * as React from "react";
+import useReactRouter from "use-react-router";
 import Grid from "@material-ui/core/Grid";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 
 import { Subscription, adminListSubscriptions } from "makerspace-ts-api-client";
 
@@ -43,12 +42,16 @@ const fields: Column<Subscription>[] = [
 const rowId = (sub: Subscription) => sub.id;
 
 const SubscriptionsTable: React.FC = () => {
+  const { location: { search } } = useReactRouter();
   const [selectedId, setSelectedId] = React.useState<string>();
+  const searchTerms = new URLSearchParams(search);
+  const searchTerm = searchTerms.get("q");
+
   const {
     params: { pageNum, order, orderBy, ...restParams },
     changePage
   } = useQueryContext({
-    search: undefined,
+    search: searchTerm,
     startDate: undefined,
     endDate: undefined,
     planId: [],
@@ -74,8 +77,7 @@ const SubscriptionsTable: React.FC = () => {
       <Grid item xs={12}>
         <Grid>
           <CancelSubscriptionModal
-            subscription={selectedSubscription}
-            subscriptionId={selectedId}
+            subscription={selectedSubscription || {} as Subscription}
             onSuccess={onCancel}
           />
           <SubscriptionFilters onChange={refresh}/>

@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import TextField from "@material-ui/core/TextField";
+import Checkbox from "@material-ui/core/Checkbox";
 import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormLabel from "@material-ui/core/FormLabel";
@@ -8,7 +9,12 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import Radio from "@material-ui/core/Radio";
 import Grid from "@material-ui/core/Grid";
 
-import { adminListRentals, listInvoiceOptions } from "makerspace-ts-api-client";
+import { 
+  adminListRentals, 
+  listInvoiceOptions, 
+  InvoiceOption, 
+  isApiErrorResponse
+} from "makerspace-ts-api-client";
 
 import { InvoiceableResource, MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
@@ -30,6 +36,8 @@ interface OwnProps {
 }
 
 interface State {
+  applyDiscount: boolean;
+  invoiceOptions: InvoiceOption[];
   invoiceType: InvoiceableResource | string;
 }
 interface Props extends OwnProps {}
@@ -42,8 +50,14 @@ export class InvoiceForm extends React.Component<Props, State> {
     super(props);
     const { invoice } = props;
     this.state = {
+      applyDiscount: false,
+      invoiceOptions: [],
       invoiceType: invoice && invoice.resourceClass || InvoiceableResource.Membership,
     }
+  }
+
+  public async componentDidMount(): Promise<void> {
+    this.getInvoiceOptions();
   }
 
   public componentDidUpdate(prevProps: OwnProps, prevState: State){
@@ -60,8 +74,15 @@ export class InvoiceForm extends React.Component<Props, State> {
     }
   }
 
+  public getInvoiceOptions = async () => {
+    const result = await listInvoiceOptions();
+    if (!isApiErrorResponse(result)) {
+      this.setState({ invoiceOptions: result.data });
+    }
+  }
 
   public validate = async (form: Form): Promise<MemberInvoice | RentalInvoice> => {
+    const { applyDiscount, invoiceOptions } = this.state;
     const updatedInvoice = await form.simpleValidate<MemberInvoice | RentalInvoice>(fields);
     const { memberId } = updatedInvoice;
 
@@ -75,10 +96,14 @@ export class InvoiceForm extends React.Component<Props, State> {
       form.setError(fields.rentalId.name, fields.rentalId.error);
     }
 
+    // Determine 
+    const matchingIo = invoiceOptions.find(option => option.id === updatedInvoice.id);
+
     return {
       ...updatedInvoice,
       memberId: memberId || null,
-    }
+      ...applyDiscount && matchingIo && { discountId: matchingIo.discountId }
+    };
   }
 
   private resetInvoiceType = () => {
@@ -89,11 +114,14 @@ export class InvoiceForm extends React.Component<Props, State> {
     this.setState({ invoiceType: event.currentTarget.value as InvoiceableResource });
   }
 
+  private toggleDiscount = (event: React.ChangeEvent<HTMLInputElement>) => this.setState({ applyDiscount: event.currentTarget.checked });
+
   public render(): JSX.Element {
     const {
       isOpen, onClose, isRequesting, error,
       onSubmit, invoice, allowCustomBilling, memberId } = this.props;
-
+    const { applyDiscount } = this.state;
+    
     if (!invoice) {
       return null;
     }
@@ -209,6 +237,23 @@ export class InvoiceForm extends React.Component<Props, State> {
                 />
               </Grid>
             </>
+          )}
+          {this.state.invoiceType === InvoiceableResource.Membership && (
+            <Grid item xs={12}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name={fields.discount.name}
+                    value={fields.discount.name}
+                    checked={applyDiscount}
+                    onChange={this.toggleDiscount}
+                    disabled={isRequesting}
+                    color="default"
+                  />
+                }
+                label={fields.discount.label}
+              />
+            </Grid>
           )}
         </Grid>
       </FormModal>

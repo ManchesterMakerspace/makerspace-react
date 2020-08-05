@@ -1,18 +1,19 @@
 import * as React from "react";
-import { listInvoices, getSubscription, adminListInvoices, Invoice, Subscription, getMember, Member } from "makerspace-ts-api-client";
-import KeyValueItem from "ui/common/KeyValueItem";
+import { useDispatch } from "react-redux";
+import { getSubscription, Invoice, Subscription } from "makerspace-ts-api-client";
 import Grid from "@material-ui/core/Grid";
 
-import LoadingOverlay from "../common/LoadingOverlay";
-import useReadTransaction, { ReadTransaction } from "../hooks/useReadTransaction";
-import ErrorMessage from "../common/ErrorMessage";
-import InvoiceDetails from "../invoice/InvoiceDetails";
+import KeyValueItem from "ui/common/KeyValueItem";
+import useReadTransaction from "../hooks/useReadTransaction";
 import { timeToDate } from "../utils/timeToDate";
-import { useAuthState } from "../reducer/hooks";
 import { renderPlanType, isCanceled } from "./utils";
-import NoSubscriptionDetails from "./NoSubscriptionDetails";
 import ChangePaymentMethodModal from "../membership/ChangePaymentMethodModal";
 import CancelSubscriptionModal from "./CancelSubscriptionModal";
+import { numberAsCurrency } from "ui/utils/numberAsCurrency";
+import { sessionLoginUserAction } from "ui/auth/actions";
+import ErrorMessage from "ui/common/ErrorMessage";
+import { useAuthState } from "../reducer/hooks";
+import NoSubscriptionDetails from "../subscriptions/NoSubscriptionDetails";
 
 export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, invoice?: Invoice}> = ({ invoice, subscription }) => {
   const type = subscription && renderPlanType(subscription.planId);
@@ -20,7 +21,9 @@ export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, in
   return (
     <Grid container spacing={24}>
       <Grid item xs={12}>
-      {invoice && <InvoiceDetails invoice={invoice} summaryOnly={true}/>}
+        <KeyValueItem label="Amount">
+          <span id="subscription-amount">{numberAsCurrency(subscription.amount)}</span>
+        </KeyValueItem>
         <KeyValueItem label="Status">
           <span id="subscription-status">{`${subscription.status}`}</span>
         </KeyValueItem>
@@ -37,69 +40,53 @@ export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, in
   )
 }
 
+
 interface Props {
-  memberId: string;
-  rentalSubId?: string;
-  onChange?: () => void;
+  subscriptionId: string;
+  onLoad: (loadState: boolean) => void;
 }
 
-const SubscriptionDetails: React.FC<Props> = ({ memberId, rentalSubId, onChange: propsOnChange }) => {
-  const { currentUser: { id, isAdmin } } = useAuthState();
-  const asAdmin = isAdmin && id !== memberId;
+const SubscriptionDetails: React.FC<Props> = ({ subscriptionId, onLoad }) => {
+  const { currentUser } = useAuthState();
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => setIsMounted(true), []);
+  const [wasCancelled, setWasCancelled] = React.useState(false);
 
-  const {
-    isRequesting: loadingMember,
-    error: getMemberError,
-    data: member,
-    refresh: reloadMember
-  } = useReadTransaction(getMember, { id });
+  const { 
+    isRequesting: subscriptionLoading, 
+    data: subscription = {} as Subscription, 
+    error: subError, 
+    refresh: reloadSubscription 
+  } = useReadTransaction(getSubscription, { id: subscriptionId }, !subscriptionId);
+  const dispatch = useDispatch();
 
-  const adminResult = useReadTransaction(adminListInvoices, { resourceId: [memberId] }, !asAdmin);
-  const baseResult = useReadTransaction(listInvoices, { }, asAdmin);
-  const { isRequesting: invoicesLoading, data: invoices = [], error: invoicesError, refresh: reloadInvoices } = asAdmin ? adminResult : baseResult;
-
-  // Use prop if exists
-  const subscriptionId = rentalSubId || (member ? member.subscriptionId : undefined);
-  const { isRequesting: subscriptionLoading, data: subscription, error: subError, refresh: reloadSubscription } = useReadTransaction(getSubscription, { id: subscriptionId }, !subscriptionId);
-
-  const isLoading = loadingMember || subscriptionLoading || invoicesLoading;
-  const error = getMemberError || subError || invoicesError;
-  const subscriptionInvoice = invoices.find(invoice => invoice.subscriptionId === subscriptionId);
+  React.useEffect(() => {
+    isMounted && onLoad(subscriptionLoading);
+  }, [subscriptionLoading]);
 
   const onChange = React.useCallback(() => {
-    reloadMember();
-    reloadInvoices();
+    subscription.resourceClass === "Member" && dispatch(sessionLoginUserAction());
     reloadSubscription();
-    propsOnChange && propsOnChange();
-  }, [reloadMember, reloadInvoices, reloadSubscription]);
+  }, [subscription, dispatch, reloadSubscription]);
 
-  const fallbackUI = (isLoading && <LoadingOverlay  id="update-membership-modal-loading" contained={true}/>)
-  || (error && <ErrorMessage error={error} />);
-
-  const subDetails = subscription && subscription.id ? (
+  return !subscriptionId || wasCancelled || isCanceled(subscription) ? <NoSubscriptionDetails member={currentUser}/> : (
     <>
-      <SubscriptionDetailsInner subscription={subscription} invoice={subscriptionInvoice}/>
-      {!isCanceled(subscription) &&  (
-        <Grid container spacing={24}>
-          <Grid item xs={12}>
-            <ChangePaymentMethodModal
-              subscription={subscription}
-              onSuccess={onChange}
-            />
-            <CancelSubscriptionModal
-              subscription={subscription}
-              subscriptionId={subscriptionId}
-              memberId={memberId}
-              onSuccess={onChange}
-            />
-          </Grid>
+      <SubscriptionDetailsInner subscription={subscription} />
+      <ErrorMessage error={subError} />
+      <Grid container spacing={24}>
+        <Grid item xs={12}>
+          <ChangePaymentMethodModal
+            subscription={subscription}
+            onSuccess={onChange}
+          />
+          <CancelSubscriptionModal
+            subscription={subscription}
+            onSuccess={() => { setWasCancelled(true); onChange(); }}
+          />
         </Grid>
-      )}
+      </Grid>
     </>
-  ) : (
-    <NoSubscriptionDetails member={member || { id: memberId } as Member}/>
-  )
-  return fallbackUI || subDetails;
-}
+  );
+};
 
 export default SubscriptionDetails;

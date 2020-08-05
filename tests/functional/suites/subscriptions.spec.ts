@@ -99,12 +99,12 @@ describe("Paid Subscriptions", () => {
       await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
       // Submit payment
+      const subscribedMember = { ...basicUser, subscriptionId: initSubscription.id };
       const defaultTransaction = { ...defaultTransactions[0], invoice: defaultInvoice };
       await mock(mockRequests.transactions.post.ok(defaultTransaction));
-      await mock(mockRequests.member.get.ok(basicUser.id, {
-        ...basicUser,
-        subscriptionId: initSubscription.id,
-      } as LoginMember));
+      await mock(mockRequests.member.get.ok(basicUser.id, subscribedMember as LoginMember));
+      await mock(mockRequests.signIn.ok(subscribedMember as LoginMember));
+      await mock(mockRequests.permission.get.ok(subscribedMember.id, { billing: true }));
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
 
       await utils.clickElement(checkoutPo.nextButton);

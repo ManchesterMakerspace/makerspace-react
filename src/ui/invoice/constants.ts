@@ -49,6 +49,10 @@ export const fields = {
     placeholder: "Select an option",
     error: "Billing option required",
     validate: (val: string) => !!val,
+  },
+  discount: {
+    label: "Apply Discount",
+    name: `${formPrefix}-discount`
   }
   // term: {
   //   label: "Renewal Length",
