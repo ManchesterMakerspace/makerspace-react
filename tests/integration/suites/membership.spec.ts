@@ -16,7 +16,7 @@ describe("Membership", () => {
     return browser.get(utils.buildUrl());
   })
 
-  test("Members can create a membership, change payment methods and cancel their membership", async () => {
+  it("Members can create a membership, change payment methods and cancel their membership", async () => {
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
@@ -132,7 +132,7 @@ describe("Membership", () => {
     expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
   }, 600000);
 
-  test("Admins can cancel a membership", async () => {
+  it("Admins can cancel a membership", async () => {
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
@@ -212,6 +212,7 @@ describe("Membership", () => {
     await utils.waitForNotVisible(subscriptionPO.cancelSubscriptionModal.loading);
     await utils.clickElement(subscriptionPO.cancelSubscriptionModal.submit);
     await utils.waitForNotVisible(subscriptionPO.cancelSubscriptionModal.submit);
+    await utils.waitForNotVisible(subscriptionPO.getLoadingId(), 60 * 1000);
 
     const rows = await subscriptionPO.getAllRows();
     await Promise.all(rows.map((row, index) => {
