@@ -72,7 +72,7 @@ const RentalsList: React.FC<{ member?: Member }> = ({ member }) => {
     ...params,
     ...member && { memberId: member.id }
   }, !isAdmin);
-  const listRentalsResposne = useReadTransaction(listRentals, {}, isAdmin);
+  const listRentalsResposne = useReadTransaction(listRentals, {}, isAdmin, "rentals-list");
 
   const { isRequesting, data: rentals = [], response, refresh, error } = isAdmin
     ? adminListRentalsResponse

@@ -13,7 +13,11 @@ import ErrorMessage from "../common/ErrorMessage";
 
 
 const BillingContainer: React.FC = () => {
-  const { isRequesting, data, error } = useReadTransaction(adminListAnalytics, {});
+  const { 
+    isRequesting, 
+    data, 
+    error 
+  } = useReadTransaction(adminListAnalytics, {}, undefined, "adminListAnalytics");
 
   const {
     totalMembers,
