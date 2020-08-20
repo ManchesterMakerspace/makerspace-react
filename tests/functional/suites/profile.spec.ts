@@ -25,7 +25,7 @@ const reviewMemberInfo = async (loggedInUser: LoginMember, viewingMember?: Login
   await memberPO.verifyProfileInfo(viewingMember);
 }
 
-const reviewSubResource = async (member: LoginMember, admin: boolean = false,  ownProfile: boolean = false) => {
+const mockSubResources = (member: LoginMember, admin: boolean = false,  ownProfile: boolean = false) => {
   const memberDetails = {
     memberId: member.id,
     memberName: `${member.firstname} ${member.lastname}`,
@@ -35,9 +35,19 @@ const reviewSubResource = async (member: LoginMember, admin: boolean = false,  o
   const transactions = defaultTransactions.map(t => ({...t, ...memberDetails }));
   // Go to rentals
   // Rentals displayed
-  await mock(mockRequests.rentals.get.ok(rentals, admin && !ownProfile ? { memberId: member.id } : undefined, admin));
-  await mock(mockRequests.invoices.get.ok(invoices, undefined, admin));
-  await mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
+  mock(mockRequests.rentals.get.ok(rentals, admin && !ownProfile ? { memberId: member.id } : undefined, admin));
+  mock(mockRequests.invoices.get.ok(invoices, undefined, admin));
+  mock(mockRequests.transactions.get.ok(transactions, { memberId: member.id }, admin));
+
+  return { rentals, invoices, transactions };
+};
+
+const reviewSubResource = async (member: LoginMember, admin: boolean = false,  ownProfile: boolean = false) => {
+  const  {
+    rentals,
+    invoices,
+    transactions
+  } = mockSubResources(member,admin, ownProfile);
 
   await memberPO.goToMemberRentals();
   await utils.waitForVisible(rentalPO.getTitleId());
@@ -72,6 +82,7 @@ describe("Member Profiles", () => {
         /* 1. Login as basic user
            2. Assert profile shows tables for: Dues, Rentals,
         */
+       mockSubResources(basicUser);
         return autoLogin(basicUser, undefined, { billing: true }).then(async () => {
           await reviewSubResource(basicUser);
         });

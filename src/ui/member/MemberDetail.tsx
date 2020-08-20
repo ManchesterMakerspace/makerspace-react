@@ -59,7 +59,7 @@ const MemberProfile: React.FC = () => {
     }
   }, [initRender, isOwnProfile, memberLoading, member.address]);
 
-  const { data: rentals = [] } = useReadTransaction(listRentals, {});
+  const { data: rentals = [] } = useReadTransaction(listRentals, {}, undefined, "listRentals");
 
   React.useEffect(() => {
     const missingAgreement = rentals.find(rental => !rental.contractOnFile);

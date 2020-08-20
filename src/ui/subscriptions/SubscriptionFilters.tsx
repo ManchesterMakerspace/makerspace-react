@@ -42,7 +42,11 @@ export const subscriptionStatuses = {
 const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }> = ({ close, onChange }) => {
   const { params, setParam } = useQueryContext();
 
-  const { data: billingPlans = [], isRequesting: plansLoading, error: plansError } = useReadTransaction(adminListBillingPlans, {});
+  const { 
+    data: billingPlans = [], 
+    isRequesting: plansLoading, 
+    error: plansError 
+  } = useReadTransaction(adminListBillingPlans, {}, undefined, "adminListBillingPlans");
 
   const onSearch = React.useCallback((event: React.KeyboardEvent<EventTarget>) => {
     if (event.key === "Enter") {
@@ -82,6 +86,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
   const fallbackUI = (plansLoading && <LoadingOverlay  id="plans-loading" contained={true}/>)
   || (plansError && <ErrorMessage error={plansError} />);
 
+  console.error("billingPlans", billingPlans);
   return (
     <>
       <Typography variant="headline" gutterBottom>Subscription Filters</Typography>

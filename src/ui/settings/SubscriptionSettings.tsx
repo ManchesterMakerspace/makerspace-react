@@ -24,7 +24,7 @@ const SubscriptionSettings: React.FC<Props> = () => {
   const {
     isRequesting: rentalsLoading,
     data: rentals = [],
-  } = useReadTransaction(listRentals, {});
+  } = useReadTransaction(listRentals, {}, undefined, "subscription-list-rentals");
 
   React.useEffect(() => {
     const subs = rentals.filter(rental => !!rental.subscriptionId);
