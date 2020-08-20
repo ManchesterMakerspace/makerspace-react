@@ -29,6 +29,10 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
     data: rejectionCard
   } = useReadTransaction(adminGetNewCard, { uid: memberId });
 
+  React.useEffect(() => {
+    if (!newCardLoading) getNewCard();
+  }, [isOpen]);
+
   const {
     isRequesting: memberLoading,
     refresh: refreshMember,
