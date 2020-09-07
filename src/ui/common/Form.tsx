@@ -322,7 +322,7 @@ class Form extends React.Component<FormModalProps, State> {
         </DialogContent>
 
         <DialogActions>
-          {onSubmit && <Button variant="contained" form={id} id={`${id}-submit`} onClick={this.handleSubmit} color="primary" type="submit" disabled={submitDisabled}>{submitText || "Submit"}</Button>}
+          {onSubmit && <Button variant="contained" form={id} id={`${id}-submit`} onClick={this.handleSubmit} color="primary" type="submit" disabled={submitDisabled || loading}>{submitText || "Submit"}</Button>}
           {onCancel && <Button variant="outlined" id={`${id}-cancel`}  onClick={this.closeForm}>{cancelText || "Cancel"}</Button>}
         </DialogActions>
       </>

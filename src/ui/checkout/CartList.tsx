@@ -157,7 +157,7 @@ const CartList: React.FC<Props> = ({ paymentMethod }) => {
                 id="submit-payment-button"
                 variant="contained"
                 color="primary"
-                disabled={!paymentMethod}
+                disabled={!paymentMethod || isRequesting}
                 onClick={item.planId ? openSubscriptionAuth : submitPayment}
               >
                 Submit Payment
