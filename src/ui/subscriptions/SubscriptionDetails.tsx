@@ -18,6 +18,10 @@ import NoSubscriptionDetails from "../subscriptions/NoSubscriptionDetails";
 export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, invoice?: Invoice}> = ({ invoice, subscription }) => {
   const type = subscription && renderPlanType(subscription.planId);
 
+  if (!subscription?.id) {
+    return null;
+  }
+  
   return (
     <Grid container spacing={24}>
       <Grid item xs={12}>
