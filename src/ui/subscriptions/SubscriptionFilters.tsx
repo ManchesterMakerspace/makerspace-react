@@ -12,7 +12,7 @@ import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
 import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
 import useReadTransaction from "../hooks/useReadTransaction";
-import { adminListBillingPlans } from "makerspace-ts-api-client";
+import { adminListBillingPlans, Plan } from "makerspace-ts-api-client";
 import LoadingOverlay from "../common/LoadingOverlay";
 import ErrorMessage from "../common/ErrorMessage";
 
@@ -39,6 +39,14 @@ export const subscriptionStatuses = {
   },
 }
 
+export enum SubscriptionFilter {
+  Status = "subscriptionStatus",
+  Search = "search",
+  EndDate = "endDate",
+  StartDate = "startDate",
+  PlanId = "planId"
+}
+
 const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }> = ({ close, onChange }) => {
   const { params, setParam } = useQueryContext();
 
@@ -51,7 +59,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
   const onSearch = React.useCallback((event: React.KeyboardEvent<EventTarget>) => {
     if (event.key === "Enter") {
       const searchTerm = (event.target as HTMLInputElement).value;
-      setParam("search", searchTerm);
+      setParam(SubscriptionFilter.Search, searchTerm);
       onChange();
       close();
     }
@@ -83,10 +91,26 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
   }, [setParam, onChange, close]);
 
 
-  const fallbackUI = (plansLoading && <LoadingOverlay  id="plans-loading" contained={true}/>)
-  || (plansError && <ErrorMessage error={plansError} />);
+  const fallbackUI = (plansLoading && <LoadingOverlay  id="plans-loading" contained={true}/>) || 
+                     (plansError && <ErrorMessage error={plansError} />);
 
-  console.error("billingPlans", billingPlans);
+  const {
+    membershipPlans,
+    rentalPlans
+  } = React.useMemo(() => {
+    const membershipPlans: Plan[] = [];
+    const rentalPlans: Plan[] = [];
+    billingPlans.forEach(plan => {
+      if (plan.type === "rental") {
+        rentalPlans.push(plan);
+      } else {
+        membershipPlans.push(plan);
+      }
+    });
+
+    return { membershipPlans, rentalPlans };
+  }, [billingPlans]);
+
   return (
     <>
       <Typography variant="headline" gutterBottom>Subscription Filters</Typography>
@@ -110,7 +134,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               name="start-date-filter"
               id="start-date-filter"
               type="date"
-              onChange={onDateChange("startDate")}
+              onChange={onDateChange(SubscriptionFilter.StartDate)}
             />
         </FormControl>
       </Grid>
@@ -122,7 +146,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               name="end-date-filter"
               id="end-date-filter"
               type="date"
-              onChange={onDateChange("endDate")}
+              onChange={onDateChange(SubscriptionFilter.EndDate)}
             />
         </FormControl>
       </Grid>
@@ -131,11 +155,11 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
           <FormLabel component="legend">Subscription status</FormLabel>
             <FormGroup>
               {Object.values(subscriptionStatuses).map(status => (
-              <FormControlLabel
-                key={status.value}
-                control={<Checkbox checked={params.subscriptionStatus.includes(status.value)} onChange={onCheckboxChange("subscriptionStatus")} value={status.value} />}
-                label={status.label}
-              />
+                <FormControlLabel
+                  key={status.value}
+                  control={<Checkbox checked={params.subscriptionStatus.includes(status.value)} onChange={onCheckboxChange(SubscriptionFilter.Status)} value={status.value} />}
+                  label={status.label}
+                />
               ))}
           </FormGroup>
         </FormControl>
@@ -151,12 +175,12 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               <FormControl component="fieldset">
                 <FormLabel component="legend">Membership Plans</FormLabel>
                   <FormGroup>
-                    {billingPlans.map(plan => (
-                    <FormControlLabel
-                      key={plan.id}
-                      control={<Checkbox checked={params.planId.includes(plan.id)} onChange={onCheckboxChange("planId")} value={plan.id} />}
-                      label={plan.name}
-                    />
+                    {membershipPlans.map(plan => (
+                      <FormControlLabel
+                        key={plan.id}
+                        control={<Checkbox checked={params.planId.includes(plan.id)} onChange={onCheckboxChange(SubscriptionFilter.PlanId)} value={plan.id} />}
+                        label={plan.name}
+                      />
                     ))}
                 </FormGroup>
               </FormControl>
@@ -165,12 +189,12 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
               <FormControl component="fieldset">
                 <FormLabel component="legend">Rental Plans</FormLabel>
                   <FormGroup>
-                    {billingPlans.map(plan => (
-                    <FormControlLabel
-                      key={plan.id}
-                      control={<Checkbox checked={params.planId.includes(plan.id)} onChange={onCheckboxChange("planId")} value={plan.id} />}
-                      label={plan.name}
-                    />
+                    {rentalPlans.map(plan => (
+                      <FormControlLabel
+                        key={plan.id}
+                        control={<Checkbox checked={params.planId.includes(plan.id)} onChange={onCheckboxChange(SubscriptionFilter.PlanId)} value={plan.id} />}
+                        label={plan.name}
+                      />
                     ))}
                 </FormGroup>
               </FormControl>
