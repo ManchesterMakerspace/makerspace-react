@@ -1,6 +1,7 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
 import Grid from "@material-ui/core/Grid";
+import { Link } from "react-router-dom";
 
 import { Subscription, adminListSubscriptions } from "makerspace-ts-api-client";
 
@@ -12,13 +13,15 @@ import extractTotalItems from "../utils/extractTotalItems";
 import CancelSubscriptionModal from "./CancelSubscriptionModal";
 import useReadTransaction from "../hooks/useReadTransaction";
 import { withQueryContext, useQueryContext } from "../common/Filters/QueryContext";
-import SubscriptionFilters, { subscriptionStatuses } from "./SubscriptionFilters";
+import SubscriptionFilters, { SubscriptionFilter, subscriptionStatuses } from "./SubscriptionFilters";
+import { Routing } from "../../app/constants";
 
 const fields: Column<Subscription>[] = [
   {
     id: "memberName",
     label: "Member",
-    cell: (row: Subscription) => row.memberName,
+    cell: (row: Subscription) => 
+      <Link to={`${Routing.Members}/${row.id}`}>{row.memberName}</Link>,
   },
   {
     id: "resourceClass",
@@ -45,7 +48,9 @@ const SubscriptionsTable: React.FC = () => {
   const { location: { search } } = useReactRouter();
   const [selectedId, setSelectedId] = React.useState<string>();
   const searchTerms = new URLSearchParams(search);
-  const searchTerm = searchTerms.get("q");
+
+  const { current: searchTerm } = React.useRef(searchTerms.get("q"))
+  const { current: statusTerm } = React.useRef(searchTerms.get(SubscriptionFilter.Status))
 
   const {
     params: { pageNum, order, orderBy, ...restParams },
@@ -56,7 +61,9 @@ const SubscriptionsTable: React.FC = () => {
     endDate: undefined,
     planId: [],
     subscriptionStatus: [
-      subscriptionStatuses.active.value,
+      ...statusTerm ? [
+        statusTerm === "all" ? [] : [statusTerm]
+      ] : [subscriptionStatuses.active.value],
     ],
   });
 

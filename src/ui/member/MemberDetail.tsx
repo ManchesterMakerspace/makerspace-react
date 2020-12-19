@@ -23,6 +23,7 @@ import RenewMember from "./RenewMember";
 import NotificationModal, { Notification } from "./NotificationModal";
 import PreviewMemberContract from "../documents/PreviewMemberContract";
 import { SubRoutes } from "ui/settings/SettingsContainer";
+import { SubscriptionFilter } from "../subscriptions/SubscriptionFilters";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter();
@@ -153,17 +154,29 @@ const MemberProfile: React.FC = () => {
                 {member.subscriptionId && (
                   <>
                     {isOwnProfile && (
-                      <Link to={`${Routing.Settings}/${SubRoutes.Subscriptions}`}>
+                      <Link to={`${Routing.Settings.replace(Routing.PathPlaceholder.MemberId, member.id)}/${SubRoutes.Subscriptions}`}>
                         Manage Subscription
                       </Link>
                     )}
                     {!isOwnProfile && isAdmin && (
-                      <Link to={`${Routing.Billing}/${SubRoutes.Subscriptions}?q=${encodeURIComponent(`${member.firstname} ${member.lastname}`)}`}>
-                        Manage Subscription
-                      </Link>
+                      <span style={{ display: "inline-block", marginRight: "1em" }}>
+                        <Link to={
+                          `${
+                            Routing.Billing}/${
+                              SubRoutes.Subscriptions}?q=${
+                                encodeURIComponent(`${member.subscriptionId}`)
+                              }&${SubscriptionFilter.Status}=all`
+                        }>
+                          Manage Subscription
+                        </Link>
+                      </span>
                     )}
-                    
                   </>
+                )}
+                {member.customerId && (
+                  <a target="blank" href={`https://www.braintreegateway.com/merchants/vfx5f27bnwwjjyqx/customers/${member.customerId}`}>
+                    View in Braintree
+                  </a>
                 )}
             </KeyValueItem>}
             {member.notes && <KeyValueItem label="Notes">
