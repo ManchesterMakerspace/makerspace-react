@@ -59,11 +59,11 @@ const MemberProfile: React.FC = () => {
     }
   }, [initRender, isOwnProfile, memberLoading, member.address]);
 
-  const { data: rentals = [] } = useReadTransaction(listRentals, {}, undefined, "listRentals");
+  const { data: rentals = [], isRequesting: rentalsLoading } = useReadTransaction(listRentals, {}, undefined, "listRentals");
 
   React.useEffect(() => {
     const missingAgreement = rentals.find(rental => !rental.contractOnFile);
-    if (!initRender && isOwnProfile && missingAgreement && !notification) {
+    if (!initRender && isOwnProfile && !rentalsLoading && missingAgreement && !notification) {
       setNotification(Notification.SignRental)
     }
   }, [initRender, isOwnProfile, rentals]);
