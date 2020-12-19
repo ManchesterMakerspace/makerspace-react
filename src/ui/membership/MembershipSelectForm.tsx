@@ -15,6 +15,17 @@ import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import useReadTransaction from "../hooks/useReadTransaction";
 import DuplicateInvoiceModal from "./DuplicateInvoiceModal";
 
+export const noneInvoiceOption: InvoiceOption = {
+  id: "none",
+  name: "None",
+  description: "Paid with cash or select an option later",
+  amount: "0",
+  resourceClass: undefined,
+  quantity: 0,
+  disabled: false,
+  operation: undefined,
+  isPromotion: false
+};
 export const invoiceOptionParam = "optionId";
 export const discountParam = "discountId";
 const byAmount = (a: InvoiceOption, b: InvoiceOption) => Number(a.amount) - Number(b.amount);
@@ -45,17 +56,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
 
   const [promotions, normalOptions] = React.useMemo(() => {
     const promotionOptions: InvoiceOption[] = [];
-    const trailingOptions: InvoiceOption[] = allowNone ? [{
-      id: "none",
-      name: "None",
-      description: "Paid with cash or select an option later",
-      amount: "0",
-      resourceClass: undefined,
-      quantity: 0,
-      disabled: false,
-      operation: undefined,
-      isPromotion: false
-    }] : [];
+    const trailingOptions: InvoiceOption[] = allowNone ? [noneInvoiceOption] : [];
 
     const normalOptions = options.reduce((opts, option) => {
       if ((option).isPromotion) {

@@ -85,7 +85,7 @@ export function withQueryContext<Props>(
     render() {
       return (
         <QueryContextProvider initialState={initialState}>
-          <WrappedComponent {...this.props} />;
+          <WrappedComponent {...this.props} />
         </QueryContextProvider>
       );
     }

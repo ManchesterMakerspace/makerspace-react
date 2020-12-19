@@ -26,7 +26,7 @@ import { submitSignUpAction } from "./actions";
 import { Action } from "ui/auth/constants";
 import { useAuthState } from "../reducer/hooks";
 import useWriteTransaction from "../hooks/useWriteTransaction";
-import MembershipSelectForm, { invoiceOptionParam, discountParam } from "ui/membership/MembershipSelectForm";
+import MembershipSelectForm, { invoiceOptionParam, discountParam, noneInvoiceOption } from "ui/membership/MembershipSelectForm";
 import InvoicingGate from "../membership/InvoicingGate";
 import { states } from "../member/states";
 
@@ -61,7 +61,8 @@ const SignUpFormComponent: React.FC = () => {
         postalCode
       }
     }));
-    if (option) {
+    // Don't attempt to create a new invoice if they selected "none"
+    if (option && option.id !== noneInvoiceOption.id) {
       await buildInvoice({ createInvoiceDetails: option});
     }
   }, [option]);
