@@ -15,13 +15,15 @@ import ErrorBoundary from 'src/ui/common/ErrorBoundary';
 const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 
 const App: React.FC = () => {
-  const { location: { pathname }, history } = useReactRouter();
+  const { location: { pathname, search, hash }, history } = useReactRouter();
   const dispatch = useDispatch();
   const { currentUser: { id: currentUserId, isAdmin }, permissions, isRequesting, error } = useAuthState();
   const [attemptingLogin, setAttemptingLogin] = React.useState(true);
   const [loginAttempted, setLoginAttempted] = React.useState<boolean>();
   const [authSettled, setAuthSettled] = React.useState<boolean>();
-  const [initialPath] = React.useState(pathname);
+  const { current: initialPath } = React.useRef(pathname);
+  const { current: initialSearch } = React.useRef(search);
+  const { current: initialHash } = React.useRef(hash);
 
   // Attempt login on mount except when going to password reset
   React.useEffect(() => {
@@ -45,7 +47,7 @@ const App: React.FC = () => {
             !publicPaths.some(path => initialPath.startsWith(path)) && // or initial is a public path
             !pathname.startsWith(Routing.SignUp) // or user just signed up
           ) {
-          history.push(initialPath);
+          history.push(initialPath + initialSearch + initialHash);
         } else {
           history.push(buildProfileRouting(currentUserId));
         }
