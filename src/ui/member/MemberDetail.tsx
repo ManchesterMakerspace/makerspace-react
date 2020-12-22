@@ -86,12 +86,14 @@ const MemberProfile: React.FC = () => {
     switch (notification) {
       case Notification.SignRental:
         const missingAgreement = rentals.find(rental => !rental.contractOnFile);
-        history.push(
-          Routing.Documents
-            .replace(Routing.PathPlaceholder.Resource, "rental")
-            .replace(Routing.PathPlaceholder.ResourceId, missingAgreement.id)
-        );
-        break;
+        if (missingAgreement) {
+          history.push(
+            Routing.Documents
+              .replace(Routing.PathPlaceholder.Resource, "rental")
+              .replace(Routing.PathPlaceholder.ResourceId, missingAgreement.id)
+          );
+          break;
+        }
       case Notification.Welcome:
         history.push(
           Routing.Documents
@@ -101,6 +103,7 @@ const MemberProfile: React.FC = () => {
         break;
       case Notification.IdentifcationDetails:
         goToSettings();
+        break;
     }
   }, [history, rentals, notification, goToSettings]);
 
