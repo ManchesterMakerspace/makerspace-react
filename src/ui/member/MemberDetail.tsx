@@ -155,14 +155,13 @@ const MemberProfile: React.FC = () => {
             {billingEnabled && <KeyValueItem label="Membership Type">
               <span id="member-detail-type" style={{ marginRight: "1em" }}>{memberSubscription.type}</span>
                 {member.subscriptionId && (
-                  <>
+                  <span style={{ display: "inline-block", marginRight: "1em" }}>
                     {isOwnProfile && (
                       <Link to={`${Routing.Settings.replace(Routing.PathPlaceholder.MemberId, member.id)}/${SubRoutes.Subscriptions}`}>
                         Manage Subscription
                       </Link>
                     )}
                     {!isOwnProfile && isAdmin && (
-                      <span style={{ display: "inline-block", marginRight: "1em" }}>
                         <Link to={
                           `${
                             Routing.Billing}/${
@@ -172,9 +171,8 @@ const MemberProfile: React.FC = () => {
                         }>
                           Manage Subscription
                         </Link>
-                      </span>
                     )}
-                  </>
+                  </span>
                 )}
                 {member.customerId && (
                   <a target="blank" href={`https://www.braintreegateway.com/merchants/vfx5f27bnwwjjyqx/customers/${member.customerId}`}>
