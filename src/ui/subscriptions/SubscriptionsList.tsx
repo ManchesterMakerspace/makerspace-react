@@ -21,7 +21,7 @@ const fields: Column<Subscription>[] = [
     id: "memberName",
     label: "Member",
     cell: (row: Subscription) => 
-      <Link to={`${Routing.Members}/${row.id}`}>{row.memberName}</Link>,
+      <Link to={`${Routing.Members}/${row.memberId}`}>{row.memberName}</Link>,
   },
   {
     id: "resourceClass",
