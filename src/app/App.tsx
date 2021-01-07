@@ -10,7 +10,7 @@ import PrivateRouting from 'app/PrivateRouting';
 import PublicRouting from 'app/PublicRouting';
 import { Routing } from 'app/constants';
 import { buildProfileRouting } from 'ui/member/utils';
-import ErrorBoundary from 'src/ui/common/ErrorBoundary';
+import ErrorBoundary from 'ui/common/ErrorBoundary';
 
 const publicPaths = [Routing.Login, Routing.SignUp, Routing.PasswordReset];
 

@@ -72,7 +72,7 @@ export const createMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartCreateRequest });
 
-  const result = await adminCreateEarnedMembership({ createEarnedMembershipDetails: membershipForm });
+  const result = await adminCreateEarnedMembership({ body: membershipForm });
 
   if (isApiErrorResponse(result)) {
     dispatch({
@@ -93,7 +93,7 @@ export const updateMembershipAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: MembershipAction.StartUpdateRequest });
 
-  const result = await adminUpdateEarnedMembership({ id: membershipId, updateEarnedMembershipDetails: updatedMembership });
+  const result = await adminUpdateEarnedMembership({ id: membershipId, body: updatedMembership });
 
   if (isApiErrorResponse(result)) {
     dispatch({

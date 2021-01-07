@@ -1,4 +1,4 @@
-import { mock, mockRequests } from "./mockserver-client-helpers";
+import { MockMakerspaceApi } from "makerspace-ts-mock-client";
 import memberPO from "../pageObjects/member";
 import utils from "../pageObjects/common";
 import { LoginMember } from "../pageObjects/auth";
@@ -8,17 +8,17 @@ import { LoginMember } from "../pageObjects/auth";
   * This fakes that iniital request to automatically sign in the user
   * and skips the landing page
   */
- export const autoLogin = async (user: LoginMember, destination?: string, permissions = {}) => {
+ export const autoLogin = async (mocker: MockMakerspaceApi, user: LoginMember, destination?: string, permissions = {}) => {
   const profileUrl = memberPO.getProfilePath(user.id);
   const destinationUrl = destination || profileUrl;
-  await mock(mockRequests.signIn.ok(user));
-  await mock(mockRequests.permission.get.ok(user.id, permissions));
+  mocker.signIn_200({ body: {} }, user);
+  mocker.listMembersPermissions_200({ id: user.id }, permissions);
   // If no destination, mock default member profile redirect
   if (!destination) {
-    await mock(mockRequests.member.get.ok(user.id, user));
+    mocker.getMember_200({ id: user.id }, user);
   }
   const fullUrl = utils.buildUrl(destinationUrl);
-  return browser.get(fullUrl).then(() => {
+  return browser.url(fullUrl).then(() => {
     return utils.waitForPageLoad(fullUrl, true);
   })
 }

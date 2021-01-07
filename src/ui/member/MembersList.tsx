@@ -13,7 +13,7 @@ import { SortDirection } from "ui/common/table/constants";
 import { Column } from "ui/common/table/Table";
 import MemberStatusLabel from "ui/member/MemberStatusLabel";
 
-import { Member, listMembers } from "makerspace-ts-api-client";
+import { listMembers, MemberSummary } from "makerspace-ts-api-client";
 import CreateMember from "ui/member/CreateMember";
 import RenewMember from "ui/member/RenewMember";
 import extractTotalItems from "../utils/extractTotalItems";
@@ -22,11 +22,11 @@ import StatefulTable from "../common/table/StatefulTable";
 import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
 import { useAuthState } from "ui/reducer/hooks";
 
-const fields: Column<Member>[] = [
+const fields: Column<MemberSummary>[] = [
   {
     id: "lastname",
     label: "Name",
-    cell: (row: Member) => (
+    cell: (row: MemberSummary) => (
       <>
         <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>
         {row.notes && (
@@ -49,11 +49,11 @@ const fields: Column<Member>[] = [
   {
     id: "status",
     label: "Status",
-    cell: (row: Member) => <MemberStatusLabel member={row}/>
+    cell: (row: MemberSummary) => <MemberStatusLabel member={row}/>
   },
 ];
 
-const rowId = (member: Member) => member.id;
+const rowId = (member: MemberSummary) => member.id;
 
 const MembersList: React.FC = () => {
   const [selectedId, setSelectedId] = React.useState<string>();

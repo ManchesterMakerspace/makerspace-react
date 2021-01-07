@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import { TablePageObject } from "./table";
 import { Routing } from "app/constants";
 import { timeToDate } from "ui/utils/timeToDate";
@@ -12,15 +13,15 @@ class EarnedMembershipsPageObject extends TablePageObject {
   public fieldEvaluator = (membership: Partial<EarnedMembership>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "expirationTime") {
-      expect(text).toEqual(timeToDate(membership.memberExpiration));
+      expect(text).to.eql(timeToDate(membership.memberExpiration));
     } else if (field === "status") {
       expect(
         ["Active", "Expired"].some((status => new RegExp(status, 'i').test(text)))
-      ).toBeTruthy();
+      ).to.be.true;
     } else if (field === "lastname") {
-      expect(text).toEqual(membership.memberName);
+      expect(text).to.eql(membership.memberName);
     } else {
-      expect(text.includes(membership[field])).toBeTruthy();
+      expect(text.includes(membership[field])).to.be.true;
     }
   }
 

@@ -15,7 +15,7 @@ export const creditCard: CreditCard = {
   expirationDate: `${expiry.getMonth()}/${expiry.getFullYear()}`,
   cardType: "Visa",
   imageUrl: "",
-  default: false,
+  isDefault: false, // TODO: Why is this an underscore
   debit: false,
   subscriptions: []
 }

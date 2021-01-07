@@ -1,7 +1,8 @@
-import { TablePageObject } from "./table";
-import { Routing } from "app/constants";
+import { expect } from "chai";
 import { Member, Rental } from "makerspace-ts-api-client";
+import { Routing } from "app/constants";
 import { timeToDate } from "ui/utils/timeToDate";
+import { TablePageObject } from "./table";
 
 const tableId = "rentals-table";
 // Member removed as thats only for admins
@@ -13,19 +14,19 @@ class RentalsPageObject extends TablePageObject {
   public fieldEvaluator = (member?: Partial<Member>) => (rental: Partial<Rental>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "expiration") {
-      expect(text).toEqual(rental.expiration ? timeToDate(rental.expiration) : "N/A");
+      expect(text).to.eql(rental.expiration ? timeToDate(rental.expiration) : "N/A");
     } else if (field === "status") {
       expect(
         ["Active", "Expired"].some((status => new RegExp(status, 'i').test(text)))
-      ).toBeTruthy();
+      ).to.be.true;
     } else if (field === "member") {
       if (member) {
-        expect(text).toEqual(`${member.firstname} ${member.lastname}`);
+        expect(text).to.eql(`${member.firstname} ${member.lastname}`);
       } else {
-        expect(text).toBeTruthy();
+        expect(!!text).to.be.true;
       }
     } else {
-      expect(text.includes(rental[field])).toBeTruthy();
+      expect(text.includes(rental[field])).to.be.true;
     }
   }
 

@@ -1,6 +1,6 @@
-import { MemberRole, MemberStatus } from "app/entities/member";
+import { MemberRole, MemberStatus } from "makerspace-ts-api-client";
 import { LoginMember } from "../pageObjects/auth";
-import * as moment from "moment";
+import moment from "moment";
 
 export const basicUser: LoginMember = {
   id: "test_member",
@@ -9,11 +9,12 @@ export const basicUser: LoginMember = {
   email: "test_member@test.com",
   password: "password",
   role: MemberRole.Member,
-  status: MemberStatus.Active,
+  status: MemberStatus.ActiveMember,
   cardId: "test_member_card_1",
   expirationTime: (moment().add(1, "months").valueOf()),
   memberContractOnFile: true,
   customerId: "test_customer_1",
+  subscription: false,
   address: {
     street: "12 Main St.",
     city: "Boston",
@@ -28,7 +29,8 @@ export const adminUser: LoginMember = {
   email: "admin_member@test.com",
   password: "password",
   role: MemberRole.Admin,
-  status: MemberStatus.Active,
+  status: MemberStatus.ActiveMember,
+  subscription: false,
   cardId: "admin_member_card_1",
   expirationTime: (moment().add(1, "months").valueOf()),
   memberContractOnFile: true,

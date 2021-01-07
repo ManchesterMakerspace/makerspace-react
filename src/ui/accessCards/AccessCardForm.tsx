@@ -57,7 +57,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
     }
 
     createCard({
-      createAccessCardDetails: {
+      body: {
         memberId: member.id,
         uid: rejectionCard.uid,
       }

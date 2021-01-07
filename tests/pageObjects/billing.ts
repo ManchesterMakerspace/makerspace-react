@@ -1,7 +1,8 @@
+import { expect } from "chai";
+import { Member, InvoiceOption } from "makerspace-ts-api-client";
 import { Routing } from "app/constants";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { TablePageObject } from "./table";
-import { Member, InvoiceOption } from "makerspace-ts-api-client";
 import utils from "./common";
 
 const paymentOptionsTableId = "billing-options-table"
@@ -17,20 +18,20 @@ class Billing extends TablePageObject {
   }) => {
     const { field, text } = fieldContent;
     if (field === "status") {
-      expect(["Active", "Expired"].some(status => new RegExp(status, "i").test(text))).toBeTruthy();
+      expect(["Active", "Expired"].some(status => new RegExp(status, "i").test(text))).to.be.true;
     } else if (field === "member") {
       if (member) {
-        expect(text).toEqual(`${member.firstname} ${member.lastname}`);
+        expect(text).to.eql(`${member.firstname} ${member.lastname}`);
       } else {
-        expect(text).toBeTruthy();
+        expect(!!text).to.be.true;
       }
     } else if (field === "amount") {
-      expect(numberAsCurrency(invoiceOption[field])).toEqual(text);
+      expect(numberAsCurrency(invoiceOption[field])).to.eql(text);
     } else if (field === "disabled") {
       const expectedText = invoiceOption[field] ? "Disabled" : "Enabled";
-      expect(text.includes(expectedText)).toBeTruthy();
+      expect(text.includes(expectedText)).to.be.true;
     } else {
-      expect(text.includes(invoiceOption[field])).toBeTruthy();
+      expect(text.includes(invoiceOption[field])).to.be.true;
     }
   };
 

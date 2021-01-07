@@ -144,7 +144,7 @@ class CreditCardForm extends React.Component<Props, State> {
           this.setState({ braintreeError: err });
           toggleLoading(false);
         } else {
-          const result = await createPaymentMethod({ createPaymentMethodDetails: { payment_method_nonce: payload.nonce, make_default: true } });
+          const result = await createPaymentMethod({ body: { paymentMethodNonce: payload.nonce, makeDefault: true } });
 
           if (isApiErrorResponse(result)) {
             this.setState({ braintreeError: result.error.message });

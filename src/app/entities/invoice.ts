@@ -1,5 +1,5 @@
 import { QueryParams } from "app/interfaces";
-import {Invoice as ApiInvoice } from "makerspace-ts-api-client";
+import {Invoice as ApiInvoice, InvoiceableResource } from "makerspace-ts-api-client";
 
 export interface MemberInvoice extends Omit<ApiInvoice, "rental"> {}
 
@@ -14,13 +14,8 @@ export enum InvoiceOperation {
   Renew = "renew"
 }
 
-export enum InvoiceableResource {
-  Membership = "member",
-  Rental = "rental",
-}
-
 export const InvoiceableResourceDisplay = {
-  [InvoiceableResource.Membership]: "Membership",
+  [InvoiceableResource.Member]: "Membership",
   [InvoiceableResource.Rental]: "Rental",
 }
 
@@ -33,7 +28,6 @@ export enum Properties {
   DueDate = "dueDate",
   Amount = "amount",
   Quantity = "quantity",
-  Operation = "operation",
   Settled = "settled",
   PastDue = "pastDue",
   ResourceId = "resourceId",

@@ -2,8 +2,8 @@ import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 
-import { adminUpdateInvoice } from "makerspace-ts-api-client";
-import { MemberInvoice, RentalInvoice, InvoiceableResourceDisplay } from "app/entities/invoice";
+import { adminUpdateInvoice, Invoice } from "makerspace-ts-api-client";
+import { InvoiceableResourceDisplay } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import { timeToDate } from "ui/utils/timeToDate";
@@ -12,7 +12,7 @@ import useWriteTransaction from "../hooks/useWriteTransaction";
 import { isInvoiceSettled } from "../invoice/utils";
 
 interface Props {
-  invoice: MemberInvoice | RentalInvoice;
+  invoice: Invoice;
   onSuccess?: () => void;
 }
 
@@ -27,7 +27,7 @@ const SettleInvoiceModal: React.FC<Props> = ({ invoice, onSuccess }) => {
 
   const { call, isRequesting, error } = useWriteTransaction(adminUpdateInvoice, onUpdate);
   const onSubmit = React.useCallback(() => {
-    call({ id: invoice.id, updateInvoiceDetails: { ...invoice, settled: true }});
+    call({ id: invoice.id, body: { ...invoice, settled: true }});
   }, [invoice, call]);
 
   return (

@@ -1,14 +1,14 @@
 import * as React from "react";
 import { memberToRenewal } from "ui/member/utils";
 import RenewalForm, { RenewForm } from "ui/common/RenewalForm";
-import { adminUpdateMember, Member } from "makerspace-ts-api-client";
+import { adminUpdateMember, MemberSummary, Member } from "makerspace-ts-api-client";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { ActionButton } from "../common/ButtonRow";
 import useModal from "../hooks/useModal";
 import Form from "../common/Form";
 
 
-const RenewMember: React.FC<{ member: Member, onRenew: () => void }> = ({ member = {} as Member, onRenew }) => {
+const RenewMember: React.FC<{ member: Member | MemberSummary, onRenew: () => void }> = ({ member = {} as MemberSummary, onRenew }) => {
   const { isOpen, openModal, closeModal } = useModal();
   const formRef = React.useRef<RenewalForm>();
 
@@ -28,7 +28,7 @@ const RenewMember: React.FC<{ member: Member, onRenew: () => void }> = ({ member
 
     if (!form.isValid()) return;
 
-    renew({ id: member.id, updateMemberDetails: validUpdate });
+    renew({ id: member.id, body: validUpdate });
   }, [formRef, renew, member]);
 
   return (

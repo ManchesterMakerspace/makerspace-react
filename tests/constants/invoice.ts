@@ -1,6 +1,7 @@
-import * as moment from "moment";
-import { InvoiceOperation, InvoiceableResource } from "app/entities/invoice";
-import { Invoice, InvoiceOption } from "makerspace-ts-api-client";
+import moment from "moment";
+import { InvoiceOperation, } from "app/entities/invoice";
+import { Invoice, InvoiceOption, InvoiceableResource, Member } from "makerspace-ts-api-client";
+import { basicUser } from "./member";
 export const defaultBillingOptions: InvoiceOption[] = [
   {
     id: "standard_membership",
@@ -10,8 +11,7 @@ export const defaultBillingOptions: InvoiceOption[] = [
     quantity: 1,
     discountId: undefined,
     planId: "standard_membership",
-    resourceClass: InvoiceableResource.Membership,
-    operation: InvoiceOperation.Renew,
+    resourceClass: InvoiceableResource.Member,
     disabled: false,
     isPromotion: false
   }, {
@@ -24,7 +24,6 @@ export const defaultBillingOptions: InvoiceOption[] = [
     discountId: undefined,
     disabled: false,
     resourceClass: InvoiceableResource.Rental,
-    operation: InvoiceOperation.Renew,
     isPromotion: false
   }, {
     id: "bar",
@@ -35,7 +34,6 @@ export const defaultBillingOptions: InvoiceOption[] = [
     planId: "bar",
     discountId: undefined,
     resourceClass: InvoiceableResource.Rental,
-    operation: InvoiceOperation.Renew,
     disabled: false,
     isPromotion: false
   }
@@ -46,18 +44,18 @@ export const baseInvoice: Invoice = {
   id: "foo",
   name: "random membership invoice",
   description: "Some more details about this membership invoice",
-  memberName: "Some dude",
+  memberName: `${basicUser.firstname} ${basicUser.lastname}`,
   amount: "50",
   quantity: 1,
   settled: false,
   pastDue: false,
   refunded: false,
-  resourceClass: InvoiceableResource.Membership,
-  memberId: "test_member",
-  operation: InvoiceOperation.Renew,
+  resourceClass: InvoiceableResource.Member,
+  memberId: basicUser.id,
   resourceId: "123",
   createdAt: "Some time",
   dueDate: moment().add(1, "months").calendar(),
+  resource: basicUser as Member
 }
 export const defaultInvoice: Invoice = {
   ...baseInvoice,
@@ -84,5 +82,5 @@ export const defaultInvoices: Invoice[] = new Array(20).fill(undefined).map((_v,
   }
 })
 export const membershipOptionQueryParams = {
-  types: [InvoiceableResource.Membership]
+  types: [InvoiceableResource.Member]
 };

@@ -1,6 +1,5 @@
-import * as moment from "moment";
-import { EarnedMembership, Report, Requirement, ReportRequirement } from "makerspace-ts-api-client";
-import { MemberStatus } from "app/entities/member";
+import moment from "moment";
+import { EarnedMembership, Report, Requirement, ReportRequirement, MemberStatus } from "makerspace-ts-api-client";
 
 export const basicRequirement: Requirement = {
   id: "test-requirement",
@@ -34,7 +33,7 @@ export const basicEarnedMembership: EarnedMembership = {
   id: "test-earned-membership",
   memberId: "test-member",
   memberName: "Test Member",
-  memberStatus: MemberStatus.Active,
+  memberStatus: MemberStatus.ActiveMember,
   memberExpiration: (moment().add(1, "months").valueOf()),
   requirements: [basicRequirement]
 };

@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import utils from "./common";
 import { By, WebElement } from "selenium-webdriver";
 
@@ -25,8 +26,8 @@ export class TablePageObject {
   });
 
   public getRowBaseId = (rowId: string): string => `${this.tableId}-${rowId}`;
-  public getRow = async (rowId: string):  Promise<WebElement> => await browser.findElement(By.id(`${this.getRowBaseId(rowId)}-row`));
-  public getAllRows = async (): Promise<WebElement[]> => await browser.findElements(By.css(`[id^="${this.tableId}-"][id$="-row"]`));
+  public getRow = async (rowId: string) => await browser.$(`#${this.getRowBaseId(rowId)}-row`);
+  public getAllRows = async () => await browser.$$(`[id^="${this.tableId}-"][id$="-row"]`);
 
   public getColumnIds = (fields: string[], rowId: string): { [key: string]: string } => ({
     ...fields.reduce((columns: { [key: string]: string }, field) => ({
@@ -38,24 +39,24 @@ export class TablePageObject {
     return await utils.getElementText(`#${this.getRowBaseId(rowId)}-${field}`);
   }
   public selectRow = async (rowId: string, check: boolean = true) => {
-    const element: WebElement = browser.findElement(By.css(`#${this.getRowBaseId(rowId)}-select`));
+    const element = await browser.$(`#${this.getRowBaseId(rowId)}-select`);
     await utils.selectCheckbox(element, check);
   }
 
-  public getRowByIndex = async (index: number): Promise<WebElement> => {
+  public getRowByIndex = async (index: number) => {
     const rows = await this.getAllRows();
     return rows[index];
   };
 
   public selectRowByIndex = async (index: number, check: boolean = true): Promise<void> => {
     const row = await this.getRowByIndex(index);
-    const element: WebElement = row.findElement(By.css(`[id$="-select"]`));
+    const element = await row.$(`[id$="-select"]`);
     await utils.selectCheckbox(element, check);
   }
 
-  public getColumnByIndex = async (index: number, field: string): Promise<WebElement> => {
+  public getColumnByIndex = async (index: number, field: string) => {
     const row = await this.getRowByIndex(index);
-    const column = await row.findElement((By.css(`[id$="-${field}"]`)));
+    const column = await row.$(`[id$="-${field}"]`);
     return column;
   } 
 
@@ -101,7 +102,7 @@ export class TablePageObject {
   }
 
   public verifyListView = async (resourceList: any[], fieldEvaluator: Function): Promise<void> => {
-    expect((await this.getAllRows()).length).toEqual(resourceList.length);
+    expect((await this.getAllRows()).length).to.eql(resourceList.length);
 
     await Promise.all(resourceList.slice(0, 5).map(async (resource) => {
       await this.verifyFields(resource, fieldEvaluator);

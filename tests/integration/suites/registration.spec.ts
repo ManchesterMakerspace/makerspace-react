@@ -1,4 +1,5 @@
-import * as moment from "moment";
+import { expect } from "chai";
+import moment from "moment";
 import { Routing } from "app/constants";
 import { getAdminUserLogin } from "../../constants/api_seed_data";
 import { basicMembers } from "../../constants/member";
@@ -17,8 +18,9 @@ const cardIds = ["0001", "0002", "0000"];
 
 describe("Member management", () => {
   describe("Registering", () => {
-    beforeEach(() => {
-      return browser.get(utils.buildUrl());
+    beforeEach(async () => {
+      await browser.deleteAllCookies();
+      return browser.url(utils.buildUrl());
     });
     it("Customers can register from home page", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
@@ -26,7 +28,7 @@ describe("Member management", () => {
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
       await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
 
-      const url = await browser.getCurrentUrl();
+      const url = await browser.getUrl();
       await memberPO.verifyProfileInfo({
         ...newMember,
         expirationTime: null
@@ -36,9 +38,10 @@ describe("Member management", () => {
 
       // Add a payment method
       await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-      expect((await paymentMethods.getPaymentMethods()).length).toEqual(0);
+      expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
       await utils.clickElement(paymentMethods.addPaymentButton);
       await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
+      await browser.pause(1000);
       await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
       await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
 
@@ -54,7 +57,7 @@ describe("Member management", () => {
 
       // Assert the payment method
       await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-      expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
+      expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
 
       await utils.clickElement(checkout.nextButton);
       // Submit payment
@@ -67,7 +70,7 @@ describe("Member management", () => {
       await utils.waitForNotVisible(checkout.authAgreementSubmit);
 
       // view receipt & return to profile
-      await utils.waitForPageToMatch(Routing.Receipt);
+      await utils.waitForPageToMatch(Routing.Receipt, undefined, 10 * 1000);
       await utils.waitForNotVisible(checkout.receiptLoading);
       await utils.clickElement(checkout.backToProfileButton);
       await utils.waitForPageToMatch(Routing.Profile);
@@ -92,7 +95,7 @@ describe("Member management", () => {
       await utils.waitForPageToMatch(Routing.Profile);
 
       // View new member's profile
-      await browser.get(url);
+      await browser.url(url);
       await utils.waitForPageToMatch(Routing.Profile);
 
       // Verify no expiration set from admin POV
@@ -100,14 +103,14 @@ describe("Member management", () => {
         ...newMember,
         expirationTime: undefined
       });
-      expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
-      await utils.clickElement(memberPO.memberDetail.openCardButton);
+      expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).to.match(/Register Fob/i);
+      await memberPO.openCardModal();
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
-      expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      expect(cardIds).to.contain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.clickElement(memberPO.accessCardForm.submit);
-      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).toBeFalsy();
+      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
 
@@ -115,7 +118,7 @@ describe("Member management", () => {
         ...newMember,
         expirationTime: moment().add(1, 'M').valueOf()
       });
-    }, 300000);
+    });
 
     it("Admins can register a customer manually", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
@@ -146,21 +149,21 @@ describe("Member management", () => {
        // Renew them for a month
        await utils.clickElement(memberPO.memberDetail.openRenewButton);
        await utils.waitForVisible(renewalPO.renewalForm.submit);
-       expect(await utils.getElementText(renewalPO.renewalForm.entity)).toEqual(`${newMember.firstname} ${newMember.lastname}`);
+       expect(await utils.getElementText(renewalPO.renewalForm.entity)).to.eql(`${newMember.firstname} ${newMember.lastname}`);
        await utils.selectDropdownByValue(renewalPO.renewalForm.renewalSelect, "1");
        await utils.assertNoInputError(renewalPO.renewalForm.termError, true);
        await utils.clickElement(renewalPO.renewalForm.submit);
        await utils.waitForNotVisible(renewalPO.renewalForm.submit);
       // Get them a fob
-      expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).toMatch(/Register Fob/i);
+      expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).to.match(/Register Fob/i);
       await utils.clickElement(memberPO.memberDetail.openCardButton);
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
-      expect(cardIds).toContain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      expect(cardIds).to.contain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
       await utils.clickElement(memberPO.accessCardForm.submit);
-      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).toBeFalsy();
+      expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
       await memberPO.verifyProfileInfo({
         ...newMember,

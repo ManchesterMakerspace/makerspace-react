@@ -13,8 +13,6 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
 import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
-import LoadingOverlay from "../common/LoadingOverlay";
-import ErrorMessage from "../common/ErrorMessage";
 
 export const transactionStatuses = {
   authorizing: {

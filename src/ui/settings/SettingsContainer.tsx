@@ -33,7 +33,7 @@ const SettingsContainer: React.FC = () => {
     data: member = { id: currentUserId } as Member,
   } = useReadTransaction(getMember, { id: currentUserId });
 
-  const { match: { params: { resource }} } = useReactRouter();
+  const { match: { params: { resource }} } = useReactRouter<{ resource: string }>();
   const changeResource = useSubresourcePath(Object.values(SubRoutes));
   React.useEffect(() => {
     switch(resource) {

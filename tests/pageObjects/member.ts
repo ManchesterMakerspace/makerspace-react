@@ -1,11 +1,12 @@
-import { Routing } from "app/constants";
-import utils from "./common";
-import { TablePageObject } from "./table";
-import { timeToDate } from "ui/utils/timeToDate"
-import { LoginMember } from "./auth";
+import chai from "chai";
 import { Member } from "makerspace-ts-api-client";
+import { Routing } from "app/constants";
+import { timeToDate } from "ui/utils/timeToDate"
 import { SortDirection } from "ui/common/table/constants";
-import { QueryParams } from "src/app/interfaces";
+import { QueryParams } from "app/interfaces";
+import { TablePageObject } from "./table";
+import { LoginMember } from "./auth";
+import utils from "./common";
 
 const membersListTableId = "members-table";
 const membersListFields = ["lastname", "expirationTime", "status"];
@@ -25,13 +26,13 @@ export class MemberPageObject extends TablePageObject {
   public fieldEvaluator = (member: Partial<Member>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "expirationTime") {
-      expect(text).toEqual(timeToDate(member.expirationTime));
+      chai.expect(text).to.eql(timeToDate(member.expirationTime));
     } else if (field === "status") {
-      expect(
+      chai.expect(
         ["Active", "Expired", "Non-Member", "Revoked", "Inactive"].some((status => new RegExp(status, 'i').test(text)))
-      ).toBeTruthy();
+      ).to.be.true;
     } else {
-      expect(text.includes(member[field])).toBeTruthy();
+      chai.expect(text.includes(member[field])).to.be.true;
     }
   }
 
@@ -75,11 +76,16 @@ export class MemberPageObject extends TablePageObject {
 
   public verifyProfileInfo = async (member: LoginMember) => {
     const { firstname, lastname, email, expirationTime } = member;
-    expect(await utils.getElementText(this.memberDetail.title)).toEqual(`${firstname} ${lastname}`);
-    expect(await utils.getElementText(this.memberDetail.email)).toEqual(email);
-    if ( expirationTime) {
-      expect(await utils.getElementText(this.memberDetail.expiration)).toEqual(expirationTime ? timeToDate(expirationTime) : "N/A");
+    chai.expect(await utils.getElementText(this.memberDetail.title)).to.eql(`${firstname} ${lastname}`);
+    chai.expect(await utils.getElementText(this.memberDetail.email)).to.eql(email);
+    if (expirationTime) {
+      chai.expect(await utils.getElementText(this.memberDetail.expiration)).to.eql(expirationTime ? timeToDate(expirationTime) : "N/A");
     }
+  }
+
+  public openCardModal = async () => {
+    await utils.waitForEnabled(this.memberDetail.openCardButton);
+    return utils.clickElement(this.memberDetail.openCardButton);  
   }
 
   public goToMemberRentals = () =>

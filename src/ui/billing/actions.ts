@@ -11,7 +11,8 @@ import {
   InvoiceOption,
   adminDeleteInvoiceOption,
   listInvoiceOptions,
-  isApiErrorResponse
+  isApiErrorResponse,
+  NewInvoiceOption
 } from "makerspace-ts-api-client";
 
 export const readOptionsAction = (
@@ -43,7 +44,7 @@ export const createBillingAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartCreateRequest });
 
-  const result = await adminCreateInvoiceOption({ createInvoiceOptionDetails: invoiceForm });
+  const result = await adminCreateInvoiceOption({ body: invoiceForm as NewInvoiceOption });
   if (isApiErrorResponse(result)) {
     dispatch({
       type: BillingAction.CreateOptionFailure,
@@ -61,7 +62,7 @@ export const updateBillingAction = (
   updateDetails: InvoiceOption
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: BillingAction.StartUpdateRequest });
-  const result = await adminUpdateInvoiceOption({ id: invoiceOptionId, updateInvoiceOptionDetails: updateDetails });
+  const result = await adminUpdateInvoiceOption({ id: invoiceOptionId, body: updateDetails });
   if (isApiErrorResponse(result)) {
     dispatch({
       type: BillingAction.UpdateOptionFailure,

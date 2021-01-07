@@ -1,8 +1,7 @@
 import { emailValid } from "app/utils";
 import { FormFields } from "ui/common/Form";
-import { MemberRole } from "app/entities/member";
 import { dateToTime } from "ui/utils/timeToDate";
-import { Member } from "makerspace-ts-api-client";
+import { Member, MemberRole } from "makerspace-ts-api-client";
 
 const formPrefix = "member-form";
 export const fields = (admin: boolean, member?: Partial<Member>): FormFields => ({

@@ -13,10 +13,11 @@ import {
   adminListRentals, 
   listInvoiceOptions, 
   InvoiceOption, 
-  isApiErrorResponse
+  isApiErrorResponse,
+  InvoiceableResource
 } from "makerspace-ts-api-client";
 
-import { InvoiceableResource, MemberInvoice, RentalInvoice } from "app/entities/invoice";
+import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 import { fields } from "ui/invoice/constants";
@@ -52,7 +53,7 @@ export class InvoiceForm extends React.Component<Props, State> {
     this.state = {
       applyDiscount: false,
       invoiceOptions: [],
-      invoiceType: invoice && invoice.resourceClass || InvoiceableResource.Membership,
+      invoiceType: invoice && invoice.resourceClass || InvoiceableResource.Member,
     }
   }
 
@@ -75,7 +76,7 @@ export class InvoiceForm extends React.Component<Props, State> {
   }
 
   public getInvoiceOptions = async () => {
-    const result = await listInvoiceOptions();
+    const result = await listInvoiceOptions({});
     if (!isApiErrorResponse(result)) {
       this.setState({ invoiceOptions: result.data });
     }
@@ -86,7 +87,7 @@ export class InvoiceForm extends React.Component<Props, State> {
     const updatedInvoice = await form.simpleValidate<MemberInvoice | RentalInvoice>(fields);
     const { memberId } = updatedInvoice;
 
-    if (updatedInvoice.resourceClass === InvoiceableResource.Membership) {
+    if (updatedInvoice.resourceClass === InvoiceableResource.Member) {
       updatedInvoice.resourceId = memberId;
     } else {
       updatedInvoice.resourceId = (updatedInvoice as any).rentalId;
@@ -107,7 +108,7 @@ export class InvoiceForm extends React.Component<Props, State> {
   }
 
   private resetInvoiceType = () => {
-    this.setState({ invoiceType: (this.props.invoice && this.props.invoice.resourceClass) || InvoiceableResource.Membership})
+    this.setState({ invoiceType: (this.props.invoice && this.props.invoice.resourceClass) || InvoiceableResource.Member})
   }
 
   private updateType = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,7 +149,7 @@ export class InvoiceForm extends React.Component<Props, State> {
                 value={this.state.invoiceType as string}
                 onChange={this.updateType}
               >
-                <FormControlLabel value={InvoiceableResource.Membership} control={<Radio />} label="Membership" />
+                <FormControlLabel value={InvoiceableResource.Member} control={<Radio />} label="Membership" />
                 <FormControlLabel value={InvoiceableResource.Rental} control={<Radio />} label="Rental" />
               </RadioGroup>
             </FormControl>
@@ -238,7 +239,7 @@ export class InvoiceForm extends React.Component<Props, State> {
               </Grid>
             </>
           )}
-          {this.state.invoiceType === InvoiceableResource.Membership && (
+          {this.state.invoiceType === InvoiceableResource.Member && (
             <Grid item xs={12}>
               <FormControlLabel
                 control={

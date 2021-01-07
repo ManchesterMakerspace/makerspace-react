@@ -66,17 +66,17 @@ export class SignUpPageObject {
     memberContractSignature: "canvas",
   }
 
-  public goToSignup = () => browser.get(utils.buildUrl(this.signupUrl));
+  public goToSignup = () => browser.url(utils.buildUrl(this.signupUrl));
 
   public signUpUser = async (user: Partial<LoginMember>) => {
     await utils.fillInput(this.signUpForm.firstnameInput, user.firstname);
     await utils.fillInput(this.signUpForm.lastnameInput, user.lastname);
     await utils.fillInput(this.signUpForm.emailInput, user.email);
     await utils.fillInput(this.signUpForm.passwordInput, user.password);
-    await utils.fillInput(this.signUpForm.streetInput, "12 Main St.");
-    await utils.fillInput(this.signUpForm.cityInput, "Roswell");
-    await utils.fillInput(this.signUpForm.zipInput, "90210");
-    await utils.selectDropdownByValue(this.signUpForm.stateSelect, "GA");
+    await utils.fillInput(this.signUpForm.streetInput, user.address.street);
+    await utils.fillInput(this.signUpForm.cityInput, user.address.city);
+    await utils.fillInput(this.signUpForm.zipInput, user.address.postalCode);
+    await utils.selectDropdownByValue(this.signUpForm.stateSelect, user.address.state);
     await utils.clickElement(this.signUpForm.submitButton);
   }
 
@@ -93,16 +93,13 @@ export class SignUpPageObject {
 
   public signContract = async () => {
     const signatureElement = await utils.getElementByCss(this.documentsSigning.memberContractSignature);
-    return browser.actions(). //Should draw a square w/ X in it
-      mouseMove(signatureElement).
-      mouseDown().
-      mouseMove({ x: 10, y: 10 }).
-      mouseMove({ x: -10, y: 0 }).
-      mouseMove({ x: 10, y: -10 }).
-      mouseMove({ x: -10, y: 0 }).
-      mouseUp().
-      perform();
-  };
+    await signatureElement.moveTo(1, 100);
+    await browser.buttonDown();
+    await signatureElement.moveTo(100, 1);
+    await signatureElement.moveTo(100, 100);
+    await signatureElement.moveTo(1, 1);
+    await browser.buttonUp();
+  }
 }
 
 export default new SignUpPageObject();

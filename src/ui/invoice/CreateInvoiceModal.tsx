@@ -26,7 +26,7 @@ const CreateInvoiceModal: React.FC<{ memberId: string, onSuccess: () => void }> 
     const validUpdate = formRef.current.validate && await formRef.current.validate(form);
     if (!form.isValid()) return;
 
-    validUpdate && call({ createInvoiceDetails: validUpdate });
+    validUpdate && call({ body: validUpdate });
   }, [formRef, call]);
 
   return (

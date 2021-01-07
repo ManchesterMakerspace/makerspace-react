@@ -1,11 +1,9 @@
-import { Routing } from "app/constants";
 import { Member } from "makerspace-ts-api-client";
+import { Routing } from "app/constants";
 import utils from "./common";
 
-export interface LoginMember extends Partial<Member> {
-  email: string;
+export interface LoginMember extends Member {
   password: string;
-  expirationTime: any;
 }
 
 export class AuthPageObject {
@@ -41,10 +39,8 @@ export class AuthPageObject {
     submitButton: `${this.passwordResetRequestModalId}-submit`,
   }
 
-
-
   public goToLogin = async () => {
-    await browser.get(utils.buildUrl(this.loginUrl));
+    await browser.url(utils.buildUrl(this.loginUrl));
     await utils.waitForPageLoad(Routing.Login);
   }
 

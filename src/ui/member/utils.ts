@@ -1,11 +1,11 @@
+import { MemberSummary, Member, MemberRole } from "makerspace-ts-api-client";
 import { RenewalEntity } from "ui/common/RenewalForm";
-import { Properties, MemberRole } from "app/entities/member";
+import { Properties } from "app/entities/member";
 import { timeToDate } from "ui/utils/timeToDate";
 import { Routing } from "app/constants";
 import { isObject } from "util";
-import { Member } from "makerspace-ts-api-client";
 
-export const memberToRenewal = (member: Partial<Member>): RenewalEntity => {
+export const memberToRenewal = (member: Member | MemberSummary): RenewalEntity => {
   return {
     id: member[Properties.Id],
     name: `${member[Properties.Firstname]} ${member[Properties.Lastname]}`,
@@ -13,12 +13,12 @@ export const memberToRenewal = (member: Partial<Member>): RenewalEntity => {
   }
 }
 
-export const memberIsAdmin = (member: Partial<Member>): boolean => {
+export const memberIsAdmin = (member: Member | MemberSummary): boolean => {
   return member && member.role &&  member.role.includes(MemberRole.Admin);
 }
 
-export const displayMemberExpiration = (member: Partial<Member> | number) => {
-  const expirationTime = isObject(member) ? (member as Member).expirationTime : member as number;
+export const displayMemberExpiration = (member: Member | MemberSummary | number) => {
+  const expirationTime = isObject(member) ? (member as MemberSummary).expirationTime : member as number;
   return expirationTime ? timeToDate(expirationTime) : "N/A";
 }
 

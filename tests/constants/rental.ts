@@ -1,4 +1,4 @@
-import * as moment from "moment";
+import moment from "moment";
 import { Rental } from "makerspace-ts-api-client";
 
 export const defaultRental: Rental = {

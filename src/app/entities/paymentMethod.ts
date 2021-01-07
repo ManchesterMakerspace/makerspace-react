@@ -5,7 +5,7 @@ export interface PaymentMethod {
   customerId: string;
   paymentType?: string;
   imageUrl: string;
-  default: boolean;
+  isDefault: boolean;
 }
 
 export const isCreditCard = (paymentMethod: any): paymentMethod is CreditCard => {

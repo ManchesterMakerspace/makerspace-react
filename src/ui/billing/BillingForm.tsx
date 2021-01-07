@@ -13,8 +13,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import FormModal from "ui/common/FormModal";
 import Form from "ui/common/Form";
 
-import { InvoiceOption } from "makerspace-ts-api-client";
-import { InvoiceableResource, Properties as InvoiceOptionProps } from "app/entities/invoice";
+import { InvoiceOption, InvoiceableResource } from "makerspace-ts-api-client";
+import { Properties as InvoiceOptionProps } from "app/entities/invoice";
 import { Properties as BillingPlanProps } from "app/entities/billingPlan";
 import { fields } from "ui/billing/constants";
 import { CollectionOf } from "app/interfaces";
@@ -43,7 +43,7 @@ interface State {
 }
 
 const defaultState = {
-  type: InvoiceableResource.Membership,
+  type: InvoiceableResource.Member,
   planId: "",
   planMatchError: "",
   disableOption: false,
@@ -216,7 +216,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
                 value={type as string}
                 onChange={this.updateType}
               >
-                <FormControlLabel value={InvoiceableResource.Membership} control={<Radio />} label="Membership" />
+                <FormControlLabel value={InvoiceableResource.Member} control={<Radio />} label="Membership" />
                 <FormControlLabel value={InvoiceableResource.Rental} control={<Radio />} label="Rental" />
               </RadioGroup>
             </FormControl>

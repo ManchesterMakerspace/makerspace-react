@@ -8,13 +8,13 @@ import { Routing } from "app/constants";
 import useWriteTransaction from "ui/hooks/useWriteTransaction";
 
 const SendRegistrationComponent: React.FC = () => {
-  const { history, match: { params: { email } } } = useReactRouter();
+  const { history, match: { params: { email } } } = useReactRouter<{ email: string }>();
   const goToMembers = React.useCallback(() => history.push(Routing.Members), []);
   const { isRequesting, error, call } = useWriteTransaction(sendRegistrationEmail);
   const [success, setSuccess] = React.useState(false);
 
   const submitRequest = React.useCallback(async () => {
-    await call({ registrationEmailDetails: email });
+    await call({ body: { email } });
     if (!error) {
       setSuccess(true);
     }

@@ -2,9 +2,7 @@
   "extends": "./tsconfig.base",
   "exclude": [
     "node_modules",
-    "vendor",
-    "public",
     "dist",
-    "tmp"
+    "tests"
   ],
 }

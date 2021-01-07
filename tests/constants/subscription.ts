@@ -1,5 +1,5 @@
-import * as moment from "moment";
-import { Subscription, SubscriptionStatus } from "makerspace-ts-api-client";
+import moment from "moment";
+import { Subscription, SubscriptionStatusEnum } from "makerspace-ts-api-client";
 
 export const defaultSubscription: Subscription = {
   id: "test-subscription",
@@ -8,7 +8,7 @@ export const defaultSubscription: Subscription = {
   resourceClass: "member",
   resourceId: "test_member",
   amount: "65",
-  status: SubscriptionStatus.Active,
+  status: SubscriptionStatusEnum.Active,
   failureCount: 0,
   daysPastDue: 0,
   billingDayOfMonth: "1",

@@ -63,7 +63,7 @@ const SignUpFormComponent: React.FC = () => {
     }));
     // Don't attempt to create a new invoice if they selected "none"
     if (option && option.id !== noneInvoiceOption.id) {
-      await buildInvoice({ createInvoiceDetails: option});
+      await buildInvoice({ body: option });
     }
   }, [option]);
 

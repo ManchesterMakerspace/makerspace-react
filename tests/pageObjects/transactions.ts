@@ -1,8 +1,9 @@
-import { TablePageObject } from "./table";
+import { expect } from "chai";
+import { Member, Transaction } from "makerspace-ts-api-client";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { Routing } from "app/constants";
 import { timeToDate } from "ui/utils/timeToDate";
-import { Member, Transaction } from "makerspace-ts-api-client";
+import { TablePageObject } from "./table";
 
 const tableId = "transactions-table";
 const transactionsListFields = ["createdAt", "description", "amount", "status"];
@@ -13,28 +14,28 @@ class TransactionsPageObject extends TablePageObject {
   public fieldEvaluator = (member?: Partial<Member>) => (transaction: Partial<Transaction>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "createdAt") {
-      expect(text).toEqual(timeToDate(transaction.createdAt));
+      expect(text).to.eql(timeToDate(transaction.createdAt));
     } else if (field === "status") {
       expect(
         ["Successful", "Failed", "In Progress", "Unknown"].some((status => new RegExp(status, 'i').test(text)))
-      ).toBeTruthy();
+      ).to.be.true;
     } else if (field === "member") {
       if (member) {
-        expect(text).toEqual(`${member.firstname} ${member.lastname}`);
+        expect(text).to.eql(`${member.firstname} ${member.lastname}`);
       } else {
-        expect(text).toBeTruthy();
+        expect(!!text).to.be.true;
       }
     } else if (field === "amount") {
-      expect(numberAsCurrency(transaction[field])).toEqual(text);
+      expect(numberAsCurrency(transaction[field])).to.eql(text);
     } else if (field === "description") {
       expect(["Refund", "Subscription Payment", "Standard Payment"].some((status => new RegExp(status, 'i').test(text)))
-    ).toBeTruthy();
+    ).to.be.true;
     } else {
       const contained = text.includes(transaction[field]);
       if (!contained) {
         console.error(field, `${text} != ${transaction[field]}`);
       }
-      expect(contained).toBeTruthy();
+      expect(contained).to.be.true;
     }
   }
 

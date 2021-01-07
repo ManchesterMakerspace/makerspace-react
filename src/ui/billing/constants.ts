@@ -1,4 +1,6 @@
-import { Properties, InvoiceableResource } from "app/entities/invoice"
+import { Properties } from "app/entities/invoice";
+import { InvoiceableResource } from "makerspace-ts-api-client";
+
 export enum Action {
   StartReadRequest = "BILLING/START_READ_REQUEST",
   GetOptionsSuccess = "BILLING/GET_OPTIONS_SUCCESS",
@@ -56,11 +58,6 @@ export const fields = {
     label: "Billing Plan (optional)",
     name: `${formPrefix}-billing-plan`,
     placeholder: "Select a billing plan",
-  },
-  [Properties.Operation]: {
-    label: "Operation on completion",
-    name: `${formPrefix}-operation`,
-    validate: (_val: string) => true,
   },
   [Properties.DiscountId]: {
     label: "Discount (optional)",
