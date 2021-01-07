@@ -1,7 +1,8 @@
-import { TablePageObject } from "./table";
-import { Routing } from "app/constants";
+import { expect } from "chai";
 import { Member, Subscription } from "makerspace-ts-api-client";
+import { Routing } from "app/constants";
 import { timeToDate } from "ui/utils/timeToDate";
+import { TablePageObject } from "./table";
 
 const tableId = "subscriptions-table";
 const fields = ["nextBilling", "resourceClass", "memberName", "amount", "status"];
@@ -12,19 +13,19 @@ class SubscriptionsPageObject extends TablePageObject {
   public fieldEvaluator = (member?: Partial<Member>) => (subscription: Partial<Subscription>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
     if (field === "nextBilling") {
-      expect(text).toEqual(timeToDate(subscription.nextBillingDate));
+      expect(text).to.eql(timeToDate(subscription.nextBillingDate));
     } else if (field === "status") {
       expect(
         ["Active", "Expired"].some((status => new RegExp(status, 'i').test(text)))
-      ).toBeTruthy();
+      ).to.be.true;
     } else if (field === "memberName") {
       if (member) {
-        expect(text).toEqual(`${member.firstname} ${member.lastname}`);
+        expect(text).to.eql(`${member.firstname} ${member.lastname}`);
       } else {
-        expect(text).toBeTruthy();
+        expect(!!text).to.be.true;
       }
     } else {
-      expect(text.includes(subscription[field])).toBeTruthy();
+      expect(text.includes(subscription[field])).to.be.true;
     }
   }
 

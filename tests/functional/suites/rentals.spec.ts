@@ -1,21 +1,23 @@
-import * as moment from "moment";
+import { expect } from "chai";
+import moment from "moment";
 import { basicUser, adminUser, defaultMembers } from "../../constants/member";
-import { mockRequests, mock } from "../mockserver-client-helpers";
 
 import header from "../../pageObjects/header";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import rentalsPO from "../../pageObjects/rentals";
 import renewPO from "../../pageObjects/renewalForm";
-import { Rental } from "makerspace-ts-api-client";
+import { Rental, updateRental } from "makerspace-ts-api-client";
 import { defaultRental, defaultRentals } from "../../constants/rental";
 import { autoLogin } from "../autoLogin";
+import { loadMockserver } from "../mockserver";
+const mocker = loadMockserver();
 
 describe("Rentals", () => {
   // TODO: These features don't exist yet
   xdescribe("Basic user", () => {
     beforeEach(() => {
-      return autoLogin(basicUser);
+      return autoLogin(mocker, basicUser);
     });
     it("Can review and pay for their rentals", () => {
     });
@@ -30,15 +32,15 @@ describe("Rentals", () => {
         memberName: `${basicUser.firstname} ${basicUser.lastname}`,
       };
       beforeEach(async () => {
-        await mock(mockRequests.rentals.get.ok(defaultRentals, {}, true));
-        return autoLogin(adminUser, undefined, { billing: true }).then(async () => {
+        mocker.adminListRentals_200({}, defaultRentals);
+        return autoLogin(mocker, adminUser, undefined, { billing: true }).then(async () => {
           await header.navigateTo(header.links.rentals);
           await utils.waitForPageLoad(rentalsPO.listUrl);
-          expect(await utils.isElementDisplayed(rentalsPO.getErrorRowId())).toBeFalsy();
-          expect(await utils.isElementDisplayed(rentalsPO.getNoDataRowId())).toBeFalsy();
-          expect(await utils.isElementDisplayed(rentalsPO.getLoadingId())).toBeFalsy();
-          expect(await utils.isElementDisplayed(rentalsPO.getTitleId())).toBeTruthy();
-          expect(await rentalsPO.getColumnText("number", defaultRentals[0].id)).toBeTruthy();
+          expect(await utils.isElementDisplayed(rentalsPO.getErrorRowId())).to.be.false;
+          expect(await utils.isElementDisplayed(rentalsPO.getNoDataRowId())).to.be.false;
+          expect(await utils.isElementDisplayed(rentalsPO.getLoadingId())).to.be.false;
+          expect(await utils.isElementDisplayed(rentalsPO.getTitleId())).to.be.true;
+          expect(!!(await rentalsPO.getColumnText("number", defaultRentals[0].id))).to.be.true;
         });
       });
       it("Loads a list of rentals", async () => {
@@ -51,26 +53,35 @@ describe("Rentals", () => {
         await utils.fillInput(rentalsPO.rentalForm.description, initRental.description);
         await utils.fillInput(rentalsPO.rentalForm.notes, "some random notes for this member");
         await utils.clickElement(rentalsPO.rentalForm.contract);
-        await mock(mockRequests.members.get.ok(defaultMembers));
+        mocker.listMembers_200({}, defaultMembers);
         await utils.fillAsyncSearchInput(
           rentalsPO.rentalForm.member,
           defaultMembers[0].email,
-          defaultMembers[0].id
+          `${defaultMembers[0].firstname} ${defaultMembers[0].lastname}`
         );
-        await mock(mockRequests.rentals.post.ok(initRental));
-        await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
+        // TODO: Notes should be possible and expiration not required for this payload
+        mocker.adminCreateRental_200({ body: {
+          memberId: defaultMembers[0].id,
+          number: initRental.number, 
+          description: initRental.description,
+          contractOnFile: true,
+        } as any }, initRental);
+        mocker.adminListRentals_200({}, [initRental]);
         await utils.clickElement(rentalsPO.rentalForm.submit);
         await utils.waitForNotVisible(rentalsPO.rentalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(initRental, rentalsPO.fieldEvaluator(basicUser));
       });
 
       it("Can edit rentals for members", async () => {
+        const expiration = new Date(moment(defaultRentals[0].expiration).add(2, 'M').valueOf());
+        expiration.setHours(0,0,0,0);
+
         const updatedRental = {
           ...defaultRentals[0],
           number: "11",
           description: "bar",
-          expiration: moment(defaultRentals[0].expiration).add(2, 'M').valueOf()
+          expiration: expiration.valueOf()
         }
         await rentalsPO.selectRow(defaultRentals[0].id);
         await utils.clickElement(rentalsPO.rentalsList.editButton);
@@ -80,11 +91,16 @@ describe("Rentals", () => {
         await utils.fillInput(rentalsPO.rentalForm.description, updatedRental.description);
         await utils.fillInput(rentalsPO.rentalForm.notes, "some random notes for this member");
         await utils.inputTime(rentalsPO.rentalForm.expiration, updatedRental.expiration);
-        await mock(mockRequests.rentals.put.ok(updatedRental));
-        await mock(mockRequests.rentals.get.ok([updatedRental], undefined, true));
+        mocker.adminUpdateRental_200({ id: updatedRental.id, body: {
+          number: updatedRental.number,
+          description: updatedRental.description,
+          notes: "some random notes for this member",
+          expiration: utils.timeValue(updatedRental.expiration)
+        } as any}, updatedRental);
+        mocker.adminListRentals_200({}, [updatedRental]);
         await utils.clickElement(rentalsPO.rentalForm.submit);
         await utils.waitForNotVisible(rentalsPO.rentalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(updatedRental, rentalsPO.fieldEvaluator());
       });
 
@@ -92,34 +108,35 @@ describe("Rentals", () => {
         await rentalsPO.selectRow(defaultRentals[0].id);
         await utils.clickElement(rentalsPO.rentalsList.deleteButton);
         await utils.waitForVisible(rentalsPO.deleteRentalModal.submit);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.member)).toEqual(defaultRentals[0].memberName);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.number)).toEqual(defaultRentals[0].number);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.description)).toEqual(defaultRentals[0].description);
-        await mock(mockRequests.rentals.delete.ok(defaultRentals[0].id));
-        await mock(mockRequests.rentals.get.ok([], undefined, true));
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.member)).to.eql(defaultRentals[0].memberName);
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.number)).to.eql(defaultRentals[0].number);
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.description)).to.eql(defaultRentals[0].description);
+        mocker.adminDeleteRental_204({ id: defaultRentals[0].id });
+        mocker.adminListRentals_200({}, []);
         await utils.clickElement(rentalsPO.deleteRentalModal.submit);
         await utils.waitForNotVisible(rentalsPO.deleteRentalModal.submit);
         await utils.waitForVisible(rentalsPO.getNoDataRowId());
       });
 
       it("Can renew rentals for members", async () => {
-        const updatedRental: Partial<Rental> = {
+        const updatedRental: Rental = {
           ...defaultRentals[0],
           expiration: moment(defaultRentals[0].expiration).add(1, 'M').valueOf()
         }
         await rentalsPO.selectRow(defaultRentals[0].id);
         await utils.clickElement(rentalsPO.rentalsList.renewButton);
         await utils.waitForVisible(renewPO.renewalForm.submit);
-        expect(await utils.getElementText(renewPO.renewalForm.entity)).toEqual(defaultRentals[0].number);
+        expect(await utils.getElementText(renewPO.renewalForm.entity)).to.eql(defaultRentals[0].number);
         await utils.clickElement(renewPO.renewalForm.submit);
         await utils.assertInputError(renewPO.renewalForm.termError, true);
         await utils.selectDropdownByValue(renewPO.renewalForm.renewalSelect, "1");
         await utils.assertNoInputError(renewPO.renewalForm.termError, true);
-        await mock(mockRequests.rentals.put.ok(updatedRental));
-        await mock(mockRequests.rentals.get.ok([updatedRental], undefined, true));
+        // TODO Update rental doesn't support renew
+        mocker.adminUpdateRental_200({ id: updatedRental.id, body: { renew: 1 } as any }, updatedRental);
+        mocker.adminListRentals_200({}, [updatedRental]);
         await utils.clickElement(renewPO.renewalForm.submit);
         await utils.waitForNotVisible(renewPO.renewalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(updatedRental, rentalsPO.fieldEvaluator());
       });
 
@@ -138,9 +155,9 @@ describe("Rentals", () => {
       beforeEach(() => {
         return new Promise(async (resolve) => {
           // 1. Login as admin and nav to basic user's profile
-          await mock(mockRequests.invoices.get.ok([], undefined));
-          await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-          return autoLogin(adminUser, targetUrl, { billing: true }).then(() => resolve())
+          mocker.listInvoices_200({}, []);
+          mocker.getMember_200({ id: basicUser.id }, basicUser);
+          return autoLogin(mocker, adminUser, targetUrl, { billing: true }).then(() => resolve())
         })
       });
       it("Can create new rentals for members", async () => {
@@ -153,20 +170,25 @@ describe("Rentals", () => {
            4. Fill out form & submit
            5. Assert new rental loaded in profile page
         */
-        await mock(mockRequests.rentals.get.ok([], undefined, true));
+        mocker.adminListRentals_200({}, []);
         await memberPO.goToMemberRentals();
         await utils.clickElement(rentalsPO.actionButtons.create);
         await utils.waitForVisible(rentalsPO.rentalForm.submit);
-        expect(await utils.getElementText(rentalsPO.rentalForm.member)).toEqual(`${basicUser.firstname} ${basicUser.lastname}`);
+        expect(await utils.getElementText(rentalsPO.rentalForm.member)).to.eql(`${basicUser.firstname} ${basicUser.lastname}`);
         await utils.fillInput(rentalsPO.rentalForm.number, initRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, initRental.description);
         await utils.clickElement(rentalsPO.rentalForm.contract);
 
-        await mock(mockRequests.rentals.post.ok(initRental));
-        await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
+        mocker.adminCreateRental_200({ body: {
+          number: initRental.number,
+          memberId: basicUser.id,
+          description: initRental.description,
+          contractOnFile: true
+        } as any }, initRental);
+        mocker.adminListRentals_200({}, [initRental]);
         await utils.clickElement(rentalsPO.rentalForm.submit);
         await utils.waitForNotVisible(rentalsPO.rentalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(initRental, rentalsPO.fieldEvaluator(basicUser));
       });
 
@@ -180,26 +202,33 @@ describe("Rentals", () => {
            4. Fill out form & submit
            5. Assert updated rental loaded in profile page
         */
+        const expiration = new Date(moment(defaultRentals[0].expiration).add(2, 'M').valueOf());
+        expiration.setHours(0,0,0,0);
+
         const updatedRental = {
           ...initRental,
           number: "11",
           description: "bar",
-          expiration: moment(initRental.expiration).add(2, 'M').valueOf()
+          expiration: expiration.valueOf()
         }
-        await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
+        mocker.adminListRentals_200({}, [initRental]);
         await memberPO.goToMemberRentals();
         await rentalsPO.selectRow(initRental.id);
         await utils.clickElement(rentalsPO.actionButtons.edit);
         await utils.waitForVisible(rentalsPO.rentalForm.submit);
-        expect(await utils.getElementText(rentalsPO.rentalForm.member)).toEqual(`${basicUser.firstname} ${basicUser.lastname}`);
+        expect(await utils.getElementText(rentalsPO.rentalForm.member)).to.eql(`${basicUser.firstname} ${basicUser.lastname}`);
         await utils.fillInput(rentalsPO.rentalForm.number, updatedRental.number);
         await utils.fillInput(rentalsPO.rentalForm.description, updatedRental.description);
         await utils.inputTime(rentalsPO.rentalForm.expiration, updatedRental.expiration);
-        await mock(mockRequests.rentals.put.ok(updatedRental));
-        await mock(mockRequests.rentals.get.ok([updatedRental], undefined, true));
+        mocker.adminUpdateRental_200({ id: updatedRental.id, body: {
+          number: updatedRental.number,
+          description: updatedRental.description,
+          expiration: utils.timeValue(updatedRental.expiration)
+        } as any}, updatedRental);
+        mocker.adminListRentals_200({}, [updatedRental]);
         await utils.clickElement(rentalsPO.rentalForm.submit);
         await utils.waitForNotVisible(rentalsPO.rentalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(updatedRental, rentalsPO.fieldEvaluator(basicUser));
       });
 
@@ -213,41 +242,41 @@ describe("Rentals", () => {
            4. Confirm modal
            5. Assert rental not loaded in profile page
         */
-        await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
+        mocker.adminListRentals_200({}, [initRental]);
         await memberPO.goToMemberRentals();
         await rentalsPO.selectRow(initRental.id);
         await utils.clickElement(rentalsPO.actionButtons.delete);
         await utils.waitForVisible(rentalsPO.deleteRentalModal.submit);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.member)).toEqual(`${basicUser.firstname} ${basicUser.lastname}`);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.number)).toEqual(initRental.number);
-        expect(await utils.getElementText(rentalsPO.deleteRentalModal.description)).toEqual(initRental.description);
-        await mock(mockRequests.rentals.delete.ok(initRental.id));
-        await mock(mockRequests.rentals.get.ok([], undefined, true));
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.member)).to.eql(`${basicUser.firstname} ${basicUser.lastname}`);
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.number)).to.eql(initRental.number);
+        expect(await utils.getElementText(rentalsPO.deleteRentalModal.description)).to.eql(initRental.description);
+        mocker.adminDeleteRental_204({ id: initRental.id });
+        mocker.adminListRentals_200({}, []);
         await utils.clickElement(rentalsPO.deleteRentalModal.submit);
         await utils.waitForNotVisible(rentalsPO.deleteRentalModal.submit);
         await utils.waitForVisible(rentalsPO.getNoDataRowId());
       });
 
       it("Can renew rentals for members", async () => {
-        const updatedRental: Partial<Rental> = {
+        const updatedRental: Rental = {
           ...initRental,
           expiration: moment(initRental.expiration).add(1, 'M').valueOf()
         }
-        await mock(mockRequests.rentals.get.ok([initRental], undefined, true));
+        mocker.adminListRentals_200({}, [initRental]);
         await memberPO.goToMemberRentals();
         await rentalsPO.selectRow(initRental.id);
         await utils.clickElement(rentalsPO.actionButtons.renew);
         await utils.waitForVisible(renewPO.renewalForm.submit);
-        expect(await utils.getElementText(renewPO.renewalForm.entity)).toEqual(initRental.number);
+        expect(await utils.getElementText(renewPO.renewalForm.entity)).to.eql(initRental.number);
         await utils.clickElement(renewPO.renewalForm.submit);
         await utils.assertInputError(renewPO.renewalForm.termError, true);
         await utils.selectDropdownByValue(renewPO.renewalForm.renewalSelect, "1");
         await utils.assertNoInputError(renewPO.renewalForm.termError, true);
-        await mock(mockRequests.rentals.put.ok(updatedRental));
-        await mock(mockRequests.rentals.get.ok([updatedRental], undefined, true));
+        mocker.adminUpdateRental_200({ id: updatedRental.id, body: { renew: 1 } as any }, updatedRental);
+        mocker.adminListRentals_200({}, [updatedRental]);
         await utils.clickElement(renewPO.renewalForm.submit);
         await utils.waitForNotVisible(renewPO.renewalForm.submit);
-        expect((await rentalsPO.getAllRows()).length).toEqual(1);
+        expect((await rentalsPO.getAllRows()).length).to.eql(1);
         await rentalsPO.verifyFields(updatedRental, rentalsPO.fieldEvaluator(basicUser));
       });
     });

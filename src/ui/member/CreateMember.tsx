@@ -30,7 +30,7 @@ const CreateMember: React.FC<{ onCreate: (id: string) => void }> = ({ onCreate }
 
     const { street, unit, city, state, postalCode, ...rest } = validUpdate;
 
-    create({ createMemberDetails: {
+    create({ body: {
       ...rest as NewMember,
       address: {
         street,
@@ -39,7 +39,7 @@ const CreateMember: React.FC<{ onCreate: (id: string) => void }> = ({ onCreate }
         state,
         postalCode
       }
-    } });
+    }});
   }, [formRef, create]);
 
   return (

@@ -1,3 +1,3 @@
-declare const browser;
-declare const until;
-declare const by;
+import { Browser } from "webdriverio";
+
+declare const browser: Browser;

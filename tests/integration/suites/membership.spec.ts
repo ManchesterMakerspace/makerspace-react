@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import signup from "../../pageObjects/signup";
@@ -12,8 +13,9 @@ import { getAdminUserLogin, getBasicUserLogin, invoiceOptionIds } from "../../co
 import { newVisa, newMastercard } from "../../constants/paymentMethod";
 
 describe("Membership", () => {
-  beforeEach(() => {
-    return browser.get(utils.buildUrl());
+  beforeEach(async () => {
+    await browser.deleteAllCookies();
+    return browser.url(utils.buildUrl());
   })
 
   it("Members can create a membership, change payment methods and cancel their membership", async () => {
@@ -26,8 +28,8 @@ describe("Membership", () => {
 
     // Non subscription details displayed
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
-    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
-    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
+    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.true;
+    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.false;
 
     // Select a subscription
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
@@ -38,8 +40,9 @@ describe("Membership", () => {
 
     // Add a payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(0);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
     await utils.clickElement(paymentMethods.addPaymentButton);
+    await browser.pause(1000); // Sleep 1s bc loading may flicker
     await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
     await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
     await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
@@ -56,7 +59,7 @@ describe("Membership", () => {
 
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     await utils.clickElement(checkoutPo.nextButton);
@@ -70,7 +73,7 @@ describe("Membership", () => {
     await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
 
     // view receipt & return to profile
-    await utils.waitForPageToMatch(Routing.Receipt);
+    await utils.waitForPageToMatch(Routing.Receipt, undefined, 10 * 1000);
     await utils.waitForNotVisible(checkoutPo.receiptLoading);
     await utils.clickElement(checkoutPo.backToProfileButton);
     await utils.waitForPageToMatch(Routing.Profile);
@@ -84,14 +87,14 @@ describe("Membership", () => {
     // Subscription details displayed
     await utils.waitForNotVisible(settingsPO.subscriptionDetails.loading);
     await utils.waitForVisible(settingsPO.subscriptionDetails.status);
-    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
-    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
+    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.true;
+    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.false;
     // Change payment method
     await utils.clickElement(settingsPO.subscriptionDetails.changePaymentMethod);
 
     // Add a payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
     await utils.clickElement(paymentMethods.addPaymentButton);
     await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
     await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
@@ -110,7 +113,7 @@ describe("Membership", () => {
     // Select the payment method
     // TODO: new payment methods should be auto selected
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(2);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(2);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     // TODO: Verify correct payment method is selected when reopening
@@ -128,9 +131,9 @@ describe("Membership", () => {
     // Non subscription details displayed
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
     await utils.waitForVisible(settingsPO.nonSubscriptionDetails.status);
-    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
-    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
-  }, 600000);
+    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.true;
+    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.false;
+  });
 
   it("Admins can cancel a membership", async () => {
     await auth.goToLogin();
@@ -143,8 +146,8 @@ describe("Membership", () => {
     // Non subscription details displayed
     await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
     await utils.waitForVisible(settingsPO.nonSubscriptionDetails.status);
-    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
-    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
+    expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.true;
+    expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.false;
 
     // Select a subscription
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
@@ -155,8 +158,9 @@ describe("Membership", () => {
 
     // Add a payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(0);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
     await utils.clickElement(paymentMethods.addPaymentButton);
+    await browser.pause(1000); // Sleep browser 1s b/c loading flickers
     await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
     await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
     await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
@@ -174,7 +178,7 @@ describe("Membership", () => {
     // Select the payment method
     // TODO: new payment methods should be auto selected
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).toEqual(1);
+    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     await utils.clickElement(checkoutPo.nextButton);
@@ -188,7 +192,7 @@ describe("Membership", () => {
     await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
 
     // view receipt & logout
-    await utils.waitForPageToMatch(Routing.Receipt);
+    await utils.waitForPageToMatch(Routing.Receipt, undefined, 10 * 1000);
     await utils.waitForNotVisible(checkoutPo.receiptLoading);
     await utils.clickElement(checkoutPo.backToProfileButton);
     await utils.waitForPageToMatch(Routing.Profile);
@@ -218,9 +222,9 @@ describe("Membership", () => {
     await Promise.all(rows.map((row, index) => {
       return new Promise(async (resolve) => {
         const memberName = await subscriptionPO.getColumnByIndex(index, "memberName");
-        expect(memberName).not.toEqual(name);
+        expect(memberName).not.to.eql(name);
         resolve();
       });
     }));
-  }, 300 * 1000);
+  });
 });

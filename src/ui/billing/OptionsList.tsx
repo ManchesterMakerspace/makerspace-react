@@ -2,8 +2,8 @@ import * as React from "react";
 import { connect } from "react-redux";
 import Grid from "@material-ui/core/Grid";
 
-import { InvoiceOption } from "makerspace-ts-api-client";
-import { InvoiceOperation, InvoiceableResource, InvoiceOptionQueryParams } from "app/entities/invoice";
+import { InvoiceOption, InvoiceableResource } from "makerspace-ts-api-client";
+import { InvoiceOperation, InvoiceOptionQueryParams } from "app/entities/invoice";
 import { CrudOperation } from "app/constants";
 import { CollectionOf } from "app/interfaces";
 
@@ -200,7 +200,7 @@ class OptionsList extends React.Component<Props, State> {
         <UpdateBillingContainer
           operation={CrudOperation.Create}
           isOpen={openCreateForm}
-          billingOption={{ operation: InvoiceOperation.Renew }}
+          billingOption={{ }}
           closeHandler={this.closeCreateForm}
           render={createForm}
         />

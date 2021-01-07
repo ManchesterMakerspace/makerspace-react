@@ -1,12 +1,12 @@
-import * as moment from "moment";
-import { Transaction } from "makerspace-ts-api-client";
+import moment from "moment";
+import { Transaction, TransactionStatusEnum } from "makerspace-ts-api-client";
 
 export const defaultTransaction: Transaction = {
   id: "test-transaction",
   memberId: "test_member",
   memberName: "Some Member",
   createdAt: new Date().toString(),
-  status: "settled", // TODO what are these statuses actually
+  status: TransactionStatusEnum.Settled,
   amount: "65.00",
   recurring: false,
   disputes: [],
@@ -15,7 +15,8 @@ export const defaultTransaction: Transaction = {
   customerDetails: {},
   refundedTransactionId: null,
   refundIds: [],
-  subscriptionDetails: {}
+  subscriptionDetails: {},
+  paymentMethodDetails: {}
 };
 
 export const defaultTransactions: Transaction[] = new Array(20).fill(undefined).map((_v, index) => {

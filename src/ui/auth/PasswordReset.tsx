@@ -77,15 +77,20 @@ class PasswordReset extends React.Component<Props, State> {
     if (!form.isValid()) return;
 
     this.setState({ passwordRequesting: true });
-    // Successfully changing password counts as auth action for Devise
-    const passwordReset = await resetPassword({ passwordResetDetails: { resetPasswordToken: passwordToken, password } });
-    if (isApiErrorResponse(passwordReset)) {
-      this.setState({ passwordRequesting: false, passwordError: passwordReset.error.message });
-    } else {
-      // TODO: Toast Message
-      await this.props.attemptLogin();
-      this.setState({ passwordRequesting: false });
+    try {
+      // Successfully changing password counts as auth action for Devise
+      const passwordReset = await resetPassword({ body: { member: { resetPasswordToken: passwordToken, password } } });
+      if (isApiErrorResponse(passwordReset)) {
+        this.setState({ passwordRequesting: false, passwordError: passwordReset.error.message });
+      } else {
+        // TODO: Toast Message
+        await this.props.attemptLogin();
+        this.setState({ passwordRequesting: false });
+      }
+    } catch (e) {
+      console.error("ERR", e);
     }
+
   }
 
   public render(): JSX.Element {

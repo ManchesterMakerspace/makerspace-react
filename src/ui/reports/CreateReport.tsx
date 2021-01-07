@@ -3,10 +3,6 @@ import { NewReport, createEarnedMembershipReport, getMember, getEarnedMembership
 
 
 import Form from "ui/common/Form";
-import {
-  createMembershipAction,
-  updateMembershipAction,
-} from "ui/earnedMemberships/actions";
 import { ReportForm } from "ui/reports/ReportForm";
 import useWriteTransaction from "../hooks/useWriteTransaction";
 import { useAuthState } from "../reducer/hooks";
@@ -59,7 +55,7 @@ const CreateReport: React.FC<Props> = ({ onCreate }) => {
 
     if (!form.isValid()) return;
 
-    return await createReport({ id: earnedMembershipId, createEarnedMembershipReportDetails: validUpdate });
+    return await createReport({ id: earnedMembershipId, body: validUpdate });
   }, [createReport, formRef]);
 
   return (

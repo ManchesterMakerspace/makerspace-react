@@ -93,7 +93,7 @@ class LoginForm extends React.Component<Props, State> {
     if (!form.isValid()) return;
 
     this.setState({ requestingPassword: true}, async () => {
-      const response = await requestPasswordReset({ passwordResetDetails: { email } });
+      const response = await requestPasswordReset({ body: { member: { email }} });
       if (isApiErrorResponse(response)) {
         this.setState({ requestingPassword: false, passwordError: response.error.message });
       } else {

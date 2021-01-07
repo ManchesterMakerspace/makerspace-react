@@ -1,26 +1,26 @@
 import * as React from "react";
-import { TransactionStatus } from "app/entities/transaction";
 import { Status } from "ui/constants";
 import StatusLabel from "ui/common/StatusLabel";
-import { Transaction } from "makerspace-ts-api-client";
+import { Transaction, TransactionStatusEnum } from "makerspace-ts-api-client";
 
 export const renderTransactionStatus = (transaction: Transaction) => {
   let label = "Pending";
   let color = Status.Info;
 
   switch (transaction.status) {
-    case TransactionStatus.Settled:
+    case TransactionStatusEnum.Settled:
       color = Status.Success;
       label = "Successful";
       break;
-    case TransactionStatus.Failed:
-    case TransactionStatus.Declined:
-    case TransactionStatus.Rejected:
-    case TransactionStatus.Voided:
+    case TransactionStatusEnum.Failed:
+    case TransactionStatusEnum.ProcessorDeclined:
+    case TransactionStatusEnum.SettlementDeclined:
+    case TransactionStatusEnum.GatewayRejected:
+    case TransactionStatusEnum.Voided:
       color = Status.Danger;
       label = "Failed";
       break;
-    case TransactionStatus.Unknown:
+    default:
       color = Status.Warn;
       label = "Unknown";
   }

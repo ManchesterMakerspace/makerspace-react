@@ -1,8 +1,9 @@
-import { TablePageObject } from "./table";
+import { expect } from "chai";
+import { Member } from "makerspace-ts-api-client";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { timeToDate } from "ui/utils/timeToDate";
-import { Member } from "makerspace-ts-api-client";
 import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
+import { TablePageObject } from "./table";
 
 const invoicesTableId = "invoices-table";
 // Settled not included because that's only for admins
@@ -14,23 +15,23 @@ export class InvoicePageObject extends TablePageObject {
   public fieldEvaluator = (member?: Partial<Member>) => (invoice: Partial<MemberInvoice | RentalInvoice>) => (fieldContent: { field: string, text: string }) => {
     const { field, text } = fieldContent;
       if (field === "dueDate") {
-        expect(text).toEqual(timeToDate(invoice.dueDate));
+        expect(text).to.eql(timeToDate(invoice.dueDate));
       } else if (field === "member") {
       if (member) {
-        expect(text).toEqual(`${member.firstname} ${member.lastname}`);
+        expect(text).to.eql(`${member.firstname} ${member.lastname}`);
       } else {
-        expect(text).toBeTruthy();
+        expect(!!text).to.be.true;
       }
     } else if (field === "resourceClass") {
-      expect(["Membership", "Rental"].some((status => new RegExp(status, 'i').test(text)))).toBeTruthy();
+      expect(["Membership", "Rental"].some((status => new RegExp(status, 'i').test(text)))).to.be.true;
     } else if (field === "amount") {
-      expect(numberAsCurrency(invoice[field])).toEqual(text);
+      expect(numberAsCurrency(invoice[field])).to.eql(text);
     } else {
       const contained = text.includes(invoice[field]);
       if (!contained) {
         console.error(field, text);
       }
-      expect(contained).toBeTruthy();
+      expect(contained).to.be.true;
     }
   }
 

@@ -1,18 +1,21 @@
-import * as moment from "moment";
+import { expect } from "chai";
+import moment from "moment";
 import { LoginMember } from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import header from "../../pageObjects/header";
 import { basicUser, adminUser, defaultMembers } from "../../constants/member";
-import { mockRequests, mock } from "../mockserver-client-helpers";
 import memberPo, { defaultQueryParams } from "../../pageObjects/member";
 import renewalPO from "../../pageObjects/renewalForm";
 import { autoLogin } from "../autoLogin";
+import { loadMockserver } from "../mockserver";
+import { Member, NewMember } from "makerspace-ts-mock-client";
+const mocker = loadMockserver();
 
 const verifyRouting = async (member: LoginMember) => {
   const id = member.id;
   const columns = memberPo.getColumnIds(["lastname"], id);
 
-  mock(mockRequests.member.get.ok(id, member));
+  mocker.getMember_200({ id }, member);
   await utils.clickElement(`${columns["lastname"]} a`);
   await utils.waitForPageLoad(memberPo.getProfilePath(id));
 }
@@ -20,50 +23,56 @@ const verifyRouting = async (member: LoginMember) => {
 describe("Members page", () => {
   describe("Basic User", () => {
     beforeEach(() => {
-      return autoLogin(basicUser).then(async () => {
-        await mock(mockRequests.members.get.ok(defaultMembers));
+      return autoLogin(mocker, basicUser).then(async () => {
+        mocker.listMembers_200({}, defaultMembers);
         await header.navigateTo(header.links.members);
       });
     });
     it("Loads a list of members", async () => {
-      await mock(mockRequests.members.get.ok(defaultMembers), 0);
+      mocker.listMembers_200({}, defaultMembers, { unlimited: true });
       await memberPo.verifyListView(defaultMembers, memberPo.fieldEvaluator);
       await verifyRouting(defaultMembers[0]);
     });
     it("Does not have an option to create or renew a new member", async () => {
-      expect(await utils.isElementDisplayed(memberPo.membersList.createMemberButton)).toBeFalsy();
-      expect(await utils.isElementDisplayed(memberPo.membersList.renewMemberButton)).toBeFalsy();
+      expect(await utils.isElementDisplayed(memberPo.membersList.createMemberButton)).to.be.false;
+      expect(await utils.isElementDisplayed(memberPo.membersList.renewMemberButton)).to.be.false;
     });
   });
   describe("Admin User", () => {
     beforeEach(() => {
-      return autoLogin(adminUser).then(async () => {
-        await mock(mockRequests.members.get.ok(defaultMembers));
+      return autoLogin(mocker, adminUser).then(async () => {
+        mocker.listMembers_200({}, defaultMembers);
         await header.navigateTo(header.links.members);
         await utils.waitForPageLoad(memberPo.membersListUrl);
       });
     });
     it("Loads a list of members", async () => {
-      await mock(mockRequests.members.get.ok(defaultMembers), 0);
+      mocker.listMembers_200({}, defaultMembers, { unlimited: true });
       await memberPo.verifyListView(defaultMembers, memberPo.fieldEvaluator);
       await verifyRouting(defaultMembers[0]);
     });
     it("Creating a new member", async () => {
       const newMemberId = "new_new";
-      const newMember = {
+      const newMember: NewMember = {
         firstname: "New",
         lastname: "Member",
         email: "new_member@mm.com",
-        status: basicUser.status,
-        groupName: "",
+        phone: "",
+        address: basicUser.address,
+      };
+      const resultingMember: Member = {
+        ...newMember,
         expirationTime: (basicUser.expirationTime),
+        memberContractOnFile: true,
         role: basicUser.role,
+        status: basicUser.status,
         id: newMemberId,
+        subscription: false
       }
 
-      const updatedMembersList = [
+      const updatedMembersList: Member[] = [
         ...defaultMembers.slice(1, defaultMembers.length),
-        newMember
+        resultingMember
       ]
       await utils.waitForVisible(memberPo.membersList.createMemberButton);
       await utils.clickElement(memberPo.membersList.createMemberButton);
@@ -88,23 +97,24 @@ describe("Members page", () => {
       await utils.fillInput(memberPo.memberForm.lastname, newMember.lastname);
       await utils.assertNoInputError(memberPo.memberForm.lastname);
 
-      await utils.fillInput(memberPo.memberForm.street, "12 Main St.");
-      await utils.fillInput(memberPo.memberForm.city, "Roswell");
-      await utils.fillInput(memberPo.memberForm.zip, "90210");
-      await utils.selectDropdownByValue(memberPo.memberForm.state, "GA");
+      await utils.fillInput(memberPo.memberForm.street, newMember.address.street);
+      await utils.fillInput(memberPo.memberForm.city, newMember.address.city);
+      await utils.fillInput(memberPo.memberForm.zip, newMember.address.postalCode);
+      await utils.selectDropdownByValue(memberPo.memberForm.state, newMember.address.state);
 
       await utils.clickElement(memberPo.memberForm.submit);
       await utils.assertInputError(memberPo.memberForm.email);
       await utils.fillInput(memberPo.memberForm.email, newMember.email);
       await utils.assertNoInputError(memberPo.memberForm.email);
 
-      await mock(mockRequests.members.post.ok(newMember, newMemberId));
-      await mock(mockRequests.members.get.ok(updatedMembersList));
+      mocker.adminCreateMember_200({ body: newMember }, resultingMember);
+      mocker.listMembers_200({}, updatedMembersList);
 
       await utils.clickElement(memberPo.memberForm.submit);
       await utils.waitForNotVisible(memberPo.memberForm.submit);
-      await memberPo.verifyFields(newMember, memberPo.fieldEvaluator);
-    }, 200000);
+      await memberPo.verifyFields(resultingMember, memberPo.fieldEvaluator);
+    });
+
     it("Renewing a member", async () => {
       const updatedMember: LoginMember = {
         id: "updated_updated",
@@ -120,14 +130,14 @@ describe("Members page", () => {
       await utils.waitForVisible(memberPo.membersList.renewMemberButton);
       await utils.clickElement(memberPo.membersList.renewMemberButton);
       await utils.waitForVisible(renewalPO.renewalForm.submit);
-      expect(await utils.getElementText(renewalPO.renewalForm.entity)).toEqual(`${updatedMember.firstname} ${updatedMember.lastname}`);
+      expect(await utils.getElementText(renewalPO.renewalForm.entity)).to.eql(`${updatedMember.firstname} ${updatedMember.lastname}`);
       await utils.clickElement(renewalPO.renewalForm.submit);
       await utils.assertInputError(renewalPO.renewalForm.termError, true);
       await utils.selectDropdownByValue(renewalPO.renewalForm.renewalSelect, "1");
       await utils.assertNoInputError(renewalPO.renewalForm.termError, true);
 
-      await mock(mockRequests.member.put.ok(updatedMember.id, updatedMember, true));
-      await mock(mockRequests.members.get.ok(updatedMembersList));
+      mocker.adminUpdateMember_200({ id: updatedMember.id , body: { renew: 1 } }, updatedMember);
+      mocker.listMembers_200({}, updatedMembersList);
       await utils.clickElement(renewalPO.renewalForm.submit);
       await utils.waitForNotVisible(renewalPO.renewalForm.submit);
       await memberPo.verifyFields((updatedMember as any), memberPo.fieldEvaluator);

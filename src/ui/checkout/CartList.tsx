@@ -107,7 +107,7 @@ const CartList: React.FC<Props> = ({ paymentMethod }) => {
       return;
     }
     call({
-      createTransactionDetails: {
+      body: {
         ...(isInvoiceSelection(item)
           ? {
               invoiceId: item.id

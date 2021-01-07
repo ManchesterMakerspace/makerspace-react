@@ -1,8 +1,11 @@
-import { Key, WebElement } from "selenium-webdriver";
-import { toDatePicker } from "ui/utils/timeToDate";
+import { expect } from "chai";
+import { Key } from "selenium-webdriver";
+import { toDatePicker, dateToTime } from "ui/utils/timeToDate";
 import { matchPath } from "react-router";
 
-export const rootURL = `http://${process.env.APP_DOMAIN}${process.env.PORT ? `:${process.env.PORT}` : ""}`;
+const domain = process.env.APP_DOMAIN || "localhost";
+const port = process.env.PORT || (!process.env.APP_DOMAIN && "3035");
+export const rootURL = `http://${domain}${port ? `:${port}` : ""}`;
 
 export class PageUtils {
   private waitUntilTime = 10 * 1000;
@@ -16,32 +19,16 @@ export class PageUtils {
 
   public getElementById = async (id: string, timeout: number = undefined) => {
     const waitTime = timeout || this.waitUntilTime;
-    let el;
-    try {
-      el = await browser.wait(until.elementLocated(by.id(id)), waitTime);
-      return await browser.wait(until.elementIsVisible(el), waitTime);
-    } catch {
-      if (!el) {
-        throw new Error(`Unable to locate element id: ${id}`);
-      } else {
-        return el;
-      }
-    }
+    const element = await $(`#${id}`);
+    await element.waitForExist(waitTime);
+    return element;
   }
 
   public getElementByCss = async (css: string, timeout: number = undefined) => {
     const waitTime = timeout || this.waitUntilTime;
-    let el;
-    try {
-      el = await browser.wait(until.elementLocated(by.css(css)), waitTime)
-      return await browser.wait(until.elementIsVisible(el), waitTime)
-    } catch {
-      if (!el) {
-        throw new Error(`Unable to locate element css: ${css}`);
-      } else {
-        return el;
-      }
-    }
+    const element = await $(css);
+    await element.waitForExist(waitTime);
+    return element;
   }
 
   /*
@@ -53,8 +40,8 @@ export class PageUtils {
       throw new Error("Current url required to watch for page change");
     }
     try {
-      await browser.wait(() => {
-        return browser.getCurrentUrl().then((url: string) => url !== currentUrl);
+      await browser.waitUntil(() => {
+        return browser.getUrl().then((url: string) => url !== currentUrl);
       }, waitTime);
     } catch {
       throw new Error(`Page never changed from ${currentUrl}`);
@@ -68,9 +55,15 @@ export class PageUtils {
     const waitTime = timeout || this.waitUntilTime;
     try {
       if (exact) {
-        await browser.wait(until.urlIs(targetUrl), waitTime);
+        await browser.waitUntil(async () => {
+          const url = await browser.getUrl();
+          return url === targetUrl;
+        }, waitTime);
       } else {
-        await browser.wait(until.urlContains(targetUrl), waitTime);
+        await browser.waitUntil(async () => {
+          const url = await browser.getUrl();
+          return url.indexOf(targetUrl) !== -1;
+        }, waitTime);
       }
     } catch {
       throw new Error(`${targetUrl} never loaded`);
@@ -80,8 +73,8 @@ export class PageUtils {
   public waitForPageToMatch = async (targetMatch: string, exact: boolean = false, timeout: number = undefined) => {
     const waitTime = timeout || this.waitUntilTime;
     try {
-      await browser.wait(() => {
-        return browser.getCurrentUrl().then((url: string) => {
+      await browser.waitUntil(() => {
+        return browser.getUrl().then((url: string) => {
           const pathname = url.replace(rootURL, "");
           return !!matchPath(pathname, {
             exact,
@@ -105,21 +98,12 @@ export class PageUtils {
 
   public fillInput = async (elementLocator: string, input: string) => {
     const element = await this.getElementByCss(elementLocator);
-    try {
-      if (!input) {
-        return element.getAttribute("value").then((text: string) => Promise.all(text.split("").map(() => element.sendKeys(Key.BACK_SPACE))));
-      } else {
-        await element.clear();
-        await element.sendKeys(input);
-      }
-    } catch (e) {
-      throw new Error(`Unable to enter keys: ${input} in input: ${elementLocator}`);
-    }
+    return element.setValue(input);
   }
   public scrollToElement = async (elementLocator: string) => {
     try {
       const element = await this.getElementByCss(elementLocator);
-      await browser.executeScript("arguments[0].scrollIntoView()", element)
+      await element.scrollIntoView();
     } catch {
       throw new Error(`Unable to scroll to element ${elementLocator}`);
     }
@@ -140,8 +124,8 @@ export class PageUtils {
       throw new Error(`Unable to read attribute: ${attribute} from: ${elementLocator}`);
     }
   }
-  public isElementDisplayed = (elementLocator: string) => {
-    return this.getElementByCss(elementLocator).then(() => {
+  public isElementDisplayed = (elementLocator: string, timeout: number = 1000) => {
+    return this.getElementByCss(elementLocator, timeout).then(() => {
       return true;
     }).catch(() => {
       return false;
@@ -155,9 +139,10 @@ export class PageUtils {
         select = await this.getElementByCss(selectLocator.replace("#", "#select-"));
     }
 
-    await select.click();
+    await select.scrollIntoView();
+    await browser.execute("arguments[0].click()", select);
     // Get all option elements
-    let options = await select.findElements(by.css('option'));
+    let options = await select.$$("option");
 
     let optionValues;
     if (options && options.length) {
@@ -172,12 +157,12 @@ export class PageUtils {
       // Matieral UI library displays options in a list on top of the viewstack
       const menuSelectLocator = selectLocator.replace("#", "#menu-");
       const menuSelect = await this.getElementByCss(menuSelectLocator);
-      options = await menuSelect.findElements(by.css('li'));
+      options = await menuSelect.$$('li');
 
       if (!options || !options.length) {
         // This should throw an error since it wouldn't be in a select
         // but that's better than failing silently
-        options = await menuSelect.findElements(by.css('option'));
+        options = await menuSelect.$$('option');
       }
 
       // Async get value attr for each option
@@ -195,10 +180,15 @@ export class PageUtils {
     });
 
     // Select it
-    await (matchingOptions[0] as { option: any, value: string }).option.click();
+    const selectedOption = matchingOptions[0] as { option: WebdriverIOAsync.Element, value: string };
+    await selectedOption.option.click();
+    await browser.waitUntil(async () => {
+      const isDisplayed = await selectedOption.option.isDisplayed();
+      return isDisplayed;
+    }, undefined, `Selected option with value ${selectedOption.value} never disappeared after selection`);
   }
 
-  public selectCheckbox = async (element: WebElement, check: boolean = true): Promise<void> => {
+  public selectCheckbox = async (element: WebdriverIOAsync.Element, check: boolean = true): Promise<void> => {
     const checked = await element.getAttribute("checked");
     if (!(checked && check)) {
       await element.click(); // Click it if its not checked and should be, or is checked and shouldn't be
@@ -210,9 +200,9 @@ export class PageUtils {
     try {
       const errorText = await this.getElementText(errorLocator);
       if (errorMsg) {
-        expect(errorText).toEqual(errorMsg);
+        expect(errorText).to.eql(errorMsg);
       } else {
-        expect(errorText).toBeTruthy();
+        expect(!!errorText).to.be.true;
       }
     } catch {
       throw new Error(`Unable to locate error element or element text using input locator ${elementLocator}-error`)
@@ -221,11 +211,11 @@ export class PageUtils {
   public assertNoInputError = async (elementLocator: string, exact: boolean = false) => {
     const errorLocator = exact ? elementLocator : `${elementLocator}-error`;
     try {
-      return this.isElementDisplayed(errorLocator).then((displayed) => {
+      return this.isElementDisplayed(errorLocator).then(async (displayed) => {
         if (displayed) {
-          return this.getElementText(errorLocator).then((text) => expect(text).toBeFalsy());
+          return this.getElementText(errorLocator).then((text) => expect(!!text).to.be.false);
         }
-        expect(displayed).toBeFalsy();
+        expect(!!displayed).to.be.false;
       });
     } catch {
       throw new Error(`Error for input locator ${errorLocator} displayed`);
@@ -234,17 +224,17 @@ export class PageUtils {
   public assertElementHasText = async (elementLocator: string, text: string) => {
     try {
       const elementText = await this.getElementText(elementLocator);
-      expect(elementText).toEqual(text);
+      expect(elementText).to.eql(text);
     } catch {
       throw new Error(`Unable to locate element ${elementLocator} to assert text`);
     }
   }
   public waitForNotVisible = async (elementLocator: string, timeout?: number) => {
     try {
-      await browser.wait(() => {
+      await browser.waitUntil(() => {
         return this.isElementDisplayed(elementLocator).then((displayed) => !displayed);
       }, timeout || this.waitUntilTime);
-      await browser.sleep(200);
+      await browser.pause(200);
     } catch {
       throw new Error(`Error waiting for element to not be visible: ${elementLocator}`);
     }
@@ -252,12 +242,12 @@ export class PageUtils {
 
   public waitForText = async (elementLocator: string, text: string) => {
     try {
-      await browser.wait(() => {
+      await browser.waitUntil(() => {
         return this.getElementText(elementLocator).then((content) => {
-          return content.test(new RegExp(text));
+          return (new RegExp(text)).test(content);
         });
       }, this.waitUntilTime);
-      await browser.sleep(200);
+      await browser.pause(200);
     } catch {
       throw new Error(`Error waiting for element ${elementLocator} to contain ${text}`);
     }
@@ -265,7 +255,7 @@ export class PageUtils {
 
   public waitForVisible = async (elementLocator: string) => {
     try {
-      await browser.wait(() => {
+      await browser.waitUntil(() => {
         return this.isElementDisplayed(elementLocator).then((displayed) => displayed);
       }, this.waitUntilTime);
     } catch {
@@ -284,14 +274,18 @@ export class PageUtils {
     }
   }
 
+  public timeValue = (timeInMs: number) => {
+    const date = toDatePicker(timeInMs);
+    return dateToTime(date);
+  }
+
   public fillSearchInput = async (elementLocator: string, searchVal: string, optionValue?: any) => {
     const element = await this.getElementByCss(`${elementLocator}`);
     try {
-      await element.clear();
-      await element.sendKeys(searchVal);
+      await element.setValue(searchVal);
       return new Promise(resolve => {
         setTimeout(async () => {
-          await element.sendKeys(Key.ENTER);
+          await browser.sendKeys([Key.ENTER]);
           resolve();
         }, 500);
       })
@@ -300,20 +294,37 @@ export class PageUtils {
     }
   }
 
-  public fillAsyncSearchInput = async (elementLocator: string, searchVal: string, optionValue?: any) => {
-    const element = await this.getElementByCss(`${elementLocator} input`);
-    try {
-      await element.clear();
-      await element.sendKeys(searchVal);
-      return new Promise(resolve => {
-        setTimeout(async () => {
-          await element.sendKeys(Key.ENTER);
-          resolve();
-        }, 500);
-      })
-    } catch (e) {
-      throw new Error(`Unable to enter keys: ${searchVal} in input: ${elementLocator}`);
+  public fillAsyncSearchInput = async (elementLocator: string, searchVal: string, optionValue?: string) => {
+    const input = await this.getElementByCss(`${elementLocator} input`);
+    
+    await input.setValue(searchVal);
+    await browser.pause(1000);
+
+    if (!optionValue) {
+      await browser.keys(Key.ENTER);
+    } else {
+      const options = await $$(`[role="option"]`);
+      let correctOpt;
+      for (const opt of options) {
+        const content = await opt.getText();
+        if (content.indexOf(optionValue) !== -1) {
+          correctOpt = opt;
+          break;
+        }
+      }
+      if (!correctOpt) {
+        throw new Error(`Could not find option with label ${optionValue}`)
+      }
+      await correctOpt.click();
     }
+  }
+
+  public waitForEnabled = async (elementLocator: string) => {
+    const element = await this.getElementByCss(elementLocator);
+    await browser.waitUntil(async () => {
+      const disabled = await element.getAttribute("disabled");
+      return disabled !== "true";
+    }, undefined, `Element ${elementLocator} never enabled`);
   }
 }
 

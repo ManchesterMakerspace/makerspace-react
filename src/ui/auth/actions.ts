@@ -55,7 +55,7 @@ export const loginUserAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction>  => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  const response = await signIn({ signInDetails: loginForm });
+  const response = await signIn({ body: { member: loginForm } });
   await handleAuthWithPermissions(response, dispatch);
 }
 
@@ -63,7 +63,7 @@ export const sessionLoginUserAction = (): ThunkAction<Promise<void>, {}, {}, Any
   dispatch({ type: AuthAction.StartAuthRequest });
 
   // TODO: SignIn fn fails if no params provided
-  const response = await signIn({});
+  const response = await signIn({ body: {}});
   await handleAuthWithPermissions(response, dispatch, true);
 }
 
@@ -83,7 +83,7 @@ export const submitSignUpAction = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  const response = await registerMember({ registerMemberDetails: signUpForm });
+  const response = await registerMember({ body: signUpForm });
   await handleAuthWithPermissions(response, dispatch);
 }
 

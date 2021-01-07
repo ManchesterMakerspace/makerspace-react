@@ -30,7 +30,7 @@ const EditMember: React.FC<{ member: Member, onEdit?: () => void; formOnly?: boo
 
     const { street, unit, city, state, postalCode, ...rest } = validUpdate;
 
-    update({ id: member.id, updateMemberDetails: {
+    update({ id: member.id, body: {
       ...rest,
       address: {
         street,

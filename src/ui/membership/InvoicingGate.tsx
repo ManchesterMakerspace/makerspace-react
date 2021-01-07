@@ -1,7 +1,6 @@
 import * as React from "react";
-import { listInvoiceOptions } from "makerspace-ts-api-client";
+import { listInvoiceOptions, InvoiceableResource } from "makerspace-ts-api-client";
 import useReadTransaction from "ui/hooks/useReadTransaction";
-import { InvoiceableResource } from "app/entities/invoice";
 
 /**
  * Since we cant gate all Invoicing features by a user permission, this allows disabling of all invoicing by disabling or removing
@@ -11,7 +10,7 @@ import { InvoiceableResource } from "app/entities/invoice";
 const InvoicingGate: React.FC<{ children(available: boolean): JSX.Element }> = ({ children }) => {
   const {
     data: options = []
-  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
+  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Member] });
 
   return children(!!options.length);
 };

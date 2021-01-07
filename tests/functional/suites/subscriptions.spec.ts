@@ -1,5 +1,5 @@
+import { expect } from "chai"
 import { basicUser, adminUser } from "../../constants/member";
-import { mockRequests, mock } from "../mockserver-client-helpers";
 
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import header from "../../pageObjects/header";
@@ -9,32 +9,34 @@ import billingPO from "../../pageObjects/billing";
 import signup from "../../pageObjects/signup";
 import { checkout as checkoutPo } from "../../pageObjects/checkout";
 import subscriptionsPO from "../../pageObjects/subscriptions";
-import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "../../constants/invoice";
+import { baseInvoice, defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "../../constants/invoice";
 import { defaultSubscription, defaultSubscriptions } from "../../constants/subscription";
 import { creditCard as defaultCreditCard } from "../../constants/paymentMethod";
 import { autoLogin } from "../autoLogin";
 import { defaultTransactions } from "../../constants/transaction";
 import { defaultInvoice } from "../../constants/invoice";
 import { Routing } from "app/constants";
-import { MemberInvoice } from "app/entities/invoice";
 import { paymentMethods } from "../../pageObjects/paymentMethods";
 import memberPO from "../../pageObjects/member";
 import { LoginMember } from "../../pageObjects/auth";
 import { timeToDate } from "ui/utils/timeToDate";
+import { loadMockserver } from "../mockserver";
+import { Invoice } from "makerspace-ts-api-client";
+const mocker = loadMockserver();
 
 describe("Paid Subscriptions", () => {
   describe("Admin subscription", () => {
     beforeEach(async () => {
-      return autoLogin(adminUser, undefined, { billing: true }).then(async () => {
-        await mock(mockRequests.subscriptions.get.ok(defaultSubscriptions, { hideCanceled: true }, true));
+      return autoLogin(mocker, adminUser, undefined, { billing: true }).then(async () => {
+        mocker.adminListSubscriptions_200({ }, defaultSubscriptions);
         await header.navigateTo(header.links.billing);
         await utils.waitForPageLoad(billingPO.url);
         await billingPO.goToSubscriptions();
         // Wait for table load
-        expect(await utils.isElementDisplayed(subscriptionsPO.getErrorRowId())).toBeFalsy();
-        expect(await utils.isElementDisplayed(subscriptionsPO.getNoDataRowId())).toBeFalsy();
-        expect(await utils.isElementDisplayed(subscriptionsPO.getLoadingId())).toBeFalsy();
-        expect(await utils.isElementDisplayed(subscriptionsPO.getTitleId())).toBeTruthy();
+        expect(await utils.isElementDisplayed(subscriptionsPO.getErrorRowId())).to.be.false;
+        expect(await utils.isElementDisplayed(subscriptionsPO.getNoDataRowId())).to.be.false;
+        expect(await utils.isElementDisplayed(subscriptionsPO.getLoadingId())).to.be.false;
+        expect(await utils.isElementDisplayed(subscriptionsPO.getTitleId())).to.be.true;
       });
     });
     it("Loads a list of subscriptions", async () => {
@@ -44,10 +46,10 @@ describe("Paid Subscriptions", () => {
       await subscriptionsPO.selectRow(defaultSubscriptions[0].id);
       await utils.clickElement(subscriptionsPO.actionButtons.delete);
       await utils.waitForVisible(subscriptionsPO.cancelSubscriptionModal.submit);
-      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).toEqual(defaultSubscriptions[0].status);
-      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.nextPayment)).toEqual(timeToDate(defaultSubscriptions[0].nextBillingDate));
-      await mock(mockRequests.subscription.delete.ok(defaultSubscriptions[0].id, true));
-      await mock(mockRequests.subscriptions.get.ok([], { hideCanceled: true} , true));
+      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).to.eql(defaultSubscriptions[0].status);
+      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.nextPayment)).to.eql(timeToDate(defaultSubscriptions[0].nextBillingDate));
+      mocker.adminCancelSubscription_204({ id: defaultSubscriptions[0].id });
+      mocker.adminListSubscriptions_200({ }, []);
       await utils.clickElement(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForNotVisible(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForVisible(subscriptionsPO.getNoDataRowId());
@@ -72,26 +74,27 @@ describe("Paid Subscriptions", () => {
       }
 
     it("Displays information about current subscriptions and membership", async () => {
-      await autoLogin(basicUser, undefined, { billing: true });
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      await autoLogin(mocker, basicUser, undefined, { billing: true });
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 
-      await mock(mockRequests.invoices.get.ok([]));
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      mocker.listInvoices_200({}, []);
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
 
       await settingsPO.goToMembershipSettings();
 
       // Non subscription details displayed
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
+      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.true;
 
-      await mock(mockRequests.invoices.post.ok({
-        ...membershipOption,
-        member: basicUser,
-      } as Partial<MemberInvoice>, false)); // initial invoice creation
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
-      await mock(mockRequests.paymentMethods.get.ok([newCard]));
+      const newInvoice: Invoice = {
+        ...baseInvoice,
+        memberId: basicUser.id,
+      };
+      mocker.createInvoice_200({ body: membershipOption }, newInvoice);
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption], { unlimited: true });
+      mocker.listPaymentMethods_200([newCard]);
       await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
       await signup.selectMembershipOption(membershipId);
@@ -99,17 +102,17 @@ describe("Paid Subscriptions", () => {
       await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
       // Submit payment
-      const subscribedMember = { ...basicUser, subscriptionId: initSubscription.id };
+      const subscribedMember = { ...basicUser, subscriptionId: initSubscription.id, subscription: true };
       const defaultTransaction = { ...defaultTransactions[0], invoice: defaultInvoice };
-      await mock(mockRequests.transactions.post.ok(defaultTransaction));
-      await mock(mockRequests.member.get.ok(basicUser.id, subscribedMember as LoginMember));
-      await mock(mockRequests.signIn.ok(subscribedMember as LoginMember));
-      await mock(mockRequests.permission.get.ok(subscribedMember.id, { billing: true }));
+      mocker.createTransaction_200({ body: { invoiceOptionId: membershipId, paymentMethodId: newCard.id } }, defaultTransaction);
+      mocker.getMember_200({ id: basicUser.id }, subscribedMember);
+      mocker.signIn_200({ body: {} }, subscribedMember);
+      mocker.listMembersPermissions_200({ id: subscribedMember.id }, { billing: true });
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
 
       await utils.clickElement(checkoutPo.nextButton);
       const total = numberAsCurrency(initSubscription.amount);
-      expect(await utils.getElementText(checkoutPo.total)).toEqual(`Total ${total}`);
+      expect(await utils.getElementText(checkoutPo.total)).to.eql(`Total ${total}`);
       await utils.clickElement(checkoutPo.submit);
 
       // Accept recurring payment authorization
@@ -123,36 +126,37 @@ describe("Paid Subscriptions", () => {
       // Wait for receipt
       await utils.waitForPageToMatch(Routing.Receipt)
       // Verify transactions are displayed
-      expect(await utils.isElementDisplayed(checkoutPo.receiptContainer)).toBeTruthy();
+      expect(await utils.isElementDisplayed(checkoutPo.receiptContainer)).to.be.true;
       // Return to profile
       await utils.clickElement(checkoutPo.backToProfileButton);
       // Wait for profile redirect
       await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
 
       const subscriptionInvoice = {
-        defaultInvoice,
+        ...defaultInvoice,
         subscriptionId: initSubscription.id,
       };
 
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 
-      await mock(mockRequests.subscription.get.ok(initSubscription))
-      await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
-      await mock(mockRequests.member.get.ok(basicUser.id, {
+      mocker.getSubscription_200({ id: initSubscription.id }, initSubscription);
+      mocker.listInvoices_200({}, [subscriptionInvoice]);
+      mocker.getMember_200({ id: basicUser.id }, {
         ...basicUser,
+        subscription: true,
         subscriptionId: initSubscription.id,
-      } as LoginMember));
+      });
       await settingsPO.goToMembershipSettings();
 
       // Subscription details displayed
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeFalsy();
-      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
+      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.false;
+      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.true;
     });
 
     it("Can cancel their subscriptions", async () => {
-      await autoLogin({
+      await autoLogin(mocker, {
         ...basicUser,
         subscriptionId: initSubscription.id,
       } as LoginMember, undefined, { billing: true });
@@ -166,32 +170,32 @@ describe("Paid Subscriptions", () => {
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 
       // Mock for subscription details
-      await mock(mockRequests.subscription.get.ok(initSubscription))
-      await mock(mockRequests.invoices.get.ok([subscriptionInvoice]));
-      await mock(mockRequests.member.get.ok(basicUser.id, {
+      const subscriptionMember = {
         ...basicUser,
         subscriptionId: initSubscription.id,
-      } as LoginMember));
+      };
+      mocker.getSubscription_200({ id: initSubscription.id }, initSubscription);
+      mocker.listInvoices_200({}, [subscriptionInvoice]);
+      mocker.getMember_200({ id: basicUser.id }, subscriptionMember);
       await settingsPO.goToMembershipSettings();
 
       // Subscription details displayed
       await utils.waitForNotVisible(settingsPO.subscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeTruthy();
+      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.true;
 
       await utils.clickElement(settingsPO.subscriptionDetails.cancelSubscription);
       await utils.waitForVisible(subscriptionsPO.cancelSubscriptionModal.submit);
-      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).toEqual(defaultSubscriptions[0].status);
+      expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).to.eql(defaultSubscriptions[0].status);
 
-      await mock(mockRequests.subscription.delete.ok(initSubscription.id));
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-      await mock(mockRequests.invoices.get.ok([]));
+      mocker.cancelSubscription_204({ id: initSubscription.id });
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
+      mocker.listInvoices_200({}, []);
 
       await utils.clickElement(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForNotVisible(subscriptionsPO.cancelSubscriptionModal.submit);
       await utils.waitForNotVisible(settingsPO.nonSubscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).toBeTruthy();
-      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).toBeFalsy();
-
+      expect(await utils.isElementDisplayed(settingsPO.nonSubscriptionDetails.status)).to.be.true;
+      expect(await utils.isElementDisplayed(settingsPO.subscriptionDetails.status)).to.be.false;
     });
   })
 });

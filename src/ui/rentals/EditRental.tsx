@@ -29,7 +29,7 @@ const EditRental: React.FC<Props> = ({ rental, onUpdate }) => {
 
     if (!form.isValid()) return;
 
-    call({ id: rental.id, updateRentalDetails: validUpdate });
+    call({ id: rental.id, body: validUpdate });
   }, [rental, formRef]);
 
   return (

@@ -1,7 +1,7 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
 
-import { Transaction, TransactionStatus, deleteTransaction, adminDeleteTransaction } from "makerspace-ts-api-client";
+import { Transaction, TransactionStatusEnum, deleteTransaction, adminDeleteTransaction } from "makerspace-ts-api-client";
 import FormModal from "ui/common/FormModal";
 import KeyValueItem from "ui/common/KeyValueItem";
 import { timeToDate } from "ui/utils/timeToDate";
@@ -34,7 +34,7 @@ const RefundTransactionModal: React.FC<OwnProps> = ({ transaction = {} as Transa
   );
   
   // Disable if invoice already refunded or not yet settled
-  let disabled: boolean = transaction.status !== TransactionStatus.Settled || // Already settled
+  let disabled: boolean = transaction.status !== TransactionStatusEnum.Settled || // Already settled
                           !!transaction.refundedTransactionId ||  // Already refunded
                           (!isAdmin && !!(transaction.invoice && transaction.invoice.refundRequested)) // Already been requested
   let label: string =  isAdmin ? "Refund transaction" : "Request Refund";

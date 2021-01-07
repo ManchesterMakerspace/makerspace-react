@@ -5,9 +5,7 @@ import Button from "@material-ui/core/Button";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 
-import { InvoiceOption, listInvoiceOptions } from "makerspace-ts-api-client";
-
-import { InvoiceableResource } from "app/entities/invoice";
+import { InvoiceOption, listInvoiceOptions, InvoiceableResource } from "makerspace-ts-api-client";
 
 import ErrorMessage from "ui/common/ErrorMessage";
 import TableContainer from "ui/common/table/TableContainer";
@@ -23,8 +21,9 @@ export const noneInvoiceOption: InvoiceOption = {
   resourceClass: undefined,
   quantity: 0,
   disabled: false,
-  operation: undefined,
-  isPromotion: false
+  isPromotion: false,
+  planId: null,
+  discountId: null
 };
 export const invoiceOptionParam = "optionId";
 export const discountParam = "discountId";
@@ -51,7 +50,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
     isRequesting,
     error,
     data: options = []
-  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Membership] });
+  } = useReadTransaction(listInvoiceOptions, { types: [InvoiceableResource.Member] });
 
 
   const [promotions, normalOptions] = React.useMemo(() => {

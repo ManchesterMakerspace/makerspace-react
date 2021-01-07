@@ -1,22 +1,29 @@
+import { expect } from "chai";
 import { Routing } from "app/constants";
-import auth, { LoginMember } from "../../pageObjects/auth";
-import utils from "../../pageObjects/common";
-import { mockRequests, mock } from "../mockserver-client-helpers";
-import memberPO from "../../pageObjects/member";
-import { basicUser } from "../../constants/member";
-import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "../../constants/invoice";
-import signup from "../../pageObjects/signup";
+import auth, { LoginMember } from "@pageObjects/auth";
+import utils from "@pageObjects/common";
+import memberPO from "@pageObjects/member";
+import { basicUser } from "@constants/member";
+import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "@constants/invoice";
+import signup from "@pageObjects/signup";
+import { loadMockserver } from "../mockserver";
 import { autoLogin } from "../autoLogin";
+import { defaultInvoice } from "../../constants/invoice";
+import { Match } from "makerspace-ts-mock-client/dist/mockserver/matcher";
 
 const member = Object.assign({}, basicUser);
 const memberId = member.id;
 const profileUrl = memberPO.getProfilePath(memberId);
+const mocker = loadMockserver();
 
 describe("Authentication", () => {
+  afterEach(() => mocker.reset());
+
   describe("Logging in", () => {
     beforeEach(() => {
       return auth.goToLogin();
     });
+
     it("User can sign in and be directed to their profile", async () => {
       /* 1. Setup mocks
          - Sign in
@@ -26,21 +33,21 @@ describe("Authentication", () => {
          4. Wait for login page to change
          5. Assert on profile page
       */
-      await mock(mockRequests.signIn.ok(member));
-      await mock(mockRequests.permission.get.ok(member.id, {}));
-      await mock(mockRequests.member.get.ok(memberId, member));
+      mocker.signIn_200({ body: { member: { email: member.email, password: member.password} } }, member);
+      mocker.listMembersPermissions_200({ id: member.id }, {});
+      mocker.getMember_200({ id: member.id }, member);
       await auth.signInUser(member);
       await utils.waitForPageLoad(memberPO.getProfilePath(member.id));
-      const url = await browser.getCurrentUrl();
-      expect(url).toEqual(utils.buildUrl(profileUrl));
+      const url = await browser.getUrl();
+      expect(url).to.eql(utils.buildUrl(profileUrl));
     });
     it("User can automatically sign in with cookies", async () => {
       /* 1. Execute autoLogin util
          2. Wait for profile to load
       */
-      await autoLogin(member);
-      const url = await browser.getCurrentUrl();
-      expect(url).toEqual(utils.buildUrl(profileUrl));
+      await autoLogin(mocker, member);
+      const url = await browser.getUrl();
+      expect(url).to.eql(utils.buildUrl(profileUrl));
     });
     it("Form validation", async () => {
       /* 1. Submit login form
@@ -65,12 +72,12 @@ describe("Authentication", () => {
       await utils.clickElement(auth.loginModal.submitButton);
       await utils.assertInputError(auth.loginModal.emailInput);
       await utils.fillInput(auth.loginModal.emailInput, member.email);
-      expect(await utils.isElementDisplayed(auth.loginModal.error)).toBeFalsy();
+      expect(await utils.isElementDisplayed(auth.loginModal.error)).to.be.false;
       await utils.clickElement(auth.loginModal.submitButton);
-      expect(await utils.isElementDisplayed(auth.loginModal.error)).toBeTruthy();
-      await mock(mockRequests.signIn.ok(member));
-      await mock(mockRequests.permission.get.ok(member.id, {}));
-      await mock(mockRequests.member.get.ok(memberId, member));
+      expect(await utils.isElementDisplayed(auth.loginModal.error)).to.be.true;
+      mocker.signIn_200({ body: { member: { email: member.email, password: member.password} } }, member);
+      mocker.listMembersPermissions_200({ id: memberId }, {});
+      mocker.getMember_200({ id: memberId }, member);
       await utils.clickElement(auth.loginModal.submitButton);
       await utils.waitForPageLoad(memberPO.getProfilePath(member.id));
     });
@@ -80,7 +87,7 @@ describe("Authentication", () => {
       ...member,
       memberContractOnFile: false,
     }
-    it("User can sign up with a selected membership option", async () => {
+    it("User can sign up with a selected membership option", async function () {
       /* 1. Setup mocks
           - Load membership options
           - Sign up
@@ -96,12 +103,15 @@ describe("Authentication", () => {
 
       const membershipId = "foo";
       const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
-      await mock(mockRequests.signUp.ok(newMember)); // initial signup
-      await mock(mockRequests.permission.get.ok(newMember.id, {}));
-      await mock(mockRequests.invoices.post.ok(membershipOption, false)); // initial invoice creation
-      await mock(mockRequests.member.get.ok(newMember.id, newMember)); // Profile load
-      await browser.get(utils.buildUrl());
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption])
+      const { firstname, lastname, email, password, address } = newMember;
+      mocker.registerMember_200({ body: {
+        firstname, lastname, email, password, address
+      } }, newMember );
+      mocker.listMembersPermissions_200({ id: newMember.id }, {});
+      mocker.getMember_200({ id: newMember.id }, newMember);
+      mocker.createInvoice_200({ body: { id: membershipOption.id, discountId: null } }, defaultInvoice);
+      await browser.url(utils.buildUrl());
       await signup.selectMembershipOption(membershipId);
       await utils.waitForPageLoad(signup.signupUrl);
       await signup.signUpUser(newMember);
@@ -114,14 +124,14 @@ describe("Authentication", () => {
       await utils.clickElement(signup.documentsSigning.codeOfConductCheckbox);
       await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
       await utils.waitForVisible(signup.documentsSigning.memberContractCheckbox);
-      await mock(mockRequests.member.put.ok(newMember.id, newMember)); // upload signature
-      await mock(mockRequests.invoices.get.ok([membershipOption])); // Load selected invoice
+      mocker.updateMember_200({ body: { signature: "foobar"}, id: newMember.id }, newMember, undefined, undefined, { body: Match.Ignore });
+      mocker.listInvoices_200({}, [defaultInvoice]);
       await utils.clickElement(signup.documentsSigning.memberContractCheckbox);
       await signup.signContract();
       await utils.clickElement(signup.documentsSigning.memberContractSubmit);
       await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
       await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
-    }, 200000);
+    });
     xit("User notified if they have an account with the attempted sign up email", async () => {
       /* 1. Setup mocks
           - Sign up with dupe email
@@ -132,7 +142,7 @@ describe("Authentication", () => {
          5. Login successfully
       */
     });
-    it("Form validation", async () => {
+    it("Form validation", async function () {
       /* 1. Submit form
          2. Assert errors for fields
          3. Fill email with invalid value. Fill other fields with valid values
@@ -145,8 +155,9 @@ describe("Authentication", () => {
       */
       const membershipId = "foo";
       const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
-      await browser.get(utils.buildUrl());
+      const { firstname, lastname, email, password, address } = newMember;
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption]);
+      await browser.url(utils.buildUrl());
       await signup.selectMembershipOption(membershipId);
       await utils.waitForPageLoad(signup.signupUrl);
       const { emailInput, firstnameInput, passwordInput, lastnameInput, error, submitButton } = signup.signUpForm;
@@ -159,10 +170,10 @@ describe("Authentication", () => {
       await utils.fillInput(lastnameInput, newMember.lastname);
       await utils.fillInput(passwordInput, newMember.password);
       await utils.fillInput(emailInput, "foo");
-      await utils.fillInput(signup.signUpForm.streetInput, "12 Main St.");
-      await utils.fillInput(signup.signUpForm.cityInput, "Roswell");
-      await utils.fillInput(signup.signUpForm.zipInput, "90210");
-      await utils.selectDropdownByValue(signup.signUpForm.stateSelect, "GA");
+      await utils.fillInput(signup.signUpForm.streetInput, address.street);
+      await utils.fillInput(signup.signUpForm.cityInput, address.city);
+      await utils.fillInput(signup.signUpForm.zipInput, address.postalCode);
+      await utils.selectDropdownByValue(signup.signUpForm.stateSelect, address.state);
       await utils.clickElement(submitButton);
       await utils.assertNoInputError(firstnameInput);
       await utils.assertNoInputError(lastnameInput);
@@ -170,10 +181,12 @@ describe("Authentication", () => {
       await utils.assertNoInputError(passwordInput);
       await utils.fillInput(emailInput, newMember.email);
       await utils.clickElement(submitButton);
-      expect(await utils.getElementText(error)).toBeTruthy();
-      await mock(mockRequests.signUp.ok(newMember));
-      await mock(mockRequests.permission.get.ok(newMember.id, {}));
-      await mock(mockRequests.member.get.ok(newMember.id, newMember));
+      expect(!!(await utils.getElementText(error))).to.be.true;
+      mocker.registerMember_200({ body: {
+        firstname, lastname, email, password, address 
+      } }, newMember);
+      mocker.listMembersPermissions_200({ id: newMember.id }, {});
+      mocker.getMember_200({ id: newMember.id }, newMember);
       await utils.clickElement(submitButton);
 
       await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
@@ -196,11 +209,11 @@ describe("Authentication", () => {
       await utils.assertNoInputError(signup.documentsSigning.memberContractCheckbox)
       await utils.clickElement(signup.documentsSigning.memberContractSubmit);
       await utils.assertInputError(signup.documentsSigning.memberContractError, true)
-      await mock(mockRequests.member.put.ok(newMember.id, newMember)); // upload signature
+      mocker.updateMember_200({ body: { signature: "foobar"}, id: newMember.id }, newMember, undefined, undefined, { body: Match.Ignore });
       await signup.signContract();
       await utils.clickElement(signup.documentsSigning.memberContractSubmit);
       await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
-    }, 200000);
+    });
   });
 
   describe("Resetting Password", () => {
@@ -221,19 +234,19 @@ describe("Authentication", () => {
          8. Enter new password and submit
          9. Assert logged in and on profile page
       */
-      await mock(mockRequests.passwordReset.requestReset.ok(basicUser.email));
+      mocker.requestPasswordReset_201({ body: { member: { email: basicUser.email }} });
       await utils.clickElement(auth.loginModal.forgotPasswordLink);
-      expect(await utils.isElementDisplayed(auth.passwordResetRequestModal.submitButton)).toBeTruthy();
+      expect(await utils.isElementDisplayed(auth.passwordResetRequestModal.submitButton)).to.be.true;
       await utils.fillInput(auth.passwordResetRequestModal.emailInput, basicUser.email);
       await utils.clickElement(auth.passwordResetRequestModal.submitButton);
       const emailLink = auth.passwordResetUrl.replace(Routing.PathPlaceholder.Resource, "token");
-      await browser.get(utils.buildUrl(emailLink));
-      expect(await utils.isElementDisplayed(auth.passwordResetModal.submitButton)).toBeTruthy();
+      await browser.url(utils.buildUrl(emailLink));
+      expect(await utils.isElementDisplayed(auth.passwordResetModal.submitButton)).to.be.true;
       await utils.fillInput(auth.passwordResetModal.passwordInput, "new password");
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-      await mock(mockRequests.passwordReset.updatePassword.ok("token", "new password"));
-      await mock(mockRequests.signIn.ok(member));
-      await mock(mockRequests.permission.get.ok(member.id, {}));
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
+      mocker.resetPassword_204({ body: { member: { resetPasswordToken: "token", password: "new password" }} });
+      mocker.signIn_200({ body: {} }, member);
+      mocker.listMembersPermissions_200({ id: member.id }, {});
       await utils.clickElement(auth.passwordResetModal.submitButton);
       await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
     });
@@ -256,28 +269,28 @@ describe("Authentication", () => {
          14. Verify profile page loads
       */
       await utils.clickElement(auth.loginModal.forgotPasswordLink);
-      expect(await utils.isElementDisplayed(auth.passwordResetRequestModal.submitButton)).toBeTruthy();
+      expect(await utils.isElementDisplayed(auth.passwordResetRequestModal.submitButton)).to.be.true;
       await utils.clickElement(auth.passwordResetRequestModal.submitButton);
-      expect(await utils.assertInputError(auth.passwordResetRequestModal.emailInput));
+      await utils.assertInputError(auth.passwordResetRequestModal.emailInput)
       await utils.fillInput(auth.passwordResetRequestModal.emailInput, basicUser.email);
-      expect(await utils.assertNoInputError(auth.passwordResetRequestModal.emailInput));
+      await utils.assertNoInputError(auth.passwordResetRequestModal.emailInput);
       await utils.clickElement(auth.passwordResetRequestModal.submitButton);
-      expect(await utils.getElementText(auth.passwordResetRequestModal.error)).toBeTruthy();
-      await mock(mockRequests.passwordReset.requestReset.ok(basicUser.email));
+      expect(!!(await utils.getElementText(auth.passwordResetRequestModal.error))).to.be.true;
+      mocker.requestPasswordReset_201({ body: { member: { email: basicUser.email }}});
       await utils.clickElement(auth.passwordResetRequestModal.submitButton);
       const emailLink = auth.passwordResetUrl.replace(Routing.PathPlaceholder.Resource, "token");
-      await browser.get(utils.buildUrl(emailLink));
-      expect(await utils.isElementDisplayed(auth.passwordResetModal.submitButton)).toBeTruthy();
+      await browser.url(utils.buildUrl(emailLink));
+      expect(await utils.isElementDisplayed(auth.passwordResetModal.submitButton)).to.be.true;
       await utils.clickElement(auth.passwordResetModal.submitButton);
-      expect(await utils.assertInputError(auth.passwordResetModal.passwordInput));
+      await utils.assertInputError(auth.passwordResetModal.passwordInput);
       await utils.fillInput(auth.passwordResetModal.passwordInput, "new password");
-      expect(await utils.assertNoInputError(auth.passwordResetModal.passwordInput));
+      await utils.assertNoInputError(auth.passwordResetModal.passwordInput)
       await utils.clickElement(auth.passwordResetModal.submitButton);
-      expect(await utils.getElementText(auth.passwordResetModal.error)).toBeTruthy();
-      await mock(mockRequests.passwordReset.updatePassword.ok("token", "new password"));
-      await mock(mockRequests.signIn.ok(member));
-      await mock(mockRequests.permission.get.ok(member.id, {}));
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      expect(!!(await utils.getElementText(auth.passwordResetModal.error))).to.be.true;
+      mocker.resetPassword_204({ body: { member: { resetPasswordToken: "token", password: "new password" }} });
+      mocker.signIn_200({ body: {} }, member);
+      mocker.listMembersPermissions_200({ id: member.id }, {});
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await utils.clickElement(auth.passwordResetModal.submitButton);
       await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
     });

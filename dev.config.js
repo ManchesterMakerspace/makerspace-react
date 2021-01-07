@@ -94,7 +94,7 @@ module.exports = env => ({
     disableHostCheck: true,
     historyApiFallback: true,
     proxy: {
-      "/api": (env && env.API_DOMAIN) || "http://localhost:3002"
+      "/api": "http://localhost:3002"
     },
     https: false,
     port: 3035,

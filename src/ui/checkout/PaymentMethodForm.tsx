@@ -71,7 +71,7 @@ class PaymentMethodForm extends React.Component<Props, State> {
     if (isApiErrorResponse(result)) {
       error = result.error.message;
     } else {
-      token = result.data;
+      token = result.data.clientToken;
     }
     this.setState({
       requestingClientToken: false,

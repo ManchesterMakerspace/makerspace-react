@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import { LoginMember } from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
@@ -12,7 +13,7 @@ export const selfRegisterMember = async (newMember: LoginMember) => {
   await signup.signUpUser(newMember);
 
   await utils.waitForPageToMatch(Routing.Profile);
-  expect(await utils.isElementDisplayed(memberPO.memberDetail.notificationModal));
+  expect(await utils.isElementDisplayed(memberPO.memberDetail.notificationModal)).to.be.true;
   await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
 
   await utils.waitForVisible(signup.documentsSigning.codeOfConductSubmit);

@@ -1,5 +1,4 @@
 import utils from "./common";
-import { By } from "selenium-webdriver";
 
 class PaymentMethods {
   public addPaymentButton = "#add-payment-button"
@@ -33,7 +32,7 @@ class PaymentMethods {
     await paymentmethodElementss[index].click();
   }
 
-  public getPaymentMethods = () => browser.findElements(By.css(`[id^="select-payment-method-"]`));
+  public getPaymentMethods = () => $$(`[id^="select-payment-method-"]`);
 
   public deletePaymentButton = "#delete-payment-button"
   private paymentMethodDeleteId = "#delete-payment-method-confirm"
@@ -64,20 +63,19 @@ class CreditCard {
   }
 
   private switchToFrame = async (field: string): Promise<void> => {
-    const frame = browser.findElement(By.id(this.iframes[field]));
-    return browser.switchTo().frame(frame);
+    return browser.switchToFrame(this.iframes[field]);
   }
 
   public fillInput = async (field: string, input: string): Promise<void> => {
     await this.switchToFrame(field);
     await utils.fillInput(this.creditCardForm[field], input);
-    await browser.switchTo().defaultContent();
+    await browser.switchToParentFrame();
   }
 
   public getInput = async (field: string): Promise<string> => {
     await this.switchToFrame(field);
     const val = await utils.getElementText(this.creditCardForm[field]);
-    await browser.switchTo().defaultContent();
+    await browser.switchToParentFrame();
     return val;
   }
 }

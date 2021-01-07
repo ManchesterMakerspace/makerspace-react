@@ -1,18 +1,18 @@
 import * as React from "react";
-import { MemberStatus } from "app/entities/member";
-import { Member } from "makerspace-ts-api-client";
+import { MemberStatus, Member } from "makerspace-ts-api-client";
 import { Status } from "ui/constants";
 import StatusLabel from "ui/common/StatusLabel";
 
 export const memberStatusLabelMap = {
-  [MemberStatus.Active]: "Active",
+  [MemberStatus.ActiveMember]: "Active",
   [MemberStatus.Revoked]: "Revoked",
   [MemberStatus.NonMember]: "Non-Member",
   [MemberStatus.Inactive]: "Inactive"
 };
 
-const MemberStatusLabel: React.FC<{ member: Partial<Member>; id?: string }> = ({ member, id }) => {
-  const inActive = ![MemberStatus.Active, MemberStatus.NonMember].includes(member.status as MemberStatus);
+type MinProps = Pick<Member, "status" | "expirationTime">;
+const MemberStatusLabel: React.FC<{ member: MinProps; id?: string }> = ({ member, id }) => {
+  const inActive = ![MemberStatus.ActiveMember, MemberStatus.NonMember].includes(member.status as MemberStatus);
   const current = member.expirationTime > Date.now();
 
   let statusColor;

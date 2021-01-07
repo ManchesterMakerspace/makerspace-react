@@ -74,7 +74,7 @@ class PaypalButton extends React.Component<Props, State> {
             return paypalCheckoutInstance.tokenizePayment(data, async (err: any, payload: any) => {
               if (err) throw err;
               try {
-                await createPaymentMethod({ createPaymentMethodDetails: { payment_method_nonce: payload.nonce, make_default: true }});
+                await createPaymentMethod({ body: { paymentMethodNonce: payload.nonce, makeDefault: true }});
                 this.props.paymentMethodCallback && this.props.paymentMethodCallback(payload);
               } catch (e) {
                 const { errorMessage } = e;

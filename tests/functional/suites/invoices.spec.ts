@@ -1,9 +1,9 @@
-import { InvoiceableResource, MemberInvoice } from "app/entities/invoice";
+import { expect } from "chai";
+import { MemberInvoice } from "app/entities/invoice";
 import { Routing } from "app/constants";
-import { Invoice, Member } from "makerspace-ts-api-client";
+import { Invoice, Member, InvoiceableResource } from "makerspace-ts-api-client";
 
 import { basicUser, adminUser } from "../../constants/member";
-import { mockRequests, mock } from "../mockserver-client-helpers";
 import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import invoicePO from "../../pageObjects/invoice";
@@ -19,6 +19,8 @@ import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } 
 import signup from "../../pageObjects/signup";
 import settings from "../../pageObjects/settings";
 import header from "../../pageObjects/header";
+import { loadMockserver } from "../mockserver";
+const mocker = loadMockserver();
 
 const initInvoices = [pastDueInvoice, settledInvoice];
 const resourcedInvoices: MemberInvoice[] = initInvoices.map(invoice => ({
@@ -32,10 +34,10 @@ const resourcedInvoices: MemberInvoice[] = initInvoices.map(invoice => ({
 describe("Invoicing and Dues", () => {
   describe("Basic User", () => {
     const loadInvoices = async (invoices: Invoice[], login?: boolean) => {
-      await mock(mockRequests.invoices.get.ok(invoices));
+      mocker.listInvoices_200({}, invoices);
       if (login) {
-        await autoLogin(basicUser, undefined, { billing: true });
-        expect(await browser.getCurrentUrl()).toEqual(utils.buildUrl(memberPO.getProfilePath(basicUser.id)));
+        await autoLogin(mocker, basicUser, undefined, { billing: true });
+        expect(await browser.getUrl()).to.eql(utils.buildUrl(memberPO.getProfilePath(basicUser.id)));
       }
     }
 
@@ -64,22 +66,22 @@ describe("Invoicing and Dues", () => {
       // Upcoming, non subscription and past due invoices are automatically targeted on load
       // Only 1 can be selected at a time tho
       await loadInvoices(resourcedInvoices, true);
-      expect((await invoicePO.getAllRows()).length).toEqual(resourcedInvoices.length);
+      expect((await invoicePO.getAllRows()).length).to.eql(resourcedInvoices.length);
 
       // Get payment methods (none array)
       // Checkout
-      await mock(mockRequests.paymentMethods.get.ok([newCard]));
+      mocker.listPaymentMethods_200([newCard]);
       await utils.clickElement(invoicePO.actionButtons.payNow);
       await utils.waitForPageLoad(checkout.checkoutUrl);
 
       // Submit payment
       const pastDueTransaction = { ...defaultTransactions[0], invoice: resourcedInvoices[0] };
-      await mock(mockRequests.transactions.post.ok(pastDueTransaction));
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      mocker.createTransaction_200({ body: { invoiceId: resourcedInvoices[0].id, paymentMethodId: newCard.id } }, pastDueTransaction);
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
 
       await utils.clickElement(checkout.nextButton);
-      expect(await utils.getElementText(checkout.total)).toEqual(
+      expect(await utils.getElementText(checkout.total)).to.eql(
         `Total ${numberAsCurrency(Number(pastDueInvoice.amount))}`
       );
       await utils.clickElement(checkout.submit);
@@ -87,7 +89,7 @@ describe("Invoicing and Dues", () => {
       // Wait for receipt
       await utils.waitForPageToMatch(Routing.Receipt)
       // Verify transactions are displayed
-      expect(await utils.isElementDisplayed(checkout.receiptContainer)).toBeTruthy();
+      expect(await utils.isElementDisplayed(checkout.receiptContainer)).to.be.true;
       // Return to profile
       await utils.clickElement(checkout.backToProfileButton);
       // Wait for profile redirect
@@ -100,30 +102,30 @@ describe("Invoicing and Dues", () => {
       // Mock a member that already has a membership invoice
       const membershipOption = {
         ...invoiceOptions[0],
-        resourceClass: "member"
+        resourceClass: InvoiceableResource.Member
       };
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption], { unlimited: true });
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settings.pageUrl);
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-      await mock(mockRequests.invoices.get.ok([{
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
+      mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
-        resourceClass: "member"
-      }]));
+        resourceClass: InvoiceableResource.Member
+      }]);
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
       await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
-      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
+      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).to.be.true;
+      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).to.be.false;
 
-      await mock(mockRequests.invoices.get.ok([{
+      mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
-        resourceClass: "member"
-      }]));
+        resourceClass: InvoiceableResource.Member
+      }]);
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
@@ -143,30 +145,30 @@ describe("Invoicing and Dues", () => {
       // Mock a member that already has a membership invoice
       const membershipOption = {
         ...invoiceOptions[0],
-        resourceClass: "member"
+        resourceClass: InvoiceableResource.Member
       };
-      await mock(mockRequests.invoiceOptions.get.ok([membershipOption], membershipOptionQueryParams), 0);
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption], { unlimited: true });
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settings.pageUrl);
 
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-      await mock(mockRequests.invoices.get.ok([{
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
+      mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
-        resourceClass: "member"
-      }]));
+        resourceClass: InvoiceableResource.Member
+      }]);
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
       await utils.waitForNotVisible(settings.nonSubscriptionDetails.loading);
-      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).toBeTruthy();
-      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).toBeFalsy();
+      expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).to.be.true;
+      expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).to.be.false;
 
-      await mock(mockRequests.invoices.get.ok([{
+      mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
-        resourceClass: "member"
-      }]));
+        resourceClass: InvoiceableResource.Member
+      }]);
 
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
@@ -183,11 +185,11 @@ describe("Invoicing and Dues", () => {
   describe("Admin User", () => {
     const targetUrl = memberPO.getProfilePath(basicUser.id);
     const loadInvoices = async (invoices: Invoice[], login?: boolean) => {
-      await mock(mockRequests.invoices.get.ok(invoices, undefined, true));
+      mocker.adminListInvoices_200({}, invoices);
       if (login) {
-        await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
-        await autoLogin(adminUser, targetUrl, { billing: true });
-        expect(await browser.getCurrentUrl()).toEqual(utils.buildUrl(targetUrl));
+        mocker.getMember_200({ id: basicUser.id }, basicUser);
+        await autoLogin(mocker, adminUser, targetUrl, { billing: true });
+        expect(await browser.getUrl()).to.eql(utils.buildUrl(targetUrl));
       }
     }
 
@@ -201,17 +203,19 @@ describe("Invoicing and Dues", () => {
          4. Fill out form & submit
          5. Assert new invoice loaded in profile page
       */
-     const newInvoice = {
-       ...defaultInvoice,
-       memberId: basicUser.id,
-       memberName: `${basicUser.firstname} ${basicUser.lastname}`
-     }
-      await mock(mockRequests.invoiceOptions.get.ok(defaultBillingOptions, { types: [InvoiceableResource.Membership] }));
+      const newInvoice = {
+        ...defaultInvoice,
+        memberId: basicUser.id,
+        resourceId: basicUser.id,
+        resourceClass: InvoiceableResource.Member,
+        memberName: `${basicUser.firstname} ${basicUser.lastname}`
+      }
+      mocker.listInvoiceOptions_200({ types: [InvoiceableResource.Member] }, defaultBillingOptions);
       await loadInvoices([], true);
       const { submit, description, amount, dueDate } = invoicePO.invoiceForm;
-      expect(await utils.isElementDisplayed(invoicePO.getErrorRowId())).toBeFalsy();
-      expect(await utils.isElementDisplayed(invoicePO.getNoDataRowId())).toBeTruthy();
-      await mock(mockRequests.member.get.ok(basicUser.id, basicUser));
+      expect(await utils.isElementDisplayed(invoicePO.getErrorRowId())).to.be.false;
+      expect(await utils.isElementDisplayed(invoicePO.getNoDataRowId())).to.be.true;
+      mocker.getMember_200({ id: basicUser.id }, basicUser);
       await utils.clickElement(invoicePO.actionButtons.create);
       await utils.waitForVisible(submit);
 
@@ -221,11 +225,12 @@ describe("Invoicing and Dues", () => {
       // await utils.fillInput(dueDate, new Date(defaultInvoice.dueDate).toDateString());
       // await utils.fillInput(amount, String(defaultInvoice.amount));
 
-      await mock(mockRequests.invoices.post.ok(newInvoice, true));
-      await mock(mockRequests.invoices.get.ok([newInvoice], undefined, true));
+      const { memberId, resourceId, resourceClass } = newInvoice;
+      mocker.adminCreateInvoices_200({ body: { memberId, id: defaultBillingOptions[0].id, resourceId } }, newInvoice);
+      mocker.adminListInvoices_200({}, [newInvoice]);
       await utils.clickElement(submit);
       await utils.waitForNotVisible(submit);
-      expect((await invoicePO.getAllRows()).length).toEqual(1);
+      expect((await invoicePO.getAllRows()).length).to.eql(1);
     });
     // SKIPPING Test until custom billing enabled. Cant edit generated invoices
     xit("Can edit invoices for memebrs", async () => {
@@ -250,11 +255,11 @@ describe("Invoicing and Dues", () => {
 
       await utils.fillInput(invoicePO.invoiceForm.amount, String(updatedInvoice.amount));
       await utils.fillInput(invoicePO.invoiceForm.description, updatedInvoice.description);
-      await mock(mockRequests.invoices.put.ok(updatedInvoice));
-      await mock(mockRequests.invoices.get.ok([updatedInvoice], undefined, true));
+      mocker.adminUpdateInvoice_200({ id: updatedInvoice.id, body: updatedInvoice }, updatedInvoice);
+      mocker.adminListInvoices_200({}, [updatedInvoice]);
       await utils.clickElement(invoicePO.invoiceForm.submit);
       await utils.waitForNotVisible(invoicePO.invoiceForm.submit);
-      expect((await invoicePO.getAllRows()).length).toEqual(1);
+      expect((await invoicePO.getAllRows()).length).to.eql(1);
       await invoicePO.verifyFields(updatedInvoice, invoicePO.fieldEvaluator());
     });
     it("Can delete invoices for members", async () => {
@@ -271,11 +276,11 @@ describe("Invoicing and Dues", () => {
       await invoicePO.selectRow(defaultInvoices[0].id);
       await utils.clickElement(invoicePO.actionButtons.delete);
       await utils.waitForVisible(invoicePO.deleteInvoiceModal.submit);
-      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.member)).toEqual(defaultInvoices[0].memberName);
-      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.amount)).toEqual(numberAsCurrency(defaultInvoices[0].amount));
-      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.description)).toEqual(defaultInvoices[0].description);
-      await mock(mockRequests.invoices.delete.ok(defaultInvoices[0].id));
-      await mock(mockRequests.invoices.get.ok([], undefined, true));
+      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.member)).to.eql(defaultInvoices[0].memberName);
+      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.amount)).to.eql(numberAsCurrency(defaultInvoices[0].amount));
+      expect(await utils.getElementText(invoicePO.deleteInvoiceModal.description)).to.eql(defaultInvoices[0].description);
+      mocker.adminDeleteInvoice_204({ id: defaultInvoices[0].id });
+      mocker.adminListInvoices_200({}, []);
       await utils.clickElement(invoicePO.deleteInvoiceModal.submit);
       await utils.waitForNotVisible(invoicePO.deleteInvoiceModal.submit);
       await utils.waitForVisible(invoicePO.getNoDataRowId());

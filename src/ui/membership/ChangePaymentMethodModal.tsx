@@ -26,7 +26,7 @@ const ChangePaymentMethodModal: React.FC<Props> = ({ subscription: { id: subscri
   });
 
   const onSubmit = React.useCallback(async () => {
-    paymentMethodId && call({ id: subscriptionId, updateSubscriptionDetails: { paymentMethodToken: paymentMethodId }});
+    paymentMethodId && call({ id: subscriptionId, body: { paymentMethodToken: paymentMethodId }});
   }, [call, subscriptionId, paymentMethodId]);
 
   const setPaymentMethod = React.useCallback((pm: AnyPaymentMethod) => {

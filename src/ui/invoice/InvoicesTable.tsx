@@ -6,7 +6,7 @@ import { adminListInvoices, listInvoices, getMember, Invoice } from "makerspace-
 import { useAuthState } from "../reducer/hooks";
 import useReadTransaction from "../hooks/useReadTransaction";
 import StatefulTable from "../common/table/StatefulTable";
-import { InvoiceableResourceDisplay, MemberInvoice, RentalInvoice } from "app/entities/invoice";
+import { InvoiceableResourceDisplay } from "app/entities/invoice";
 import { SortDirection } from "ui/common/table/constants";
 import { Column } from "ui/common/table/Table";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
@@ -69,39 +69,39 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
   }, [refresh, refreshMember]);
 
   const rowId = React.useCallback(invoice => invoice.id, []);
-  const fields: Column<MemberInvoice | RentalInvoice>[] = [
+  const fields: Column<Invoice>[] = [
     ...(memberId
       ? []
       : [
           {
             id: "member",
             label: "Member",
-            cell: (row: MemberInvoice | RentalInvoice) => row.memberName,
+            cell: (row: Invoice) => row.memberName,
             defaultSortDirection: SortDirection.Desc
           }
         ]),
     {
       id: "resourceClass",
       label: "Type",
-      cell: (row: MemberInvoice | RentalInvoice) => InvoiceableResourceDisplay[row.resourceClass],
+      cell: (row: Invoice) => InvoiceableResourceDisplay[row.resourceClass],
       defaultSortDirection: SortDirection.Desc
     },
     {
       id: "dueDate",
       label: "Due Date",
-      cell: (row: MemberInvoice | RentalInvoice) => renderInvoiceDueDate(row),
+      cell: (row: Invoice) => renderInvoiceDueDate(row),
       defaultSortDirection: SortDirection.Desc
     },
     {
       id: "amount",
       label: "Amount",
-      cell: (row: MemberInvoice | RentalInvoice) => numberAsCurrency(row.amount),
+      cell: (row: Invoice) => numberAsCurrency(row.amount),
       defaultSortDirection: SortDirection.Desc
     },
     {
       id: "status",
       label: "Status",
-      cell: (row: MemberInvoice | RentalInvoice) => {
+      cell: (row: Invoice) => {
         const statusColor = row.pastDue && !row.settled ? Status.Danger : Status.Success;
         const label = renderInvoiceStatus(row);
         return <StatusLabel label={label} color={statusColor} />;
@@ -110,7 +110,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
     {
       id: "view",
       label: "View",
-      cell: (row: MemberInvoice | RentalInvoice) => {
+      cell: (row: Invoice) => {
         if (row.subscriptionId && viewingOwnInvoices) {
           return (
             <Link to={`${Routing.Billing}/${SubRoutes.Subscriptions}?q=${encodeURIComponent(row.memberName)}`}>

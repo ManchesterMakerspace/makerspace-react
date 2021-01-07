@@ -1,8 +1,9 @@
+import { expect } from "chai";
+import { Member, Report } from "makerspace-ts-api-client";
+import { timeToDate } from "ui/utils/timeToDate";
 import { TablePageObject } from "./table";
 import utils from "./common";
 const tableId = "membership-reports-table";
-import { Member, Report } from "makerspace-ts-api-client";
-import { timeToDate } from "ui/utils/timeToDate";
 
 const reportsListFields = ["date", "view"];
 class ReportsPageObject extends TablePageObject {
@@ -16,9 +17,9 @@ class ReportsPageObject extends TablePageObject {
   }) => {
     const { field, text } = fieldContent;
     if (field === "date") {
-      expect(text).toEqual(timeToDate(report.date));
+      expect(text).to.eql(timeToDate(report.date));
     } else {
-      expect(text.includes(report[field])).toBeTruthy();
+      expect(text.includes(report[field])).to.be.true;
     }
   };
 

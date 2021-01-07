@@ -1,6 +1,0 @@
-FROM node:10.15.3
-
-COPY Docker/scripts/wait_to_test.sh /bin/wait_to_test.sh
-RUN chmod +x /bin/wait_to_test.sh
-
-CMD ["/bin/wait_to_test.sh"]

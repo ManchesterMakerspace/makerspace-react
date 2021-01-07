@@ -1,12 +1,12 @@
 import * as React from "react";
 
-import { InvoiceableResource } from "app/entities/invoice";
 import {
   Plan,
   Discount,
   adminListBillingPlans,
   adminListBillingPlanDiscounts,
-  isApiErrorResponse
+  isApiErrorResponse,
+  InvoiceableResource
 } from "makerspace-ts-api-client";
 
 export interface Context {

@@ -30,7 +30,7 @@ const RenewRental: React.FC<{ rental: Rental, onRenew: () => void }> = ({ rental
       if (!form.isValid()) return;
 
       // TODO: renew rental type isn't supported
-      renew({ id: rental.id, updateRentalDetails: (validUpdate as any) as Rental });
+      renew({ id: rental.id, body: (validUpdate as any) as Rental });
     },
     [formRef, renew, rental]
   );

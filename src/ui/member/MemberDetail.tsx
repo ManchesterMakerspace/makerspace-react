@@ -26,7 +26,7 @@ import { SubRoutes } from "ui/settings/SettingsContainer";
 import { SubscriptionFilter } from "../subscriptions/SubscriptionFilters";
 
 const MemberProfile: React.FC = () => {
-  const { match: { params: { memberId, resource } }, history } = useReactRouter();
+  const { match: { params: { memberId, resource } }, history } = useReactRouter<{ memberId: string, resource: string }>();
   const { currentUser: { id: currentUserId, isAdmin }, permissions } = useAuthState();
 
   // State for tracking initial render to address bug displaying notifications

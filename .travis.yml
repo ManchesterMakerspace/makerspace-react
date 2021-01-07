@@ -1,21 +1,23 @@
 language: node_js
 
-services:
-  - docker
-
 node_js:
-  - "10.15.3"
+  - 14
 
 addons:
   chrome: stable
+
+install:
+  - "yarn && yarn build"
 
 after_failure:
   - make upload_screenshots
 
 jobs:
   include:
-    - stage: test
-      script: make start-func
+    - stage: UT
+      script: yarn test
+    - stage: FT
+      script: yarn ft
     - stage: deploy
       script: make deploy
       if: branch = master AND type = push

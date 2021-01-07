@@ -26,7 +26,7 @@ const CreateRental: React.FC<{ member?: Member; onCreate: (id: string) => void }
 
       if (!form.isValid()) return;
 
-      create({ createRentalDetails: validUpdate });
+      create({ body: validUpdate });
     },
     [formRef, create]
   );

@@ -1,15 +1,15 @@
 import * as React from "react";
 import Typography from "@material-ui/core/Typography";
+import { Invoice } from "makerspace-ts-api-client";
 import useModal from "../hooks/useModal";
 import { ActionButton } from "../common/ButtonRow";
 import FormModal from "ui/common/FormModal";
-import { MemberInvoice, RentalInvoice } from "app/entities/invoice";
 import InvoiceDetails from "./InvoiceDetails";
 import SettleInvoiceModal from "./SettleInvoiceModal";
 import { useAuthState } from "../reducer/hooks";
 
 interface Props {
-  invoice: MemberInvoice | RentalInvoice;
+  invoice: Invoice;
   onUpdate: () => void;
 }
 

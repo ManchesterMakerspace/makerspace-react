@@ -14,7 +14,7 @@ const receiptContainerId = "receipt-container";
 
 const Receipt: React.FC = () => {
   const { currentUser: { id: userId } } = useAuthState();
-  const { history, match: { params: { invoiceId } } } = useReactRouter();
+  const { history, match: { params: { invoiceId } } } = useReactRouter<{ invoiceId: string }>();
   const goToProfile = React.useCallback(() => history.push(buildProfileRouting(userId)), [history, userId]);
   const printReceipt = React.useCallback(() => {
     window.frames[receiptContainerId].focus();
