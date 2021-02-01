@@ -94,7 +94,10 @@ describe("Membership", () => {
 
     // Add a payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+      return true;
+    }, undefined, "Payment methods table never reloaded");
     await utils.clickElement(paymentMethods.addPaymentButton);
     await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
     await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
