@@ -3,10 +3,13 @@ const { resolve } = require("path");
 
 const screenshotDir = resolve(process.cwd(), "tmp", "screenshots");
 
+const domain = process.env.APP_DOMAIN || "localhost";
+const port = process.env.PORT || (!process.env.APP_DOMAIN && "3035");
+const rootURL = `http://${domain}${port ? `:${port}` : ""}`;
 
 exports.config = {
     specs: ["./tests/**/*.spec.ts?(x)"],
-    baseUrl: "http://localhost:3035",
+    baseUrl: rootURL,
     framework: "mocha",
     maxInstances: 1,
     reporters: ['spec'],
@@ -39,7 +42,7 @@ exports.config = {
                       }
                     }
                 ],
-                port: 3035
+                port
             }]
         ] : []
     ],
