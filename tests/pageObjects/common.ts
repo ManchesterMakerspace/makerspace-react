@@ -3,10 +3,6 @@ import { Key } from "selenium-webdriver";
 import { toDatePicker, dateToTime } from "ui/utils/timeToDate";
 import { matchPath } from "react-router";
 
-const domain = process.env.APP_DOMAIN || "localhost";
-const port = process.env.PORT || (!process.env.APP_DOMAIN && "3035");
-export const rootURL = `http://${domain}${port ? `:${port}` : ""}`;
-
 export class PageUtils {
   private waitUntilTime = 10 * 1000;
 
@@ -15,7 +11,7 @@ export class PageUtils {
     this.waitUntilTime = num;
   }
 
-  public buildUrl = (path?: string) => `${rootURL}${path ? path : ""}`;
+  public buildUrl = (path?: string) => `${browser.config.baseUrl}${path ? path : ""}`;
 
   public getElementById = async (id: string, timeout: number = undefined) => {
     const waitTime = timeout || this.waitUntilTime;
@@ -75,7 +71,7 @@ export class PageUtils {
     try {
       await browser.waitUntil(() => {
         return browser.getUrl().then((url: string) => {
-          const pathname = url.replace(rootURL, "");
+          const pathname = url.replace(browser.config.baseUrl, "");
           return !!matchPath(pathname, {
             exact,
             path: targetMatch,
