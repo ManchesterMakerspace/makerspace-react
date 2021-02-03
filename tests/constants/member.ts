@@ -42,6 +42,16 @@ export const adminUser: LoginMember = {
     postalCode: "00001"
   }
 };
+
+export const buildTestMember = (uniqueId: string): LoginMember => ({
+  ...basicUser,
+  id: `test_member_${uniqueId}`,
+  firstname: `Member ${uniqueId}`,
+  lastname: `Test ${uniqueId}`,
+  email: `test_member_${uniqueId}@test.com`,
+  cardId: `test_member_${uniqueId}_card 1`,
+});
+
 export const defaultMembers: LoginMember[] = new Array(20).fill(undefined).map((_v, index) => {
   const expirationNum = (Date.now() % 6);
   let expirationTime: number;

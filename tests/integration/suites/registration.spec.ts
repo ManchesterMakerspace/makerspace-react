@@ -70,7 +70,7 @@ describe("Member management", () => {
       await utils.waitForNotVisible(checkout.authAgreementSubmit);
 
       // view receipt & return to profile
-      await utils.waitForPageToMatch(Routing.Receipt, undefined, 10 * 1000);
+      await utils.waitForPageToMatch(Routing.Receipt, undefined, 30 * 1000);
       await utils.waitForNotVisible(checkout.receiptLoading);
       await utils.clickElement(checkout.backToProfileButton);
       await utils.waitForPageToMatch(Routing.Profile);
@@ -107,7 +107,10 @@ describe("Member management", () => {
       await memberPO.openCardModal();
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
-      expect(cardIds).to.contain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      await browser.waitUntil(async () => {
+        const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
+        return cardIds.includes(loadedCard);
+      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
@@ -161,7 +164,10 @@ describe("Member management", () => {
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
-      expect(cardIds).to.contain(await utils.getElementText(memberPO.accessCardForm.importConfirmation));
+      await browser.waitUntil(async () => {
+        const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
+        return cardIds.includes(loadedCard);
+      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
