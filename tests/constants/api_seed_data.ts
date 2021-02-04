@@ -23,8 +23,6 @@ export const invoiceOptionIds = {
   annualy: "one-year"
 };
 
-export const cardIds = ["0001", "0002", "0000"];
-
 const getRakeCmd = () => {
   let baseCmd = "RAILS_ENV=test";
   if (process.env.RAILS_DIR) {

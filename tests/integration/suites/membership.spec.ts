@@ -10,14 +10,13 @@ import { checkout as checkoutPo } from "../../pageObjects/checkout";
 import settingsPO from "../../pageObjects/settings";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { Routing } from "app/constants";
-import { cancelMemberSubscription, cardIds, createRejectCard, getAdminUserLogin, getBasicUserLogin, invoiceOptionIds, paypalUserLogins } from "../../constants/api_seed_data";
+import { cancelMemberSubscription, createRejectCard, getAdminUserLogin, getBasicUserLogin, invoiceOptionIds, paypalUserLogins } from "../../constants/api_seed_data";
 import { newVisa, newMastercard } from "../../constants/paymentMethod";
 import { checkout } from "../../pageObjects/checkout";
 import memberPO from "../../pageObjects/member";
 import { selfRegisterMember } from "../utils/auth";
 import { buildTestMember } from "../../constants/member";
 import invoicePO from "../../pageObjects/invoice";
-import { Browser } from "selenium-webdriver";
 
 describe("Membership", () => {
   beforeEach(async () => {
@@ -146,6 +145,8 @@ describe("Membership", () => {
   });
 
   it("Members can cancel a membership and sign back up", async () => {
+    const rejectionUid = "member-sign-back-up";
+    await createRejectCard(rejectionUid);
     const newMember = buildTestMember("cancel-sign-up");
     await selfRegisterMember(newMember);
     await utils.waitForNotVisible(memberPO.memberDetail.loading);
@@ -217,11 +218,12 @@ describe("Membership", () => {
     expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).to.match(/Register Fob/i);
     await memberPO.openCardModal();
     await utils.waitForVisible(memberPO.accessCardForm.submit);
-    await utils.waitForNotVisible(memberPO.accessCardForm.loading);
+    await utils.waitForNotVisible(memberPO.accessCardForm.loading);  
+  
     await browser.waitUntil(async () => {
       const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
-      return cardIds.includes(loadedCard);
-    }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
+        return rejectionUid === loadedCard;
+      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${rejectionUid}`);
     await utils.clickElement(memberPO.accessCardForm.idVerification);
     await utils.clickElement(memberPO.accessCardForm.submit);
     expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false
@@ -305,6 +307,8 @@ describe("Membership", () => {
   });
 
   it("Members can sign up after cancelling a Braintree membership via Braintree", async () => {
+    const rejectionUid = "braintree-member-sign-back-up";
+    await createRejectCard(rejectionUid);
     const newMember = buildTestMember("braintree-cancel-sign-up");
     await selfRegisterMember(newMember);
     await utils.waitForNotVisible(memberPO.memberDetail.loading);
@@ -375,10 +379,12 @@ describe("Membership", () => {
     await memberPO.openCardModal();
     await utils.waitForVisible(memberPO.accessCardForm.submit);
     await utils.waitForNotVisible(memberPO.accessCardForm.loading);
+        
     await browser.waitUntil(async () => {
       const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
-      return cardIds.includes(loadedCard);
-    }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
+      return rejectionUid === loadedCard;
+    }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${rejectionUid}`);
+    
     await utils.clickElement(memberPO.accessCardForm.idVerification);
     await utils.clickElement(memberPO.accessCardForm.submit);
     expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false
