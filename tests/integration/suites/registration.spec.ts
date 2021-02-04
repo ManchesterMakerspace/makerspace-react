@@ -18,8 +18,18 @@ describe("Member management", () => {
   describe("Registering", () => {
     beforeEach(async () => {
       await browser.deleteAllCookies();
+      await browser.pause(1000);
       return browser.url(utils.buildUrl());
     });
+
+    afterEach(async () => {
+      const displayed = await utils.isElementDisplayed(header.links.logout);
+      if (displayed) {
+        await header.navigateTo(header.links.logout);
+        await utils.waitForVisible(header.loginLink);
+      }
+    });
+
     it("Customers can register from home page", async () => {
       const rejectionUid = "register-home-page";
       await createRejectCard(rejectionUid);
@@ -163,7 +173,10 @@ describe("Member management", () => {
        await utils.waitForNotVisible(renewalPO.renewalForm.submit);
       // Get them a fob
       expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).to.match(/Register Fob/i);
-      await utils.clickElement(memberPO.memberDetail.openCardButton);
+      await memberPO.openCardModal();
+      await utils.waitForVisible(memberPO.accessCardForm.submit);
+      await utils.waitForNotVisible(memberPO.accessCardForm.loading);  
+
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.clickElement(memberPO.accessCardForm.importButton);

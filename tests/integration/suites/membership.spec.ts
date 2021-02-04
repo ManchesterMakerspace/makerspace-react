@@ -21,8 +21,17 @@ import invoicePO from "../../pageObjects/invoice";
 describe("Membership", () => {
   beforeEach(async () => {
     await browser.deleteAllCookies();
+    await browser.pause(1000);
     return browser.url(utils.buildUrl());
-  })
+  });
+
+  afterEach(async () => {
+    const displayed = await utils.isElementDisplayed(header.links.logout);
+    if (displayed) {
+      await header.navigateTo(header.links.logout);
+      await utils.waitForVisible(header.loginLink);
+    }
+  });
 
   it("Members can create a membership, change payment methods and cancel their membership", async () => {
     await auth.goToLogin();
@@ -286,6 +295,8 @@ describe("Membership", () => {
 
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
+    await browser.pause(1000);
+    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
     expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
     await paymentMethods.selectPaymentMethodByIndex(0);
 
@@ -338,6 +349,8 @@ describe("Membership", () => {
     await utils.waitForNotVisible(creditCard.creditCardForm.loading);
     await utils.waitForNotVisible(creditCard.creditCardForm.submit);
     // Assert the payment method
+    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
+    await browser.pause(1000);
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
     expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
     await utils.clickElement(checkout.nextButton);
