@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import moment from "moment";
 import { Routing } from "app/constants";
-import { getAdminUserLogin } from "../../constants/api_seed_data";
+import { createRejectCard, getAdminUserLogin } from "../../constants/api_seed_data";
 import { basicMembers } from "../../constants/member";
 import auth from "../../pageObjects/auth";
 import utils from "../../pageObjects/common";
@@ -14,15 +14,26 @@ import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { selfRegisterMember } from "../utils/auth";
 import { newVisa } from "../../constants/paymentMethod";
 
-const cardIds = ["0001", "0002", "0000"];
-
 describe("Member management", () => {
   describe("Registering", () => {
     beforeEach(async () => {
       await browser.deleteAllCookies();
+      await browser.pause(1000);
       return browser.url(utils.buildUrl());
     });
+
+    afterEach(async () => {
+      const displayed = await utils.isElementDisplayed(header.links.logout);
+      if (displayed) {
+        await header.navigateTo(header.links.logout);
+        await utils.waitForVisible(header.loginLink);
+      }
+    });
+
     it("Customers can register from home page", async () => {
+      const rejectionUid = "register-home-page";
+      await createRejectCard(rejectionUid);
+
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
@@ -107,10 +118,11 @@ describe("Member management", () => {
       await memberPO.openCardModal();
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
+      
       await browser.waitUntil(async () => {
         const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
-        return cardIds.includes(loadedCard);
-      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
+        return rejectionUid === loadedCard;
+      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${rejectionUid}`);
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
@@ -125,7 +137,9 @@ describe("Member management", () => {
 
     it("Admins can register a customer manually", async () => {
       const newMember = Object.assign({}, basicMembers.pop());
-
+      const rejectionUid = "admin-register-home-page";
+      await createRejectCard(rejectionUid);
+      
       await auth.goToLogin();
       await auth.signInUser(getAdminUserLogin());
       await header.navigateTo(header.links.members);
@@ -159,15 +173,19 @@ describe("Member management", () => {
        await utils.waitForNotVisible(renewalPO.renewalForm.submit);
       // Get them a fob
       expect(await utils.getElementText(memberPO.memberDetail.openCardButton)).to.match(/Register Fob/i);
-      await utils.clickElement(memberPO.memberDetail.openCardButton);
+      await memberPO.openCardModal();
+      await utils.waitForVisible(memberPO.accessCardForm.submit);
+      await utils.waitForNotVisible(memberPO.accessCardForm.loading);  
+
       await utils.clickElement(memberPO.accessCardForm.idVerification);
       await utils.waitForVisible(memberPO.accessCardForm.submit);
       await utils.clickElement(memberPO.accessCardForm.importButton);
       await utils.waitForNotVisible(memberPO.accessCardForm.loading);
+      
       await browser.waitUntil(async () => {
         const loadedCard = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
-        return cardIds.includes(loadedCard);
-      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${cardIds}`);
+        return rejectionUid === loadedCard;
+      }, undefined, `Received rejection card ${await utils.getElementText(memberPO.accessCardForm.importConfirmation)}, expected ${rejectionUid}`);
       await utils.clickElement(memberPO.accessCardForm.submit);
       expect(await utils.isElementDisplayed(memberPO.accessCardForm.error)).to.be.false;
       await utils.waitForNotVisible(memberPO.accessCardForm.submit);
