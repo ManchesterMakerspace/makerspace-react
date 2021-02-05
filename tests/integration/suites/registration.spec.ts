@@ -68,7 +68,10 @@ describe("Member management", () => {
 
       // Assert the payment method
       await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-      expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+      await browser.waitUntil(async () => {
+        const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+        return numPaymentMethods === 1;
+      }, undefined, "Payment methods table never reloaded");
 
       await utils.clickElement(checkout.nextButton);
       // Submit payment

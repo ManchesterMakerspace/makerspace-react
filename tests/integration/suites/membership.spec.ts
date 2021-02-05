@@ -74,7 +74,10 @@ describe("Membership", () => {
 
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     await utils.clickElement(checkoutPo.nextButton);
@@ -131,7 +134,10 @@ describe("Membership", () => {
     // Select the payment method
     // TODO: new payment methods should be auto selected
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(2);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 2;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     // TODO: Verify correct payment method is selected when reopening
@@ -186,7 +192,10 @@ describe("Membership", () => {
     await utils.waitForNotVisible(creditCard.creditCardForm.submit);
     // Assert the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await utils.clickElement(checkout.nextButton);
     // Submit payment
     await utils.clickElement(checkout.submit);
@@ -295,9 +304,10 @@ describe("Membership", () => {
 
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    await browser.pause(1000);
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     await utils.clickElement(checkoutPo.nextButton);
@@ -350,9 +360,10 @@ describe("Membership", () => {
     await utils.waitForNotVisible(creditCard.creditCardForm.submit);
     // Assert the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    await browser.pause(1000);
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await utils.clickElement(checkout.nextButton);
     // Submit payment
     await utils.clickElement(checkout.submit);
@@ -436,7 +447,10 @@ describe("Membership", () => {
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
     await utils.clickElement(checkoutPo.nextButton);
     // Submit payment
@@ -519,7 +533,10 @@ describe("Membership", () => {
 
     // Select the payment method
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
     await utils.clickElement(checkoutPo.nextButton);
     // Submit payment
@@ -579,7 +596,10 @@ describe("Membership", () => {
     // Select the payment method
     // TODO: new payment methods should be auto selected
     await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    expect((await paymentMethods.getPaymentMethods()).length).to.eql(1);
+    await browser.waitUntil(async () => {
+      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
+      return numPaymentMethods === 1;
+    }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
 
     await utils.clickElement(checkoutPo.nextButton);
