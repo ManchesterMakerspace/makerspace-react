@@ -102,7 +102,9 @@ export class TablePageObject {
   }
 
   public verifyListView = async (resourceList: any[], fieldEvaluator: Function): Promise<void> => {
-    expect((await this.getAllRows()).length).to.eql(resourceList.length);
+    await browser.waitUntil(async () => {
+      return (await this.getAllRows()).length === resourceList.length;
+    }, undefined, "Members list never loaded");
 
     await Promise.all(resourceList.slice(0, 5).map(async (resource) => {
       await this.verifyFields(resource, fieldEvaluator);
