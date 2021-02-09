@@ -116,7 +116,7 @@
     "test-watch": "yarn test --watch",
     "wdio": "TS_NODE_PROJECT=./tsconfig.wdio.json wdio tests/config/wdio.conf.js",
     "ft": "NO_ONLY=true STATIC_SERVER=true yarn wdio --spec=./tests/functional",
-    "e2e": "yarn wdio --spec=./tests/integration"
+    "e2e": "yarn wdio --spec=tests/integration/suites/*.spec.ts"
   },
   "jest": {
     "collectCoverage": false,

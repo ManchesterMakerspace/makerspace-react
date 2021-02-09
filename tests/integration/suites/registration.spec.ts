@@ -30,7 +30,8 @@ describe("Member management", () => {
       }
     });
 
-    it("Customers can register from home page", async () => {
+    it("Customers can register from home page", async function () {
+      this.timeout(200 * 1000);
       const rejectionUid = "register-home-page";
       await createRejectCard(rejectionUid);
 
