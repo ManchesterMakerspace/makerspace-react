@@ -5,3 +5,8 @@ deploy:
 	yarn install --production=false
 	yarn build
 	node scripts/release.js
+
+integration:
+	yarn install --production=false
+	yarn build
+	node scripts/integration.js
