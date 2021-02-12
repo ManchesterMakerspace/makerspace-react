@@ -269,7 +269,10 @@ describe("Member Profiles", () => {
         mocker.adminGetNewCard_200(rejectionCard);
         await utils.clickElement(memberPO.accessCardForm.idVerification);
         await utils.clickElement(memberPO.accessCardForm.importButton);
-        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).to.eql(cardId);// Verify manual import works
+        await browser.waitUntil(async () => {
+          const uid = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
+          return uid === cardId;
+        }, undefined, `Manual import rejection card ${cardId} failed to load`);
         mocker.adminCreateCard_200({ body: { uid: newCard.uid, memberId: foblessMember.id} }, newCard as any);
         mocker.getMember_200({ id: updatedMember.id }, updatedMember);
         await utils.clickElement(memberPO.accessCardForm.submit);
@@ -331,7 +334,10 @@ describe("Member Profiles", () => {
         mocker.adminGetNewCard_200(rejectionCard);
         await utils.clickElement(memberPO.accessCardForm.idVerification);
         await utils.clickElement(memberPO.accessCardForm.importButton);
-        expect(await utils.getElementText(memberPO.accessCardForm.importConfirmation)).to.eql(cardId); // Verify manual import works
+        await browser.waitUntil(async () => {
+          const uid = await utils.getElementText(memberPO.accessCardForm.importConfirmation);
+          return uid === cardId;
+        }, undefined, `Manual import rejection card ${cardId} failed to load`);
         mocker.adminCreateCard_200({ body: { uid: newCard.uid, memberId: fobbedMember.id} }, newCard as any);
         mocker.getMember_200({ id: updatedMember.id }, updatedMember);
         await utils.clickElement(memberPO.accessCardForm.submit);
