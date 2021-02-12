@@ -11,8 +11,8 @@ const tmp = path.join(process.cwd(), "tmp");
 const railsFolder = path.join(tmp, railsName);
 const screenshotsDir = path.join(tmp, "screenshots");
 // Weird to put it in a screenshots folder but this is the folder that gets uploaded
-const railsLogFile = path.join(screenshotsDir, "rails.png");
-const reactLogFile = path.join(screenshotsDir, "react.png");
+const railsLogFile = path.join(screenshotsDir, "rails.log");
+const reactLogFile = path.join(screenshotsDir, "react.log");
 
 const railsRepo = {
   url: "https://github.com/ManchesterMakerspace/makerspace-rails.git",
@@ -93,18 +93,6 @@ const integrationTest = async () => {
     const finishProcess = () => {
       railsLogs.end();
       reactLogs.end();
-
-      // File destination.txt will be created or overwritten by default.
-      fs.copyFile(reactLogFile, `${screenshotsDir}/reactLogs.png`, (err) => {
-        if (err) throw err;
-
-        console.log(`${reactLogFile} was copied to ${screenshotsDir}/reactLogs.png`);
-        fs.copyFile(railsLogFile, `${screenshotsDir}/railsLogs.log`, (err) => {
-          if (err) throw err;
-          
-          console.log(`${railsLogFile} was copied to ${screenshotsDir}/railsLogs.png`);
-        });
-      });
     }
 
     bundle();
