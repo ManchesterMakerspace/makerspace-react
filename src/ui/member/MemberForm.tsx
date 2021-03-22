@@ -32,6 +32,7 @@ interface OwnProps {
 interface State {
   memberContractOnFile: boolean;
   subscription: boolean;
+  silenceEmails: boolean;
 }
 
 class MemberForm extends React.Component<OwnProps, State> {
@@ -42,7 +43,8 @@ class MemberForm extends React.Component<OwnProps, State> {
     super(props);
     this.state = {
       memberContractOnFile: false,
-      subscription: false
+      subscription: false,
+      silenceEmails: false,
     }
   }
 
@@ -50,19 +52,20 @@ class MemberForm extends React.Component<OwnProps, State> {
     const { member } = this.props;
     this.setState({ 
       memberContractOnFile: member && member.memberContractOnFile || false,
-      subscription: member && member.subscription || false
+      subscription: member && member.subscription || false,
+      silenceEmails: member && !!member.silenceEmails || false
     });
   }
 
   public componentDidUpdate(prevProps: OwnProps) {
     const { isOpen, member } = this.props;
-    if (isOpen && !prevProps.isOpen) {
+
+    if ((isOpen && !prevProps.isOpen) || (member && member !== prevProps.member)) {
       this.setState({ 
         memberContractOnFile: member && member.memberContractOnFile || false,
-        subscription: member && member.subscription || false
+        subscription: member && member.subscription || false,
+        silenceEmails: member && !!member.silenceEmails || false
       });
-    }
-    if (member && member !== prevProps.member) {
       this.formRef && this.formRef.resetForm();
     }
   }
@@ -77,10 +80,22 @@ class MemberForm extends React.Component<OwnProps, State> {
     this.setState({ subscription: checked });
   }
 
+  public toggleEmailNotifications = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.currentTarget;
+    this.setState({ silenceEmails: !checked });
+  }
+
   public validate = async (form: Form): Promise<Member> => {
     const { isAdmin, member } = this.props;
+    const { silenceEmails, memberContractOnFile, subscription } = this.state;
     const fields = memberFormField(isAdmin, member);
-    return (await form.simpleValidate<Member>(fields));
+    const updatedMember = await form.simpleValidate<Member>(fields);
+    return {
+      ...updatedMember,
+      silenceEmails: silenceEmails as any, // TODO: S/b boolean
+      memberContractOnFile,
+      subscription,
+    };
   }
 
   private renderFormContents = () => {
@@ -190,6 +205,22 @@ class MemberForm extends React.Component<OwnProps, State> {
           name={fields.postalCode.name}
           id={fields.postalCode.name}
           placeholder={fields.postalCode.placeholder}
+        />
+      </Grid>
+
+      <Grid item xs={12}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              name={fields.silenceEmails.name}
+              id={fields.silenceEmails.name}
+              value={fields.silenceEmails.name}
+              checked={!this.state.silenceEmails}
+              onChange={this.toggleEmailNotifications}
+              color="default"
+            />
+          }
+          label={fields.silenceEmails.label}
         />
       </Grid>
       {isAdmin && (

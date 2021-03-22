@@ -8,7 +8,6 @@ const port = process.env.PORT || (!process.env.APP_DOMAIN && "3035");
 const rootURL = `http://${domain}${port ? `:${port}` : ""}`;
 
 exports.config = {
-    specs: ["./tests/**/*.spec.ts?(x)"],
     baseUrl: rootURL,
     framework: "mocha",
     maxInstances: 1,

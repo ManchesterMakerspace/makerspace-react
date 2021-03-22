@@ -6,6 +6,7 @@ jobs:
   build:
     docker:
       - image: circleci/ruby:2.6.6-stretch-node-browsers
+      - image: redis
     executor: ruby/default
     steps:
       - checkout
@@ -21,9 +22,8 @@ jobs:
       - run:
           name: E2E
           command: make integration
-      - run:
-          name: Upload test screenshots
-          command: make upload_screenshots
+      - store_artifacts:
+          path: ./tmp/screenshots
   publish:
     docker:
       - image: circleci/ruby:2.6.6-stretch-node-browsers

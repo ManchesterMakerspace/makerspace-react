@@ -15,6 +15,7 @@ import { Permission } from 'app/entities/permission';
 import { CollectionOf } from 'app/interfaces';
 import SendRegistrationComponent from 'ui/auth/SendRegistrationComponent';
 import AgreementContainer from 'ui/documents/AgreementsContainer';
+import UnsubscribeEmails from "ui/member/UnsubscribeEmails";
 
 interface Props {
   currentUserId: string,
@@ -37,6 +38,7 @@ const PrivateRouting: React.SFC<Props> = ({ currentUserId, permissions, isAdmin 
       {billingEnabled && <Route path={Routing.Checkout} component={CheckoutPage} />}
       <Route exact path={Routing.SendRegistration} component={SendRegistrationComponent}/>
       {earnedMembershipEnabled && <Route exact path={Routing.EarnedMemberships} component={EarnedMembershipsList}/>}
+      <Route exact path={Routing.Unsubscribe} component={UnsubscribeEmails} />
       <Redirect to={`${Routing.Members}/${currentUserId}`} />
       <Route component={NotFound} />
     </Switch>

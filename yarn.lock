@@ -7318,15 +7318,15 @@ makerspace-ts-api-client-generator@2.2.7:
   dependencies:
     yargs "^13.2.4"
 
-makerspace-ts-api-client@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-2.3.1.tgz#141bd0af8ee8e01d78224ab608061a03075c9b00"
-  integrity sha512-98d3DE9cUNb6KmZQecovcNim9JWn/NEAx3cEG5nzNQjJU3zSF7wKSlPdgdQJIRSbrbZsLcQ4PTRffg+duOQOPg==
+makerspace-ts-api-client@2.6.3:
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-2.6.3.tgz#042d28fd39719464a49692ff4d5692daed0fed6d"
+  integrity sha512-vQqvH5AAsjDnqQNE3QDsavNUdWXvvmmv1Jrk7N30UNzr/ylxsLuDuifuPLlUwb5CTQbKDVG9XAxCMbduLHA1Ig==
 
-makerspace-ts-mock-client@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/makerspace-ts-mock-client/-/makerspace-ts-mock-client-0.2.0.tgz#00ad231a647c2129d87d0bdcc07cae297b06fae3"
-  integrity sha512-ND/f/Aysqj+gcK0y13jsuyO6AeN0TM0duv3EOoYNw/ZOOODl+uNaCyI7cNcJdRmMi+ON9GSeIsDYRVNb7Jq6FQ==
+makerspace-ts-mock-client@0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/makerspace-ts-mock-client/-/makerspace-ts-mock-client-0.5.3.tgz#91f1cb3db19e51c535788e7831dbed4d735cf4d7"
+  integrity sha512-SChl/moJWckAlADrNIkDigxd9LmMS2dOTbTbdjk/8naHKnp5UWSVTKqRCdiIgrDMC5jxabM+QJt6xkpLFUO50Q==
   dependencies:
     "@wdio/devtools-service" "5.16.16"
     "@wdio/logger" "5.16.10"

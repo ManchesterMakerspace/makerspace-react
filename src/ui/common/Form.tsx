@@ -166,6 +166,7 @@ class Form extends React.Component<FormModalProps, State> {
     const validatedForm: Partial<T> = {};
     Object.entries(fields).forEach(([key, field]) => {
       const value = field.transform ? field.transform(values[field.name]) : values[field.name];
+      console.error(field.name, value);
       if (field.validate && !field.validate(value)) {
         errors[field.name] = field.error;
       } else {
@@ -197,6 +198,7 @@ class Form extends React.Component<FormModalProps, State> {
     if (event && event.target) {
       const fieldName = event.target.name;
       // Set value depending on checked state for checkboxes and radios
+      console.error("event.target.checked", event.target.checked)
       const fieldValue = event.target.type === "checkbox" ? (event.target.checked ? "true" : "") : event.target.value;
       const { isDirty } = this.state;
       if (!isDirty) {

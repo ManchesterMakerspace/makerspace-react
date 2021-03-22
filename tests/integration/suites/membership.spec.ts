@@ -554,7 +554,7 @@ describe("Membership", () => {
   });
 
   it("Admins can cancel a membership", async function () {
-    this.timeout(200 * 1000);
+    this.timeout(300 * 1000);
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);

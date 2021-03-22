@@ -9,6 +9,7 @@ export const defaultRental: Rental = {
   description: "foo",
   memberName: "Some Member",
   contractOnFile: true,
+  subscriptionId: undefined
 };
 
 export const defaultRentals: Rental[] = new Array(20).fill(undefined).map((_v, index) => {

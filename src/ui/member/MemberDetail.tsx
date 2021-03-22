@@ -174,7 +174,7 @@ const MemberProfile: React.FC = () => {
                     )}
                   </span>
                 )}
-                {member.customerId && (
+                {isAdmin && member.customerId && (
                   <a target="blank" href={`https://www.braintreegateway.com/merchants/vfx5f27bnwwjjyqx/customers/${member.customerId}`}>
                     View in Braintree
                   </a>
