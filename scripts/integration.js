@@ -81,14 +81,16 @@ const integrationTest = async () => {
     const endProcess = (code = 0) => {
       finishProcess();
       const pidFile = path.join(railsFolder, "tmp", "pids", "server.pid");
-      fs.readFile(pidFile, 'utf8', function(err, data) {
-        if (err) throw err;
-        const pid = Number(data);
-        if (pid != NaN) {
-          process.kill(pid);
-          process.exit(code);
-        }
-      });
+      if (fs.existsSync(pidFile)) {
+        fs.readFile(pidFile, 'utf8', function(err, data) {
+          if (err) throw err;
+          const pid = Number(data);
+          if (pid != NaN) {
+            process.kill(pid);
+            process.exit(code);
+          }
+        });
+      }
     };
     const finishProcess = () => {
       railsLogs.end();
