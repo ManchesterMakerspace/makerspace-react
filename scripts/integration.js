@@ -66,12 +66,12 @@ const integrationTest = async () => {
     const startTest = () => {
       process.chdir(reactFolder);
       console.log(`Starting test`);
-      runCmd(`RAILS_DIR=${railsFolder} PORT=${port} yarn e2e`, reactLogs, finishProcess);
+      runCmd(`RAILS_DIR=${railsFolder} PORT=${port} yarn e2e`, reactLogs, endProcess);
     };
     const startRails = () => {
       process.chdir(railsFolder);
       console.log(`Starting Rails...`);
-      runCmd(`RAILS_ENV=test bundle exec rake db:db_reset && RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startTest);
+      runCmd(`LOG_TESTS=true RAILS_ENV=test bundle exec rake db:db_reset && RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startTest);
     };
     const bundle = () => {
       process.chdir(railsFolder);
@@ -79,7 +79,11 @@ const integrationTest = async () => {
       runCmd("bundle install", railsLogs, startRails);
     };
     const endProcess = (code = 0) => {
-      finishProcess();
+      // Close logs
+      railsLogs.end();
+      reactLogs.end();
+
+      // Find the server PID and kill it
       const pidFile = path.join(railsFolder, "tmp", "pids", "server.pid");
       if (fs.existsSync(pidFile)) {
         fs.readFile(pidFile, 'utf8', function(err, data) {
@@ -87,15 +91,13 @@ const integrationTest = async () => {
           const pid = Number(data);
           if (pid != NaN) {
             process.kill(pid);
-            process.exit(code);
           }
         });
       }
+
+      // Exist this process
+      process.exit(code);
     };
-    const finishProcess = () => {
-      railsLogs.end();
-      reactLogs.end();
-    }
 
     bundle();
   });

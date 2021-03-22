@@ -14,9 +14,6 @@ addons:
 install:
   - "yarn && yarn build"
 
-after_failure:
-  - make upload_screenshots
-
 jobs:
   include:
     - stage: UT

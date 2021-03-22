@@ -106,8 +106,13 @@ export const fields = (admin: boolean, member?: Partial<Member>): FormFields => 
     notes: {
       label: "Notes",
       name: `${formPrefix}-notes`,
-    }
+    },
   },
+  silenceEmails: {
+    label: "Receive emails? (Excludes membership notifications)",
+    name: `${formPrefix}-silenceEmails`,
+    transform: val => !val
+  }
 })
 
 export const MemberRoleOptions = {

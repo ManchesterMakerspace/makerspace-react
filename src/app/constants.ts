@@ -24,6 +24,7 @@ export namespace Routing {
   export const Settings = `${Profile}/settings`;
   export const SendRegistration = `/send-registration/${PathPlaceholder.Email}`
   export const EarnedMemberships = "/earned-memberships";
+  export const Unsubscribe = `/unsubscribe/${PathPlaceholder.MemberId}`
 }
 
 export enum CrudOperation {

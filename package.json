@@ -14,7 +14,7 @@
     "connected-react-router": "^6.4.0",
     "history": "^4.7.2",
     "lodash-es": "^4.17.14",
-    "makerspace-ts-api-client": "2.3.1",
+    "makerspace-ts-api-client": "2.6.3",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "paypal-checkout": "^4.0.217",
@@ -74,7 +74,7 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.1.0",
-    "makerspace-ts-mock-client": "0.2.0",
+    "makerspace-ts-mock-client": "0.5.3",
     "mini-css-extract-plugin": "^0.7.0",
     "mocha": "^8.2.0",
     "mockserver-client": "^5.3.0",
@@ -115,7 +115,8 @@
     "test": "$(npm bin)/jest --no-cache",
     "test-watch": "yarn test --watch",
     "wdio": "TS_NODE_PROJECT=./tsconfig.wdio.json wdio tests/config/wdio.conf.js",
-    "ft": "NO_ONLY=true STATIC_SERVER=true yarn wdio --spec=./tests/functional",
+    "wdio-local": "yarn build && NO_ONLY=true STATIC_SERVER=true yarn wdio",
+    "ft": "yarn wdio-local --spec=./tests/functional/suites/*.spec.ts",
     "e2e": "yarn wdio --spec=tests/integration/suites/*.spec.ts"
   },
   "jest": {

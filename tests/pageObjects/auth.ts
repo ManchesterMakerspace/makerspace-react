@@ -1,4 +1,4 @@
-import { Member } from "makerspace-ts-api-client";
+import { Member } from "makerspace-ts-mock-client";
 import { Routing } from "app/constants";
 import utils from "./common";
 
