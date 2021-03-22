@@ -1,0 +1,51 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@0.1.2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.6.6-stretch-node-browsers
+    executor: ruby/default
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install && yarn build
+      - run:
+          name: UT
+          command: yarn test
+      - run:
+          name: FT
+          command: yarn ft
+      - run:
+          name: E2E
+          command: make integration
+      - run:
+          name: Upload test screenshots
+          command: make upload_screenshots
+  publish:
+    docker:
+      - image: circleci/ruby:2.6.6-stretch-node-browsers
+    executor: ruby/default
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: yarn install --immutable
+      - run:
+          name: deploy
+          command: |
+            git config --global -l
+            git config --global user.email circleci@circleci
+            git config --global user.name CircleCI
+            make deploy
+
+workflows:
+  workflow:
+    jobs:
+      - build
+      - publish:
+          filters:
+            branches:
+              only: master
