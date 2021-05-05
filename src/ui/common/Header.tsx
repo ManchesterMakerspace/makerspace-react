@@ -49,7 +49,7 @@ class Header extends React.Component<Props, State> {
     };
   }
 
-  private attachMenu = (event: React.MouseEvent<HTMLElement>) => {
+  private attachMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
     this.setState({ anchorEl: event.currentTarget });
   }
 

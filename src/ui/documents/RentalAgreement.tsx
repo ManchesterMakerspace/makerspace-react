@@ -1,5 +1,6 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
+import Paper from "@material-ui/core/Paper";
 
 import { updateRental } from "makerspace-ts-api-client";
 import { buildProfileRouting } from "../member/utils";
@@ -19,7 +20,7 @@ const RentalAgreement: React.FC<{ rentalId: string }> = ({ rentalId }) => {
   const onSuccess = React.useCallback(() => {
     executeScroll();
     history.push(buildProfileRouting(currentUserId));
-  }, [history]);
+  }, [history, executeScroll, currentUserId]);
 
   const {
     error,
@@ -33,16 +34,19 @@ const RentalAgreement: React.FC<{ rentalId: string }> = ({ rentalId }) => {
 
 
   return (
-    <DocumentForm
-      error={error}
-      loading={updating}
-      doc={{
-        ...rentalAgreement,
-        src: typeof rentalAgreement.src === "function" && rentalAgreement.src(rentalId)
-      }}
-      onAccept={onContractAccept}
-      requestSignature={true}
-    />
+    <Paper>
+      <DocumentForm
+        error={error}
+        loading={updating}
+        doc={{
+          ...rentalAgreement,
+          src: typeof rentalAgreement.src === "function" ? 
+            rentalAgreement.src(rentalId) : rentalAgreement.src
+        }}
+        onAccept={onContractAccept}
+        requestSignature={true}
+      />
+    </Paper>
   );
 }
 

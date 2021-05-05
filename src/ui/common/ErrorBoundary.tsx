@@ -52,7 +52,6 @@ const ErrorBoundary: React.FC = ({ children }) => {
   const { call } = useWriteTransaction(message);
 
   const reportError = React.useCallback((err: string) => {
-    // TODO: Idk if this change is correct either
     call({ body: { message: err }});
   }, [call]);
 

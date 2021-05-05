@@ -62,7 +62,6 @@ export const loginUserAction = (
 export const sessionLoginUserAction = (): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch) => {
   dispatch({ type: AuthAction.StartAuthRequest });
 
-  // TODO: SignIn fn fails if no params provided
   const response = await signIn({ body: {}});
   await handleAuthWithPermissions(response, dispatch, true);
 }

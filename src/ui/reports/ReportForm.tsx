@@ -189,7 +189,7 @@ export class ReportForm extends React.Component<OwnProps> {
 
     return (requirements as ReportRequirement[]).map((requirement, index) =>
       <div key={requirement.id}>
-        <Grid container spacing={24}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             {this.renderRequirementForm(requirement, index)}
           </Grid>

@@ -1,59 +1,103 @@
 import * as React from "react";
-import useReactRouter from "use-react-router";
-
+import SignatureCanvas from "react-signature-canvas";
 import { updateMember } from "makerspace-ts-api-client";
-import { buildProfileRouting } from "../member/utils";
-import { useAuthState } from "../reducer/hooks";
-import useWriteTransaction from "../hooks/useWriteTransaction";
-import DocumentForm from "./DocumentForm";
-import { Documents, documents } from "./Document";
-import { useScrollToHeader } from "../hooks/useScrollToHeader";
+import Grid from "@material-ui/core/Grid";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+import Typography from "@material-ui/core/Typography";
+import ExpandMore from "@material-ui/icons/ExpandMore";
+import DocumentFrame, { documents, Documents } from "ui/documents/Document";
+import { Form } from "components/Form/Form";
+import { SignatureBlock } from "ui/documents/SignatureBlock";
+import useWriteTransaction from "ui/hooks/useWriteTransaction";
+import { useAuthState } from "ui/reducer/hooks";
+import { CheckboxInput } from "components/Form/inputs/CheckboxInput";
+import { FormField } from "components/Form/FormField";
 
-const MembershipAgreement: React.FC = () => {
-  const [display, setDisplay] = React.useState<Documents>(Documents.CodeOfConduct);
-  const { history } = useReactRouter();
-  const { executeScroll } = useScrollToHeader();
-  const { currentUser: { id: currentUserId, memberContractOnFile } } = useAuthState();
+interface Props {
+  onSuccess?(): void;
+  hideFooter?: boolean;
+}
 
-  React.useEffect(() => {
-    if (memberContractOnFile) {
-      history.push(buildProfileRouting(currentUserId));
-    }
-  }, [memberContractOnFile]);
+const { 
+  [Documents.CodeOfConduct]: codeOfConduct,
+  [Documents.MemberContract]: memberContract,
+} = documents;
 
-  const onSuccess = React.useCallback(() => {
-    executeScroll();
-    history.push(buildProfileRouting(currentUserId));
-  }, [history]);
+export const MembershipAgreement: React.FC<Props> = ({ onSuccess, hideFooter, children }) => {
+  const [signatureRef, setSignatureRef] = React.useState<SignatureCanvas>();
+  const { currentUser: { id: currentUserId } } = useAuthState();
 
   const {
-    error,
     isRequesting: updating,
+    error,
     call: update
   } = useWriteTransaction(updateMember, onSuccess);
 
-  const onContractAccept = React.useCallback(async (signature: string) => {
-    await update({ id: currentUserId, body: { signature }});
-  }, [update]);
-
-  const onConductAccept = React.useCallback(() => {
-    setDisplay(Documents.MemberContract);
-  }, [setDisplay]);
-
-  const onAccept = display === Documents.MemberContract ? onContractAccept : onConductAccept;
+  const onSubmit = React.useCallback(async () => {
+    await update({ id: currentUserId, body: { signature: signatureRef.toDataURL() }});
+    return true;
+  }, [update, signatureRef, currentUserId]);
 
   return (
-    <DocumentForm
-      error={error}
+    <Form
+      id={`agreements-form`}
+      onSubmit={onSubmit}
+      hideFooter={hideFooter}
       loading={updating}
-      doc={{
-        ...documents[display],
-        src: String(documents[display].src)
-      }}
-      onAccept={onAccept}
-      requestSignature={display === Documents.MemberContract}
-    />
-  );
-}
+      error={error}
+      style={{ maxWidth: "900px", margin: "auto" }}
+    >
+      <Typography>Please review and accept the following makerspace documents.</Typography>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+          style={{ backgroundColor: "#F6F6F6" }}
+        >
+          <Typography id="panel1a-content">Code of Conduct</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <DocumentFrame {...codeOfConduct} src={String(codeOfConduct.src)} />
+        </AccordionDetails>
+      </Accordion>
 
-export default MembershipAgreement;
+      <Accordion defaultExpanded={true}>
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="panel2a-content"
+          id="panel2a-header"
+          style={{ backgroundColor: "#F6F6F6" }}
+        >
+          <Typography id="panel2a-content">Member Contract</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <DocumentFrame {...memberContract} src={String(memberContract.src)} />
+        </AccordionDetails>
+      </Accordion>
+
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <CheckboxInput
+            fieldName={codeOfConduct.name}
+            required={true}
+            label={codeOfConduct.label}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <CheckboxInput
+            fieldName={memberContract.name}
+            required={true}
+            label={memberContract.label}
+          />
+        </Grid>
+
+        <SignatureBlock takeSignature={setSignatureRef} />
+        {children}
+      </Grid>
+    </Form>
+  );
+};

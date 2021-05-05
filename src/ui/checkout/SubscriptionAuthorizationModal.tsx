@@ -45,7 +45,7 @@ const SubscriptionAuthorizationModal: React.FC<{ onConfirm(): void, item: CartIt
       cancelText="Cancel Payment"
       submitText="Confirm"
     >
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="body1">
             <strong>How recurring payments work:</strong>

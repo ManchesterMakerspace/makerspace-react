@@ -17,6 +17,7 @@ import { Theme, MuiThemeProvider, createMuiTheme } from '@material-ui/core';
 import App from "app/App";
 
 import { State as ReduxState, getRootReducer } from "ui/reducer";
+import { ToastContextProvider } from "components/Toast/Toast";
 
 
 const history: History = createBrowserHistory();
@@ -48,7 +49,9 @@ ReactDOM.render(
   { /* ConnectedRouter will use the store from Provider automatically */}
     <ConnectedRouter history={history}>
       <MuiThemeProvider theme={theme}>
-        <App/>
+        <ToastContextProvider>
+          <App/>
+        </ToastContextProvider>
       </MuiThemeProvider>
     </ConnectedRouter>
   </Provider>,

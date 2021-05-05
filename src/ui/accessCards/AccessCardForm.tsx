@@ -26,7 +26,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
     isRequesting: newCardLoading,
     error: newCardError,
     refresh: getNewCard,
-    data: rejectionCard
+    data: rejectionCard,
   } = useReadTransaction(adminGetNewCard, { uid: memberId });
 
   React.useEffect(() => {
@@ -41,6 +41,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
 
   const onSuccess = React.useCallback(({ reset }) => {
     refreshMember();
+    getNewCard();
     closeModal();
     reset();
   }, [refreshMember, closeModal]);
@@ -85,7 +86,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
       >
         <Typography variant="body1" gutterBottom>Instructions to register new member key fob</Typography>
         {(member && member.cardId) ?
-          <Typography color="default" variant="body1" gutterBottom>Access card exists for {member.firstname}</Typography>
+          <Typography variant="body1" gutterBottom>Access card exists for {member.firstname}</Typography>
           : <Typography color="secondary" variant="body1" gutterBottom>No access card exists for {member.firstname}</Typography>
         }
         <ol className="instruction-list">

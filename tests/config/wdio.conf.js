@@ -15,6 +15,7 @@ exports.config = {
     waitForTimeout: 5 * 1000,
     mochaOpts: {
         ui: "bdd",
+        retries: 3,
         timeout: 2 * 60 * 1000,
         require: [
             "tsconfig-paths/register"
@@ -68,6 +69,14 @@ exports.config = {
         });
         mkdirSync(screenshotDir, { recursive: true });
         require("./customCommands");
+    },
+    async beforeHook() {
+        await browser.maximizeWindow()
+        // if (process.env.SIZE === "mobile") {
+        //     await browser.setWindowSize(640, 1136)
+        // } else {
+        //     await browser.maximizeWindow()
+        // }
     },
     async afterTest(
         { title },

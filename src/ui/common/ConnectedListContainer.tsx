@@ -115,7 +115,7 @@ export class ListContainer<T> extends React.Component<Props<T>, State> {
 
     return (
       <>
-        {actionButtons && <Grid container spacing={24}>
+        {actionButtons && <Grid container spacing={3}>
           <Grid item xs={12}>
             <ButtonRow actionButtons={actionButtons} />
           </Grid>

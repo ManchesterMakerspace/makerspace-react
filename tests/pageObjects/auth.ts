@@ -11,9 +11,6 @@ export class AuthPageObject {
   public redirectUrl = Routing.Profile;
   public passwordResetUrl = `${Routing.PasswordReset}/${Routing.PathPlaceholder.Resource}`
 
-  public authToggleButton = "#auth-toggle";
-  public emailExistsModal = "#email-exists";
-
   private loginFormId = "#login-modal";
   public loginModal = {
     id: this.loginFormId,

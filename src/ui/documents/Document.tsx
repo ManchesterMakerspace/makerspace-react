@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
 
 import LoadingOverlay from "../common/LoadingOverlay";
 import { FormField } from "../common/Form";
@@ -51,25 +50,32 @@ export const documents: { [K in Documents]: DocDetails} = {
   },
 }
 
-const DocumentFrame: React.FC<{ id: string, src: string }> = ({ id, src }) => {
+const DocumentFrame: React.FC<Props> = (props) => {
   return (
-    <Paper>
-      <Grid container spacing={16}>
-        <Grid item xs={12}>
-          <DocumentInternalFrame id={id} src={src} style={{ height: "100%", width: "100%" }} />
-        </Grid>
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <DocumentInternalFrame {...props} />
       </Grid>
-    </Paper>
+    </Grid>
   );
 }
 
-export const DocumentInternalFrame: React.FC<{ src: string, id: string, style?: { [key: string]: any } }> = ({ id, src, style }) => {
+interface Props { 
+  src: string;
+  id: string;
+  fullHeight?: boolean;
+  style?: { [key: string]: any } ;
+}
+
+export const DocumentInternalFrame: React.FC<Props> = ({ id, src, style, fullHeight }) => {
   const [loading, setLoading] = React.useState(true);
-  const [height, setHeight] = React.useState(style.height);
+  const [height, setHeight] = React.useState(style?.height || "300px");
+
   const onLoad = React.useCallback(() => {
-    setHeight((document.getElementById(id) as any).contentWindow.document.documentElement.scrollHeight + "px");
+    fullHeight && setHeight((document.getElementById(id) as HTMLIFrameElement).contentWindow.document.documentElement.scrollHeight + "px");
     setLoading(false);
   }, [setLoading]);
+
   return (
     <>
       {loading && <LoadingOverlay id={id} contained={true}/>}
@@ -77,7 +83,7 @@ export const DocumentInternalFrame: React.FC<{ src: string, id: string, style?: 
         id={id}
         name={id}
         src={src}
-        style={{ ...style, height}}
+        style={{ height, width: "100%", overflow: "scroll", ...style }}
         onLoad={onLoad}
         frameBorder={0}
       />

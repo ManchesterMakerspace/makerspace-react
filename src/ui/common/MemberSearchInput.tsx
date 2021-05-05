@@ -1,9 +1,10 @@
 import * as React from "react";
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 
-import { listMembers, isApiErrorResponse, getMember } from "makerspace-ts-api-client";
+import { listMembers, isApiErrorResponse, getMember, message } from "makerspace-ts-api-client";
 import { SelectOption, AsyncSelectFixed, AsyncCreatableSelect, AsyncSelectProps, AsyncCreateableSelectProps } from "./AsyncSelect";
 import Form from "./Form";
+import useWriteTransaction from "ui/hooks/useWriteTransaction";
 
 interface Props  {
   name: string;
@@ -20,6 +21,7 @@ async function searchMemberOptions(searchValue: string) {
   let memberOptions = [] as SelectOption[];
   if (isApiErrorResponse(membersResponse)) {
     console.error(membersResponse.error);
+    message({ body: { message: JSON.stringify(membersResponse.error) }})
   } else {
     const members = membersResponse.data;
     memberOptions = members.map(member => ({
@@ -62,6 +64,8 @@ const MemberSearchInput: React.FC<Props> = ({
     initialSelection && setSelection(initialSelection);
   }, [setSelection, JSON.stringify(initialSelection)]);
 
+  const { call: reportError } = useWriteTransaction(message);
+
   // Fetch initial member option
   React.useEffect(() => {
     const fetchMember = async () => {
@@ -69,6 +73,7 @@ const MemberSearchInput: React.FC<Props> = ({
         const response = await getMember({ id: selection.value });
         if (isApiErrorResponse(response)) {
           console.error(response.error);
+          reportError({ body: { message: JSON.stringify(response.error) }});
         } else {
           const member = response.data;
           setSelection({
@@ -81,7 +86,7 @@ const MemberSearchInput: React.FC<Props> = ({
     }
 
     initialSelection && initialSelection.value && fetchMember();
-  }, [JSON.stringify(initialSelection), setSelection]);
+  }, [JSON.stringify(initialSelection), setSelection, reportError]);
 
   const updateSelection = React.useCallback((newSelection: SelectOption) => {
     setSelection(newSelection);

@@ -6,10 +6,10 @@
         "*",
         "src/*"
       ],
-      "@pageObjects/*": ["tests/pageObjects/*"],
-      "@constants/*": ["tests/constants/*"],
-      "@helpers/*": ["tests/functional/*"],
-      "@mockserver": ["tests/functional/mockserver"],
+      "@pageObjects/*": ["../tests/pageObjects/*"],
+      "@constants/*": ["../tests/constants/*"],
+      "@helpers/*": ["../tests/functional/*"],
+      "@mockserver": ["../tests/functional/mockserver"],
     },
     "types": [
       "node",

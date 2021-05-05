@@ -132,11 +132,15 @@ export class PageUtils {
     let select = await this.getElementByCss(selectLocator);
     // Material-UI hijacks the element and uses a div if using MenuItem with a Select component
     if ((await select.getTagName()) !== "select") {
-        select = await this.getElementByCss(selectLocator.replace("#", "#select-"));
+        select = await this.getElementByCss(selectLocator);
     }
 
     await select.scrollIntoView();
-    await browser.execute("arguments[0].click()", select);
+    try {
+      await select.click();
+    } catch {
+      await browser.execute("arguments[0].click()", select);
+    }
     // Get all option elements
     let options = await select.$$("option");
 

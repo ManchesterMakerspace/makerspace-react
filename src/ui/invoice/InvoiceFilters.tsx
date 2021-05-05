@@ -43,7 +43,7 @@ const InvoiceFilters: React.FC<{ close: () => void, onChange: () => void }> = ({
 
   return (
     <>
-      <Typography variant="headline" gutterBottom>
+      <Typography variant="subtitle1" gutterBottom>
         Invoice Filters
       </Typography>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>

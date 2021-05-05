@@ -3,8 +3,8 @@ import * as React from "react";
 import {
   Plan,
   Discount,
-  adminListBillingPlans,
-  adminListBillingPlanDiscounts,
+  listBillingPlans,
+  listBillingDiscounts,
   isApiErrorResponse,
   InvoiceableResource
 } from "makerspace-ts-api-client";
@@ -69,7 +69,7 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
     }), async () => {
       let data: Plan[];
       let error: string;
-      const result = await adminListBillingPlans({ types });
+      const result = await listBillingPlans({ types });
 
       if (isApiErrorResponse(result)) {
         error = result.error.message;
@@ -97,7 +97,7 @@ class BillingContextContainer extends React.Component<{}, ContextState> {
       let data: Discount[];
       let error: string;
 
-      const result = await adminListBillingPlanDiscounts({ types });
+      const result = await listBillingDiscounts({ types });
       if (isApiErrorResponse(result)) {
         error = result.error.message;
       } else {

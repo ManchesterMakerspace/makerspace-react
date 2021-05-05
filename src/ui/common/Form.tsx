@@ -19,7 +19,8 @@ export interface FormField {
   label?: string;
   name: string;
   placeholder?: string;
-  validate?: (val: any) => boolean;
+  required?: boolean;
+  validate?: (val: any) => string | boolean;
   transform?: (val: any) => any;
   error?: string;
   render?: (value: string | number | object) => string | JSX.Element;
@@ -147,7 +148,7 @@ class Form extends React.Component<FormModalProps, State> {
   }
 
   public isValid = (): boolean => {
-    return isEmpty(this.state.errors);
+    return !Object.values(this.state.errors).some(v => !!v);
   }
 
   public isDirty = (): boolean => {
@@ -166,16 +167,24 @@ class Form extends React.Component<FormModalProps, State> {
     const validatedForm: Partial<T> = {};
     Object.entries(fields).forEach(([key, field]) => {
       const value = field.transform ? field.transform(values[field.name]) : values[field.name];
-      console.error(field.name, value);
-      if (field.validate && !field.validate(value)) {
+      const validationErr = field?.validate?.(value);
+      // Validate returns a boolean if it is responding to "is valid" or a string for newer handling
+      if (typeof validationErr === "string") {
+        errors[field.name] = validationErr;
+      } else if (validationErr === false) {
         errors[field.name] = field.error;
-      } else {
-        validatedForm[key] = value;
       }
+
+      validatedForm[key] = value;
     });
 
     await this.setFormState({
       errors,
+      isDirty: true,
+      touched: Object.keys(errors).reduce((touched, key) => ({
+        ...touched,
+        [key]: true
+      }), {})
     });
 
     return validatedForm as T;
@@ -198,7 +207,6 @@ class Form extends React.Component<FormModalProps, State> {
     if (event && event.target) {
       const fieldName = event.target.name;
       // Set value depending on checked state for checkboxes and radios
-      console.error("event.target.checked", event.target.checked)
       const fieldValue = event.target.type === "checkbox" ? (event.target.checked ? "true" : "") : event.target.value;
       const { isDirty } = this.state;
       if (!isDirty) {

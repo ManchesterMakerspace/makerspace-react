@@ -12,9 +12,6 @@ export class SignUpPageObject {
   public signupUrl = Routing.SignUp;
   public redirectUrl = Routing.Profile;
 
-  public authToggleButton = "#auth-toggle";
-  public emailExistsModal = "#email-exists";
-
   private signUpFormId = "#sign-up-form";
   public signUpForm = {
     id: this.signUpFormId,
@@ -27,7 +24,6 @@ export class SignUpPageObject {
     stateSelect: `${this.signUpFormId}-state`,
     zipInput: `${this.signUpFormId}-postalCode`,
     passwordInput: `${this.signUpFormId}-password`,
-    submitButton: `${this.signUpFormId}-submit`,
     error: `${this.signUpFormId}-error`,
   };
 
@@ -42,7 +38,7 @@ export class SignUpPageObject {
     },
     row: {
       id: `${this.membershipSelectTableId}-{ID}`,
-      select: `${this.membershipSelectTableId}-{ID}-select button`,
+      select: `${this.membershipSelectTableId}-{ID}-select-button`,
       name: `${this.membershipSelectTableId}-{ID}-name`,
       description: `${this.membershipSelectTableId}-{ID}-description`,
       amount: `${this.membershipSelectTableId}-{ID}-amount`,
@@ -55,14 +51,12 @@ export class SignUpPageObject {
   };
 
   private codeOfConductFormId = "#code-of-conduct-form";
-  private memberContractFormId = "#member-contract-form";
   public documentsSigning = {
     codeOfConductCheckbox: `#code-of-conduct-checkbox`,
     codeOfConductSubmit: `${this.codeOfConductFormId}-submit`,
     codeOfConductError: `${this.codeOfConductFormId}-error`,
     memberContractCheckbox: `#member-contract-checkbox`,
-    memberContractSubmit: `${this.memberContractFormId}-submit`,
-    memberContractError: `${this.memberContractFormId}-error`,
+    memberContractError: `#signature-error`,
     memberContractSignature: "canvas",
   }
 
@@ -77,8 +71,23 @@ export class SignUpPageObject {
     await utils.fillInput(this.signUpForm.cityInput, user.address.city);
     await utils.fillInput(this.signUpForm.zipInput, user.address.postalCode);
     await utils.selectDropdownByValue(this.signUpForm.stateSelect, user.address.state);
-    await utils.clickElement(this.signUpForm.submitButton);
+    await utils.clickElement(this.signUpControls.nextButton);
   }
+
+  public signUpControls = {
+    nextButton: "#sign-up-next",
+    backButton: "#sign-up-back",
+    cartPreview: "#cart-preview"
+  }
+
+  public goBack = async () => {
+    await utils.clickElement(this.signUpControls.backButton);
+  }
+
+  public goNext = async () => {
+    await utils.clickElement(this.signUpControls.nextButton);
+  }
+
 
   private duplicateInvoiceModalId = "#outstanding-invoice";
   public duplicateInvoiceModal = {
@@ -88,8 +97,24 @@ export class SignUpPageObject {
   public acceptDuplicateInvoiceModal = () => utils.clickElement(this.duplicateInvoiceModal.submit);
   public ignoreDuplicateInvoiceModal = () => utils.clickElement(this.duplicateInvoiceModal.cancel);
 
-  public selectMembershipOption = (optionId: string) =>
-    utils.clickElement(this.getRow(optionId, this.membershipSelectForm.row.select))
+  public selectMembershipOption = async (optionId: string, shouldRedirect: boolean) =>{
+    await browser.waitUntil(async () => {
+      const selector = this.getRow(optionId, this.membershipSelectForm.row.select);
+      const element = await utils.getElementByCss(selector);
+      const isSelected = (await element.getText()).toLowerCase() === "selected";
+      if (!isSelected) {
+        await utils.scrollToElement(selector);
+        await utils.clickElement(selector);
+      }
+      if (shouldRedirect) {
+        await utils.waitForNotVisible(selector);
+        return true;
+      } else {
+        const isNowSelected = (await element.getText()).toLowerCase() === "selected";
+        return isNowSelected;
+      }
+    }, undefined, `Selected membership ${optionId} never selected`);
+  }
 
   public signContract = async () => {
     const signatureElement = await utils.getElementByCss(this.documentsSigning.memberContractSignature);

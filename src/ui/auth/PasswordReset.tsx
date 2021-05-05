@@ -15,7 +15,7 @@ import Form, { FormFields } from "ui/common/Form";
 import ErrorMessage from "ui/common/ErrorMessage";
 import { ScopedThunkDispatch } from "ui/reducer";
 import { loginUserAction } from "ui/auth/actions";
-import { resetPassword, isApiErrorResponse } from "makerspace-ts-api-client";
+import { resetPassword, isApiErrorResponse, message } from "makerspace-ts-api-client";
 
 interface DispatchProps {
   attemptLogin: () => void;
@@ -81,13 +81,18 @@ class PasswordReset extends React.Component<Props, State> {
       // Successfully changing password counts as auth action for Devise
       const passwordReset = await resetPassword({ body: { member: { resetPasswordToken: passwordToken, password } } });
       if (isApiErrorResponse(passwordReset)) {
-        this.setState({ passwordRequesting: false, passwordError: passwordReset.error.message });
+        const error = passwordReset.error.message;
+        const deviseErrors = (passwordReset.error as any).errors;
+        const passwordError = error || (deviseErrors && Object.entries(deviseErrors).map(([field, error]) => `${field} ${error}`).join(". "))
+
+        this.setState({ passwordRequesting: false, passwordError });
       } else {
         // TODO: Toast Message
         await this.props.attemptLogin();
         this.setState({ passwordRequesting: false });
       }
     } catch (e) {
+      message({ body: { message: JSON.stringify(e) }})
       console.error("ERR", e);
     }
 
@@ -96,7 +101,7 @@ class PasswordReset extends React.Component<Props, State> {
   public render(): JSX.Element {
     const { passwordMask, passwordError, passwordRequesting } = this.state;
     return (
-      <Grid container spacing={24} justify="center">
+      <Grid container spacing={3} justify="center">
         <Grid item xs={12} md={6}>
           <Paper style={{ minWidth: 275, padding: "1rem" }}>
               <Form
@@ -107,7 +112,7 @@ class PasswordReset extends React.Component<Props, State> {
                 loading={passwordRequesting}
                 submitText="Save"
               >
-                <Grid container spacing={16}>
+                <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <Typography variant="body1">Please enter your new password.</Typography>
                   </Grid>

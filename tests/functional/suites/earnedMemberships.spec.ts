@@ -114,10 +114,14 @@ describe("Earned Memberships", () => {
         await utils.waitForVisible(membershipPO.membershipForm.submit);
 
         expect(await utils.getElementText(membershipPO.membershipForm.member)).to.eql(firstMembership.memberName)
-        expect(await utils.getElementAttribute(membershipPO.requirementForm(0).nameSelect, "value")).to.eql("Other")
-        expect(await utils.getElementAttribute(membershipPO.requirementForm(0).nameInput, "value")).to.eql(origRequirements[0].name)
-        expect(await utils.getElementAttribute(membershipPO.requirementForm(0).targetCount, "value")).to.eql(String(origRequirements[0].targetCount))
-        expect(await utils.getElementAttribute(membershipPO.requirementForm(0).termLengthSelect, "value")).to.eql(String(origRequirements[0].termLength))
+        expect(await utils.getElementAttribute(
+          membershipPO.requirementForm(0).nameSelect.replace("#", `[name="`) + '"]', "value")).to.eql("Other")
+        expect(await utils.getElementAttribute(
+          membershipPO.requirementForm(0).nameInput.replace("#", `[name="`) + '"]', "value")).to.eql(origRequirements[0].name)
+        expect(await utils.getElementAttribute(
+          membershipPO.requirementForm(0).targetCount.replace("#", `[name="`) + '"]', "value")).to.eql(String(origRequirements[0].targetCount))
+        expect(await utils.getElementAttribute(
+          membershipPO.requirementForm(0).termLengthSelect.replace("#", `[name="`) + '"]', "value")).to.eql(String(origRequirements[0].termLength))
 
         await utils.selectDropdownByValue(membershipPO.requirementForm(0).targetCount, String(updatedRequirement.targetCount));
         await utils.selectDropdownByValue(membershipPO.requirementForm(0).termLengthSelect, String(updatedRequirement.termLength));
@@ -281,7 +285,8 @@ describe("Earned Memberships", () => {
       await browser.pause(1000);
       expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(0))).to.eql(`${defaultMembers[0].firstname} ${defaultMembers[0].lastname}`);
       expect(await utils.getElementText(reportPO.reportRequirementForm(0).member(1))).to.eql(`${defaultMembers[1].firstname} ${defaultMembers[1].lastname}`);
-      expect(await utils.getElementAttribute(reportPO.reportRequirementForm(0).reportedCount, "value")).to.eql(String(newReportRequirement.reportedCount));
+      expect(await utils.getElementAttribute(
+        reportPO.reportRequirementForm(0).reportedCount.replace("#", `[name="`) + '"]', "value")).to.eql(String(newReportRequirement.reportedCount));
       expect(await utils.getElementText(reportPO.reportForm.reportDate)).to.eql(timeToDate(initReport.date));
     });
 

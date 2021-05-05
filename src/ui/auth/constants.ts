@@ -1,6 +1,5 @@
 import { emailValid } from "app/utils";
 import isString from "lodash-es/isString";
-import { FormFields } from "ui/common/Form";
 
 export enum Action {
   StartAuthRequest = "AUTH/START_REQUEST",
@@ -11,21 +10,37 @@ export enum Action {
 
 export const EmailExistsError = "Email is already taken";
 
+export interface FormField {
+  label?: string;
+  name: string;
+  placeholder?: string;
+  validate?: (val: any) => string;
+  transform?: (val: any) => any;
+  error?: string;
+  render?: (value: string | number | object) => string | JSX.Element;
+  [key: string]: any;
+}
+
+export interface FormFields {
+  [key: string]: FormField
+}
+
+
 export const loginPrefix = "login-modal";
 export const LoginFields: FormFields = {
   email: {
     label: "Email",
     name: `${loginPrefix}-email`,
     placeholder: "Enter email",
-    error: "Invalid email",
-    validate: (val: string) => emailValid(val)
+    validate: (val: string) => !emailValid(val) && "Invalid email" || "",
+    error: "Invalid email"
   },
   password: {
     label: "Password",
     name: `${loginPrefix}-password`,
     placeholder: "Enter Password",
-    error: "Invalid password",
-    validate: (val) => !!val
+    validate: (val) => !val && "Invalid password" || "",
+    error: "Invalid password"
   }
 }
 
@@ -35,29 +50,24 @@ export const SignUpFields: FormFields = {
     label: "First Name",
     name: `${signUpPrefix}-firstname`,
     placeholder: "Enter first name",
-    validate: (val) => !!val,
     error: "Invalid first name",
   },
   lastname: {
     label: "Last Name",
     name: `${signUpPrefix}-lastname`,
     placeholder: "Enter last name",
-    validate: (val) => !!val,
     error: "Invalid last name"
   },
   email: {
     label: "Email",
     name: `${signUpPrefix}-email`,
     placeholder: "Enter email",
-    validate: (val: string) => val && emailValid(val),
-    error: "Invalid email"
   },
   password: {
     label: "Password",
     name: `${signUpPrefix}-password`,
     placeholder: "Enter password",
-    validate: (val) => isString(val) && val.length > 7,
-    error: "Password must be 8 characters minimum"
+    validate: (val) => !(isString(val) && val.length > 7) && "Password must be 8 characters minimum",
   },
   membershipSelectionId: {
     label: "Membership Option",
@@ -77,7 +87,6 @@ export const SignUpFields: FormFields = {
     label: "Street Address",
     name: `${signUpPrefix}-street`,
     placeholder: "Enter street address",
-    validate: (val: string) => !!val,
     error: "Required"
   },
   unit: {
@@ -88,21 +97,18 @@ export const SignUpFields: FormFields = {
     label: "City",
     name: `${signUpPrefix}-city`,
     placeholder: "Enter city",
-    validate: (val: string) => !!val,
     error: "Required"
   },
   state: {
     label: "State",
     name: `${signUpPrefix}-state`,
     placeholder: "Select a state",
-    validate: (val: string) => !!val,
     error: "Required"
   },
   postalCode: {
     label: "Postal Code",
     name: `${signUpPrefix}-postalCode`,
     placeholder: "Postal Code",
-    validate: (val: string) => !!val,
     error: "Required"
   },
 }

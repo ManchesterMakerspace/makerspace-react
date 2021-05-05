@@ -92,7 +92,7 @@ class MemberForm extends React.Component<OwnProps, State> {
     const updatedMember = await form.simpleValidate<Member>(fields);
     return {
       ...updatedMember,
-      silenceEmails: silenceEmails as any, // TODO: S/b boolean
+      silenceEmails,
       memberContractOnFile,
       subscription,
     };
@@ -102,7 +102,7 @@ class MemberForm extends React.Component<OwnProps, State> {
     const { member = {} as Member, isAdmin } = this.props;
     const fields = memberFormField(isAdmin, member);
 
-    return (<Grid container spacing={24}>
+    return (<Grid container spacing={3}>
       <Grid item xs={6}>
         <TextField
           fullWidth

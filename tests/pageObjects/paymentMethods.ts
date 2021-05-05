@@ -1,7 +1,11 @@
 import utils from "./common";
 
 class PaymentMethods {
-  public addPaymentButton = "#add-payment-button"
+  public addPaymentButton = "#add-payment-button";
+  public paymentMethodAccordian = {
+    creditCard: "#cc-header",
+    paypal: "#paypal-header",
+  }
   public paymentMethodFormSelect = {
     creditCard: "#card-payment",
     paypal: "#paypal-button",
@@ -50,6 +54,7 @@ class CreditCard {
     cardNumber: `#credit-card-number`,
     csv: `#cvv`,
     expirationDate: `#expiration`,
+    cardholderName: `#cardholder-name`,
     postalCode: `#postal-code`,
     submit: `${this.creditCardFormId}-submit`,
     loading: `${this.creditCardFormId}-loading`,
@@ -60,6 +65,7 @@ class CreditCard {
     expirationDate: "braintree-hosted-field-expirationDate",
     csv: "braintree-hosted-field-cvv",
     postalCode: "braintree-hosted-field-postalCode",
+    cardholderName: "braintree-hosted-field-cardholderName",
   }
 
   private switchToFrame = async (field: string): Promise<void> => {

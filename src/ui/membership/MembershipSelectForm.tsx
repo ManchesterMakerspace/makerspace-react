@@ -11,7 +11,7 @@ import ErrorMessage from "ui/common/ErrorMessage";
 import TableContainer from "ui/common/table/TableContainer";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import useReadTransaction from "../hooks/useReadTransaction";
-import DuplicateInvoiceModal from "./DuplicateInvoiceModal";
+import DuplicateMembershipModal from "./DuplicateMembershipModal";
 
 export const noneInvoiceOption: InvoiceOption = {
   id: "none",
@@ -58,7 +58,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
     const trailingOptions: InvoiceOption[] = allowNone ? [noneInvoiceOption] : [];
 
     const normalOptions = options.reduce((opts, option) => {
-      if ((option).isPromotion) {
+      if (option.isPromotion) {
         promotionOptions.push(option);
       } else {
         opts.push(option);
@@ -94,10 +94,8 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
   }, [onSelect, allOptions, history, searchParams]);
 
   // Add option and discount IDs to query params
-  const selectMembershipOption = React.useCallback((event: React.MouseEvent<HTMLTableElement>) => {
-    const optionId = event.currentTarget.id;
-    const option = (allOptions || []).find(option => option.id === optionId);
-    updateSelection(optionId, discountId ? (option && option.discountId || discountId) : undefined);
+  const selectMembershipOption = React.useCallback((option: InvoiceOption) => {
+    updateSelection(option.id, discountId ? (option.discountId || discountId) : undefined);
   }, [updateSelection, discountId, allOptions]);
 
   // Add or remove discount ID from query params
@@ -131,7 +129,12 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
         const label = selected ? "Selected" : "Select";
 
         return (
-          <Button id={row.id} variant={variant} color="primary" onClick={selectMembershipOption}>
+          <Button 
+            id={`membership-select-table-${row.id}-select-button`}
+            variant={variant} 
+            color="primary" 
+            onClick={() => selectMembershipOption(row)}
+          >
             {label}
           </Button>
         );
@@ -162,7 +165,7 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
           />
         </div>
       )}
-      <DuplicateInvoiceModal type={selectedOption && selectedOption.resourceClass} />
+      <DuplicateMembershipModal />
       <TableContainer
         id="membership-select-table"
         title={typeof title === undefined && "Select a Membership" || promotions && !!promotions.length && "Standard Membership Options"}

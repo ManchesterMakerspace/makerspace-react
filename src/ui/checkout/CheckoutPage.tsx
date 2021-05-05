@@ -56,7 +56,7 @@ const CheckoutPage: React.FC = () => {
   }, []);
 
   return (
-    <Grid container justify="center" spacing={16}>
+    <Grid container justify="center" spacing={2}>
       <Grid item sm={10} xs={12}>
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => (

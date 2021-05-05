@@ -12,7 +12,7 @@ import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
 import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
 import useReadTransaction from "../hooks/useReadTransaction";
-import { adminListBillingPlans, Plan } from "makerspace-ts-api-client";
+import { listBillingPlans, Plan } from "makerspace-ts-api-client";
 import LoadingOverlay from "../common/LoadingOverlay";
 import ErrorMessage from "../common/ErrorMessage";
 
@@ -54,7 +54,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
     data: billingPlans = [], 
     isRequesting: plansLoading, 
     error: plansError 
-  } = useReadTransaction(adminListBillingPlans, {}, undefined, "adminListBillingPlans");
+  } = useReadTransaction(listBillingPlans, {}, undefined);
 
   const onSearch = React.useCallback((event: React.KeyboardEvent<EventTarget>) => {
     if (event.key === "Enter") {
@@ -113,7 +113,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
 
   return (
     <>
-      <Typography variant="headline" gutterBottom>Subscription Filters</Typography>
+      <Typography variant="subtitle1" gutterBottom>Subscription Filters</Typography>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Search for subscriptions</FormLabel>
@@ -166,7 +166,7 @@ const SubscriptionFilters: React.FC<{ close: () => void, onChange: () => void }>
       </Grid>
 
       <Grid item xs={12}>
-        <Typography variant="subheading">Filter by Billing Plan</Typography>
+        <Typography variant="subtitle1">Filter by Billing Plan</Typography>
       </Grid>
       <Grid item xs={12}>
         {fallbackUI || (

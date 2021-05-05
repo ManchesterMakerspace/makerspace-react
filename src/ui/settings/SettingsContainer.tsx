@@ -54,7 +54,7 @@ const SettingsContainer: React.FC = () => {
   }, [setIndex, changeResource]);
 
   return (
-    <Grid container spacing={16}>
+    <Grid container spacing={2}>
       <Grid item md={4} sm={5} xs={12}>
         <List component="nav">
           <ListItem button selected={selectedIndex === 0} onClick={onSelectItem(0, "profile")}>
@@ -75,7 +75,7 @@ const SettingsContainer: React.FC = () => {
       <Grid item md={8} sm={7} xs={12}>
         <Card>
           <CardContent>
-            <Grid container spacing={16}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 {selectedIndex === 0 && (
                   <>
@@ -84,7 +84,7 @@ const SettingsContainer: React.FC = () => {
                   </>
                 )}
                 {selectedIndex === 1 && (
-                  <Grid container spacing={16}>
+                  <Grid container spacing={2}>
                     <Grid item xs={12}>
                       <SubscriptionSettings />
                     </Grid>

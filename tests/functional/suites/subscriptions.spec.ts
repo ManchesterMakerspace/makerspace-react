@@ -46,6 +46,7 @@ describe("Paid Subscriptions", () => {
       await subscriptionsPO.selectRow(defaultSubscriptions[0].id);
       await utils.clickElement(subscriptionsPO.actionButtons.delete);
       await utils.waitForVisible(subscriptionsPO.cancelSubscriptionModal.submit);
+      await utils.waitForNotVisible(subscriptionsPO.cancelSubscriptionModal.loading);
       expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.status)).to.eql(defaultSubscriptions[0].status);
       expect(await utils.getElementText(subscriptionsPO.cancelSubscriptionModal.nextPayment)).to.eql(timeToDate(defaultSubscriptions[0].nextBillingDate));
       mocker.adminCancelSubscription_204({ id: defaultSubscriptions[0].id });
@@ -97,7 +98,7 @@ describe("Paid Subscriptions", () => {
       mocker.listPaymentMethods_200([newCard]);
       await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-      await signup.selectMembershipOption(membershipId);
+      await signup.selectMembershipOption(membershipId, false);
       await utils.clickElement(signup.membershipSelectForm.submit);
       await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 

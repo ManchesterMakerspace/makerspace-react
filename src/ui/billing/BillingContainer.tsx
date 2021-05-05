@@ -50,6 +50,11 @@ const BillingContainer: React.FC = () => {
         actionButtons={[]}
         resources={[
           {
+            name: "options",
+            displayName: "Billing Options",
+            content: <OptionsList />
+          },
+          {
             name: "subscriptions",
             content: <SubscriptionsList />
           },
@@ -57,11 +62,6 @@ const BillingContainer: React.FC = () => {
             name: "transactions",
             content: <TransactionsList />
           },
-          {
-            name: "options",
-            displayName: "Billing Options",
-            content: <OptionsList />
-          }
         ]}
       />
     </BillingContextContainer>
