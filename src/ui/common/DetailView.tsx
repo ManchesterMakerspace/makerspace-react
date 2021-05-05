@@ -62,7 +62,7 @@ const DetailView: React.FC<OwnProps> = ({
   }, [changeResource]);
 
   return (
-    <Grid container spacing={24} justify="center">
+    <Grid container spacing={3} justify="center">
       <Grid item md={10} xs={12}>
         <Typography id="detail-view-title" gutterBottom variant="h6">{title}</Typography>
         {actionButtons}

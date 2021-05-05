@@ -58,7 +58,6 @@ describe("Members page", () => {
         lastname: "Member",
         email: "new_member@mm.com",
         phone: "",
-        address: basicUser.address,
       };
       const resultingMember: Member = {
         ...newMember,
@@ -81,26 +80,17 @@ describe("Members page", () => {
       await utils.assertInputError(memberPo.memberForm.firstname);
       await utils.assertInputError(memberPo.memberForm.lastname);
       await utils.assertInputError(memberPo.memberForm.email);
-      await utils.assertInputError(memberPo.memberForm.street);
-      await utils.assertInputError(memberPo.memberForm.city);
-      await utils.assertInputError(memberPo.memberForm.state);
-      await utils.assertInputError(memberPo.memberForm.zip);
-      await utils.assertNoInputError(memberPo.memberForm.unit);
       await utils.clickElement(memberPo.memberForm.contract);
       await utils.assertNoInputError(memberPo.memberForm.contract);
       await utils.fillInput(memberPo.memberForm.notes, "some random notes for this member");
       await utils.fillInput(memberPo.memberForm.email, "foo");
-      await utils.assertNoInputError(memberPo.memberForm.email);
+      await utils.clickElement(memberPo.memberForm.submit);
+      await utils.assertInputError(memberPo.memberForm.email);
       await utils.fillInput(memberPo.memberForm.firstname, newMember.firstname);
       await utils.assertNoInputError(memberPo.memberForm.firstname);
       await utils.fillInput(memberPo.memberForm.email, "");
       await utils.fillInput(memberPo.memberForm.lastname, newMember.lastname);
       await utils.assertNoInputError(memberPo.memberForm.lastname);
-
-      await utils.fillInput(memberPo.memberForm.street, newMember.address.street);
-      await utils.fillInput(memberPo.memberForm.city, newMember.address.city);
-      await utils.fillInput(memberPo.memberForm.zip, newMember.address.postalCode);
-      await utils.selectDropdownByValue(memberPo.memberForm.state, newMember.address.state);
 
       await utils.clickElement(memberPo.memberForm.submit);
       await utils.assertInputError(memberPo.memberForm.email);

@@ -1,5 +1,4 @@
 import moment from "moment";
-import { InvoiceOperation, } from "app/entities/invoice";
 import { Invoice, InvoiceOption, InvoiceableResource, Member } from "makerspace-ts-api-client";
 import { basicUser } from "./member";
 export const defaultBillingOptions: InvoiceOption[] = [

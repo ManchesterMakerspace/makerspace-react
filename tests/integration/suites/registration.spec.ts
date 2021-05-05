@@ -8,6 +8,7 @@ import utils from "../../pageObjects/common";
 import memberPO from "../../pageObjects/member";
 import header from "../../pageObjects/header";
 import renewalPO from "../../pageObjects/renewalForm";
+import signup from "../../pageObjects/signup";
 import invoicePO from "../../pageObjects/invoice";
 import { checkout } from "../../pageObjects/checkout";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
@@ -37,60 +38,28 @@ describe("Member management", () => {
 
       const newMember = Object.assign({}, basicMembers.pop());
       await selfRegisterMember(newMember);
-      await utils.waitForNotVisible(memberPO.memberDetail.loading);
-      await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
-
-      const url = await browser.getUrl();
-      await memberPO.verifyProfileInfo({
-        ...newMember,
-        expirationTime: null
-      });
-      await utils.clickElement(invoicePO.actionButtons.payNow);
-      await utils.waitForPageLoad(checkout.checkoutUrl);
-
       // Add a payment method
-      await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
+      await utils.waitForVisible(paymentMethods.paymentMethodAccordian.creditCard);
       expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
-      await utils.clickElement(paymentMethods.addPaymentButton);
-      await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
-      await browser.pause(1000);
-      await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
-      await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
-
-      await utils.waitForVisible(creditCard.creditCardForm.submit);
-      await utils.waitForNotVisible(creditCard.creditCardForm.loading);
+      await utils.clickElement(paymentMethods.paymentMethodAccordian.creditCard);
       await creditCard.fillInput("cardNumber", newVisa.number);
       await creditCard.fillInput("csv", newVisa.csv);
       await creditCard.fillInput("expirationDate", newVisa.expiration);
       await creditCard.fillInput("postalCode", newVisa.postalCode);
-      await utils.clickElement(creditCard.creditCardForm.submit);
-      await utils.waitForNotVisible(creditCard.creditCardForm.loading);
-      await utils.waitForNotVisible(creditCard.creditCardForm.submit);
-
-      // Assert the payment method
-      await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-      await browser.waitUntil(async () => {
-        const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
-        return numPaymentMethods === 1;
-      }, undefined, "Payment methods table never reloaded");
-
-      await utils.clickElement(checkout.nextButton);
-      // Submit payment
-      await utils.clickElement(checkout.submit);
-
+      await creditCard.fillInput("cardholderName", newVisa.name);
+      await signup.goNext();
+      await utils.waitForNotVisible(paymentMethods.paymentMethodAccordian.creditCard);
       // Accept recurring payment authorization
       await utils.waitForVisible(checkout.authAgreementCheckbox);
       await utils.clickElement(checkout.authAgreementCheckbox);
-      await utils.clickElement(checkout.authAgreementSubmit);
-      await utils.waitForNotVisible(checkout.authAgreementSubmit);
-
-      // view receipt & return to profile
-      await utils.waitForPageToMatch(Routing.Receipt, undefined, 30 * 1000);
-      await utils.waitForNotVisible(checkout.receiptLoading);
-      await utils.clickElement(checkout.backToProfileButton);
+      // Submit payment
+      await signup.goNext();
       await utils.waitForPageToMatch(Routing.Profile);
       await utils.waitForNotVisible(memberPO.memberDetail.loading);
+      await utils.waitForVisible(memberPO.memberDetail.notificationModalSubmit);
+      await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
       await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
+      const url = await browser.getUrl();
 
       // Verify no expiration set from user POV
       await memberPO.verifyProfileInfo({

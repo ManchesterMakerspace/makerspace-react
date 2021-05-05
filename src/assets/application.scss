@@ -1,3 +1,7 @@
+@import "../components/AppLoading/AppLoading.scss";
+@import "../pages/registration/MembershipOptions/MembershipOptions.scss";
+@import "../pages/registration/PaymentMethods/CreditCardForm.scss";
+
 @mixin flex {
   -webkit-flex-grow: 1;
   -moz-flex-grow: 1;
@@ -13,10 +17,6 @@ h6 > svg {
   width: 100%;
 }
 
-.form-modal {
-  width: 600px;
-  min-width: 600px;
-}
 .error-message {
   color: red;
   height: 8px;
@@ -24,9 +24,11 @@ h6 > svg {
   line-height: 1em;
   margin-top: 0.2em;
 }
+
 .table-wrapper {
   position: relative;
 }
+
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -45,7 +47,7 @@ h6 > svg {
   }
 }
 
- .root {
+.root {
   @include flex;
 }
 .flex {
@@ -112,10 +114,3 @@ h6 > svg {
   white-space: pre-wrap;
 }
 
-.membership-promotion-options {
-  border: 2px solid #2196F3;
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, .26);
-  border-radius: 4px;
-  margin: 2rem 0;
-  padding-bottom: 2rem;
-}

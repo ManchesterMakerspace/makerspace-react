@@ -14,8 +14,7 @@ const UnsubscribeEmails: React.FC = () => {
   const [success, setSuccess] = React.useState(false);
 
   const submitRequest = React.useCallback(async () => {
-    // TODO: Any b/c silenceEmails is mistyped as string
-    await call({ id: memberId, body: { silenceEmails: true as any  } });
+    await call({ id: memberId, body: { silenceEmails: true } });
     if (!error) {
       setSuccess(true);
     }

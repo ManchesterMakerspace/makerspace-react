@@ -206,7 +206,7 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
         submitText="Save"
         error={error}
       >
-        <Grid container spacing={24}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">{fields.resourceClass.label}</FormLabel>

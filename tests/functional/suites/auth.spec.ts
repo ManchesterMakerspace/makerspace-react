@@ -101,36 +101,32 @@ describe("Authentication", () => {
          7. Verify directed to profile
       */
 
-      const membershipId = "foo";
-      const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
-      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption])
+      const membershipId = "none";
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [])
       const { firstname, lastname, email, password, address } = newMember;
       mocker.registerMember_200({ body: {
         firstname, lastname, email, password, address
       } }, newMember );
       mocker.listMembersPermissions_200({ id: newMember.id }, {});
-      mocker.getMember_200({ id: newMember.id }, newMember);
-      mocker.createInvoice_200({ body: { id: membershipOption.id, discountId: null } }, defaultInvoice);
       await browser.url(utils.buildUrl());
-      await signup.selectMembershipOption(membershipId);
+      await signup.selectMembershipOption(membershipId, true);
       await utils.waitForPageLoad(signup.signupUrl);
       await signup.signUpUser(newMember);
 
-      await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
-      expect(await utils.isElementDisplayed(memberPO.memberDetail.notificationModal));
-      await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
-
-      await utils.waitForVisible(signup.documentsSigning.codeOfConductSubmit);
+      await utils.waitForVisible(signup.documentsSigning.codeOfConductCheckbox);
       await utils.clickElement(signup.documentsSigning.codeOfConductCheckbox);
-      await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
       await utils.waitForVisible(signup.documentsSigning.memberContractCheckbox);
       mocker.updateMember_200({ body: { signature: "foobar"}, id: newMember.id }, newMember, undefined, undefined, { body: Match.Ignore });
       mocker.listInvoices_200({}, [defaultInvoice]);
       await utils.clickElement(signup.documentsSigning.memberContractCheckbox);
       await signup.signContract();
-      await utils.clickElement(signup.documentsSigning.memberContractSubmit);
-      await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
+      await signup.goNext();
+      await utils.waitForVisible(signup.signUpControls.cartPreview);
+      mocker.getMember_200({ id: newMember.id }, { ...newMember, memberContractOnFile: true });
+      await signup.goNext();
+      await utils.waitForNotVisible(signup.signUpControls.cartPreview);
       await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
+      expect(await utils.isElementDisplayed(memberPO.memberDetail.notificationModal));
     });
     xit("User notified if they have an account with the attempted sign up email", async () => {
       /* 1. Setup mocks
@@ -153,15 +149,14 @@ describe("Authentication", () => {
          8. Submit form (no mock setup so request will fail)
          9. Assert form displays API error
       */
-      const membershipId = "foo";
-      const membershipOption = invoiceOptions.find((io) => io.id === membershipId);
+      const membershipId = "none";
       const { firstname, lastname, email, password, address } = newMember;
-      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption]);
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, []);
       await browser.url(utils.buildUrl());
-      await signup.selectMembershipOption(membershipId);
+      await signup.selectMembershipOption(membershipId, true);
       await utils.waitForPageLoad(signup.signupUrl);
-      const { emailInput, firstnameInput, passwordInput, lastnameInput, error, submitButton } = signup.signUpForm;
-      await utils.clickElement(submitButton);
+      const { emailInput, firstnameInput, passwordInput, lastnameInput, error } = signup.signUpForm;
+      await signup.goNext();
       await utils.assertInputError(firstnameInput);
       await utils.assertInputError(lastnameInput);
       await utils.assertInputError(emailInput);
@@ -174,45 +169,42 @@ describe("Authentication", () => {
       await utils.fillInput(signup.signUpForm.cityInput, address.city);
       await utils.fillInput(signup.signUpForm.zipInput, address.postalCode);
       await utils.selectDropdownByValue(signup.signUpForm.stateSelect, address.state);
-      await utils.clickElement(submitButton);
+      await signup.goNext();
       await utils.assertNoInputError(firstnameInput);
       await utils.assertNoInputError(lastnameInput);
       expect(await utils.assertInputError(emailInput));
       await utils.assertNoInputError(passwordInput);
       await utils.fillInput(emailInput, newMember.email);
-      await utils.clickElement(submitButton);
+      await signup.goNext();
       expect(!!(await utils.getElementText(error))).to.be.true;
       mocker.registerMember_200({ body: {
         firstname, lastname, email, password, address 
       } }, newMember);
       mocker.listMembersPermissions_200({ id: newMember.id }, {});
-      mocker.getMember_200({ id: newMember.id }, newMember);
-      await utils.clickElement(submitButton);
-
-      await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
-      expect(utils.isElementDisplayed(memberPO.memberDetail.notificationModal));
-      await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
+      await signup.goNext();
 
       // Signed up, code of conduct validation
-      await utils.waitForVisible(signup.documentsSigning.codeOfConductSubmit);
-      await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
+      await utils.waitForVisible(signup.documentsSigning.codeOfConductCheckbox);
+      await signup.goNext();
       await utils.assertInputError(signup.documentsSigning.codeOfConductCheckbox)
       await utils.clickElement(signup.documentsSigning.codeOfConductCheckbox);
       await utils.assertNoInputError(signup.documentsSigning.codeOfConductCheckbox)
-      await utils.clickElement(signup.documentsSigning.codeOfConductSubmit);
 
       // Contract validation
       await utils.waitForVisible(signup.documentsSigning.memberContractCheckbox);
-      await utils.clickElement(signup.documentsSigning.memberContractSubmit);
+      await signup.goNext();
       await utils.assertInputError(signup.documentsSigning.memberContractCheckbox)
       await utils.clickElement(signup.documentsSigning.memberContractCheckbox);
       await utils.assertNoInputError(signup.documentsSigning.memberContractCheckbox)
-      await utils.clickElement(signup.documentsSigning.memberContractSubmit);
+      await signup.goNext();
       await utils.assertInputError(signup.documentsSigning.memberContractError, true)
       mocker.updateMember_200({ body: { signature: "foobar"}, id: newMember.id }, newMember, undefined, undefined, { body: Match.Ignore });
+      mocker.getMember_200({ id: newMember.id }, { ...newMember, memberContractOnFile: true });
       await signup.signContract();
-      await utils.clickElement(signup.documentsSigning.memberContractSubmit);
-      await utils.waitForNotVisible(signup.documentsSigning.memberContractSubmit);
+      await signup.goNext();
+      await utils.waitForNotVisible(signup.documentsSigning.memberContractCheckbox);
+      await signup.goNext();
+      await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
     });
   });
 

@@ -14,7 +14,7 @@ const LoginPage: React.FC = () => {
   const { history } = useReactRouter();
   const goToRegister = React.useCallback(() => history.push(Routing.Root), []);
   return (
-    <Grid container spacing={24}>
+    <Grid container spacing={3}>
       <Hidden smDown>
         <Grid item md={6} sm={12} id="landing-page-graphic">
           <Logo style={{ width: '100%', height: '200px' }} alt="Manchester Makerspace" viewBox="0 0 960 580" />
@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
       </Hidden>
 
       <Grid item md={6} sm={12}>
-        <Grid container justify="center" spacing={24}>
+        <Grid container justify="center" spacing={3}>
           <Grid item xs={12}>
             <Paper style={{ minWidth: 275, padding: "1rem" }}>
                 <LoginForm />

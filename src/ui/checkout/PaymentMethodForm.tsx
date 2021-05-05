@@ -147,7 +147,7 @@ class PaymentMethodForm extends React.Component<Props, State> {
         {paymentMethodType ? (
           this.renderPaymentMethod()
         ) : (
-          <Grid container justify="center" spacing={16}>
+          <Grid container justify="center" spacing={2}>
             <Grid item xs={12} md={6}>
               <Button fullWidth variant="outlined" onClick={this.selectCC} id="card-payment">
                 Credit or debit card

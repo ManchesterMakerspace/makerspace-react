@@ -23,7 +23,7 @@ export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, in
   }
   
   return (
-    <Grid container spacing={24}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
         <KeyValueItem label="Amount">
           <span id="subscription-amount">{numberAsCurrency(subscription.amount)}</span>
@@ -43,7 +43,6 @@ export const SubscriptionDetailsInner: React.FC<{ subscription: Subscription, in
     </Grid>
   )
 }
-
 
 interface Props {
   subscriptionId: string;
@@ -77,7 +76,7 @@ const SubscriptionDetails: React.FC<Props> = ({ subscriptionId, onLoad }) => {
     <>
       <SubscriptionDetailsInner subscription={subscription} />
       <ErrorMessage error={subError} />
-      <Grid container spacing={24}>
+      <Grid container spacing={3}>
         <Grid item xs={12}>
           <ChangePaymentMethodModal
             subscription={subscription}

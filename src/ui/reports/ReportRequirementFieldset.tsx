@@ -187,7 +187,7 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
         ref={this.setFormRef}
         id={requirementFormId}
       >
-        <Grid container spacing={24}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <FormLabel>{fields.reportedCount.label}</FormLabel>
             <Select
@@ -204,7 +204,7 @@ class ReportRequirementFieldset extends React.Component<OwnProps, State> {
           </Grid>
           <Grid item xs={12}>
             {range(0, this.state.memberCount).map(index =>
-              <Grid key={`member-${index}`} container spacing={24}>
+              <Grid key={`member-${index}`} container spacing={3}>
                 <Grid item xs={12}>
                   {this.renderMemberRow(index)}
                 </Grid>

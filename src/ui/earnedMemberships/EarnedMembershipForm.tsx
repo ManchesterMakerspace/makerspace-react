@@ -137,7 +137,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     })
   }
 
-  private updateRequirementName = (index: number) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  private updateRequirementName = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
 
     this.setState(state => {
@@ -163,7 +163,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
     return (
       <Card>
         <CardContent>
-          <Grid container spacing={24}>
+          <Grid container spacing={3}>
             <Grid item xs={12}>
               <FormLabel>{requirementFields.name.label}</FormLabel>
               <Select
@@ -278,7 +278,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
       (!membership || (membership.requirements || []).length < this.state.requirementCount)
 
       return (
-      <Grid container spacing={24}>
+      <Grid container spacing={3}>
         <Grid item xs={12}>
           <FormLabel component="legend">{earnedMembershipFields.memberId.label}</FormLabel>
           <MemberSearchInput
@@ -291,7 +291,7 @@ export class EarnedMembershipForm extends React.Component<OwnProps, State> {
         </Grid>
         <Grid item xs={12}>
         {range(0, this.state.requirementCount).map(index =>
-            <Grid key={`requirement-${index}`} container spacing={24}>
+            <Grid key={`requirement-${index}`} container spacing={3}>
               <Grid item xs={12}>
                 {this.renderRequirementRow(index)}
               </Grid>

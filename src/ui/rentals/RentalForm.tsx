@@ -61,7 +61,7 @@ class RentalForm extends React.Component<OwnProps, { contractOnFile: boolean }> 
         submitText="Submit"
         error={error}
       >
-        <Grid container spacing={24}>
+        <Grid container spacing={3}>
           <Grid item xs={6}>
             <TextField
               fullWidth

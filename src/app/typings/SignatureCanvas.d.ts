@@ -19,5 +19,9 @@ declare module 'react-signature-canvas' {
     clearOnResize?: boolean;
   }
 
-  export default class SignatureCanvas extends React.Component<SignatureCanvasProps> { }
+  export default class SignatureCanvas extends React.Component<SignatureCanvasProps> {
+    clear(): void;
+    isEmpty(): boolean;
+    toDataURL(): string;
+  }
 }

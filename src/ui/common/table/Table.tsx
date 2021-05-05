@@ -198,7 +198,6 @@ class EnhancedTable<T> extends React.Component<Props<T>, {}> {
       return (
         <TableCell
           id={columnId}
-          numeric={column.numeric}
           key={columnId}
         >
           {column.cell(row)}

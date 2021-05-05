@@ -134,7 +134,7 @@ const CartList: React.FC<Props> = ({ paymentMethod }) => {
     <>
       <Card style={{ height: "100%" }}>
         <CardContent>
-          <Grid container spacing={16}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <TableContainer
                 id="checkout-invoices-table"
@@ -175,7 +175,7 @@ const CartList: React.FC<Props> = ({ paymentMethod }) => {
           onSubmit={closeErrModal}
           submitText="Okay"
         >
-          <Grid container spacing={16}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <Typography variant="body1">
                 There was an error processing one or more transactions. Please review these errors and try again

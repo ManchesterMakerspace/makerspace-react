@@ -113,8 +113,9 @@ describe("Invoicing and Dues", () => {
       mocker.getMember_200({ id: basicUser.id }, basicUser);
       mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
+        subscriptionId: "foobar-sub",
         resourceClass: InvoiceableResource.Member
-      }]);
+      }], { times: 2 });
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -122,19 +123,15 @@ describe("Invoicing and Dues", () => {
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).to.be.true;
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).to.be.false;
 
-      mocker.listInvoices_200({}, [{
-        ...pastDueInvoice,
-        resourceClass: InvoiceableResource.Member
-      }]);
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-      await signup.selectMembershipOption(membershipOption.id);
 
       // Duplicate notification b/c trying to buy membership even tho have membership invoice
       await utils.waitForVisible(signup.duplicateInvoiceModal.submit);
-      await signup.ignoreDuplicateInvoiceModal();
       // Ignore and continue to checkout
+      await signup.ignoreDuplicateInvoiceModal();
+      await signup.selectMembershipOption(membershipOption.id, false);
       await utils.clickElement(signup.membershipSelectForm.submit);
       await utils.waitForPageLoad(checkout.checkoutUrl);
     });
@@ -156,8 +153,9 @@ describe("Invoicing and Dues", () => {
       mocker.getMember_200({ id: basicUser.id }, basicUser);
       mocker.listInvoices_200({}, [{
         ...pastDueInvoice,
+        subscriptionId: "foobar-sub",
         resourceClass: InvoiceableResource.Member
-      }]);
+      }], { times: 2 });
       await settings.goToMembershipSettings();
 
       // Non subscription details displayed
@@ -165,15 +163,9 @@ describe("Invoicing and Dues", () => {
       expect(await utils.isElementDisplayed(settings.nonSubscriptionDetails.status)).to.be.true;
       expect(await utils.isElementDisplayed(settings.subscriptionDetails.status)).to.be.false;
 
-      mocker.listInvoices_200({}, [{
-        ...pastDueInvoice,
-        resourceClass: InvoiceableResource.Member
-      }]);
-
       // Select a subscription
       await utils.clickElement(settings.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-      await signup.selectMembershipOption(membershipOption.id);
 
       // Duplicate notification b/c trying to buy membership even tho have membership invoice
       await utils.waitForVisible(signup.duplicateInvoiceModal.submit);

@@ -3,6 +3,7 @@ import { shallowEqual, useSelector, useDispatch } from "react-redux";
 import { ApiDataResponse, ApiErrorResponse } from "makerspace-ts-api-client";
 import { State as ReduxState, TransactionAction, Transaction } from "ui/reducer";
 import { AuthState } from '../auth/interfaces';
+import { TransactionState } from 'ui/hooks/types';
 
 export type Dispatch<Action, Data> = (action: {
   type: Action,
@@ -36,6 +37,11 @@ export const useApiState = <Resp>(reducerKey: string): [Transaction<Resp>, Dispa
   return [useSelector(getState, shallowEqual), dispatchApi];
 }
 
-export const getApiState = (reducerKey: string, state: ReduxState) => {
-  return state.base[reducerKey] || { isRequesting: false }
-} 
+export const getApiState = (reducerKey: string, state: ReduxState): TransactionState<any>  => {
+  return state.base[reducerKey] || { 
+    isRequesting: false, 
+    error: undefined, 
+    response: undefined, 
+    data: undefined 
+  };
+};

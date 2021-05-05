@@ -81,7 +81,7 @@ const MembersList: React.FC = () => {
   const selectedMember = members.find(member => member.id === selectedId);
 
   return (
-    <Grid container spacing={24} justify="center">
+    <Grid container spacing={3} justify="center">
       <Grid item md={10} xs={12}>
         {isAdmin && (
           <Grid>

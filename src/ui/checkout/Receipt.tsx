@@ -23,10 +23,10 @@ const Receipt: React.FC = () => {
 
   return (
     <>
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         <Grid item sm={6} xs={12}>
           <Typography variant="h4">Thank you for your purchase!</Typography>
-          <Typography variant="subheading">Details regarding your purchase can be found below.</Typography>
+          <Typography variant="subtitle1">Details regarding your purchase can be found below.</Typography>
         </Grid>
         <Grid item sm={6} xs={12}>
           <ActionButton
@@ -46,7 +46,7 @@ const Receipt: React.FC = () => {
           />
         </Grid>
       </Grid>
-      <DocumentFrame id={receiptContainerId} src={buildReceiptUrl(invoiceId, false)} />
+      <DocumentFrame id={receiptContainerId} src={buildReceiptUrl(invoiceId, false)} fullHeight={true}/>
     </>
   )
 }

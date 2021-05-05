@@ -24,10 +24,17 @@ import NotificationModal, { Notification } from "./NotificationModal";
 import PreviewMemberContract from "../documents/PreviewMemberContract";
 import { SubRoutes } from "ui/settings/SettingsContainer";
 import { SubscriptionFilter } from "../subscriptions/SubscriptionFilters";
+import { useSearchQuery, useSetSearchQuery } from "hooks/useSearchQuery";
 
 const MemberProfile: React.FC = () => {
   const { match: { params: { memberId, resource } }, history } = useReactRouter<{ memberId: string, resource: string }>();
   const { currentUser: { id: currentUserId, isAdmin }, permissions } = useAuthState();
+
+  const {
+    isNewMember
+  } = useSearchQuery({
+    isNewMember: "newMember"
+  });
 
   // State for tracking initial render to address bug displaying notifications
   const [initRender, setInitRender] = React.useState(true);
@@ -49,16 +56,14 @@ const MemberProfile: React.FC = () => {
 
   const [notification, setNotification] = React.useState<Notification>();
   React.useEffect(() => {
-    if (!initRender && isOwnProfile && !memberLoading && (member.id && !member.memberContractOnFile)) {
-      setNotification(Notification.Welcome);
+    if (!initRender && isOwnProfile && !memberLoading && member.id) {
+      if (isNewMember || !member.memberContractOnFile) {
+        setNotification(member.memberContractOnFile ? Notification.Welcome : Notification.WelcomeNeedContract);
+      } else if (!(member.address && member.address.street)) {
+        setNotification(Notification.IdentifcationDetails);
+      }
     }
-  }, [initRender, isOwnProfile, memberLoading, member.memberContractOnFile]);
-
-  React.useEffect(() => {
-    if (!initRender && isOwnProfile && !memberLoading && (member.id && !(member.address && member.address.street))) {
-      setNotification(Notification.IdentifcationDetails);
-    }
-  }, [initRender, isOwnProfile, memberLoading, member.address]);
+  }, [initRender, isOwnProfile, memberLoading]);
 
   const { data: rentals = [], isRequesting: rentalsLoading } = useReadTransaction(listRentals, {}, undefined, "listRentals");
 
@@ -69,17 +74,14 @@ const MemberProfile: React.FC = () => {
     }
   }, [initRender, isOwnProfile, rentals]);
 
-  // Don't render the notification box on the first paint
-  // Helps prevent flickering issue
-  const [renderNotification, setRenderNotification] = React.useState(false);
-  React.useEffect(() => setRenderNotification(true), []);
-
   const { customerId, earnedMembershipId } = member;
   const isEarnedMember = !!earnedMembershipId && (isOwnProfile || isAdmin);
 
+  const setSearchQuery = useSetSearchQuery();
   const closeNotification = React.useCallback(() => {
-    refreshMember();
+    setSearchQuery({ newMember: "" });
     setNotification(undefined);
+    refreshMember();
   }, [refreshMember, setNotification]);
 
   const goToAgreements = React.useCallback(() => {
@@ -94,18 +96,21 @@ const MemberProfile: React.FC = () => {
           );
           break;
         }
-      case Notification.Welcome:
+      case Notification.WelcomeNeedContract:
         history.push(
           Routing.Documents
             .replace(Routing.PathPlaceholder.Resource, "membership")
             .replace(Routing.PathPlaceholder.ResourceId, "")
         );
         break;
+      case Notification.Welcome:
+        closeNotification();
+        break;
       case Notification.IdentifcationDetails:
         goToSettings();
         break;
     }
-  }, [history, rentals, notification, goToSettings]);
+  }, [history, rentals, notification, goToSettings, closeNotification]);
 
   React.useEffect(() => {
     if (memberError && !member.id) {
@@ -209,7 +214,7 @@ const MemberProfile: React.FC = () => {
           }] : []
         ]}
       />
-      {renderNotification && <NotificationModal
+      {notification && <NotificationModal
         notification={notification}
         onSubmit={goToAgreements}
         onClose={closeNotification}

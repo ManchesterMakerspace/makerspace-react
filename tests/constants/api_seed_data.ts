@@ -1,3 +1,6 @@
+import cp from "child_process";
+import logger from "@wdio/logger";
+
 export const basicUserLogins = new Array(5).fill(undefined).map((_, index) => ({
   email: `basic_member${index}@test.com`,
   password: "password"
@@ -36,10 +39,10 @@ const getRakeCmd = () => {
 }
 
 export const resetDb = async () => {
-  const cp = require('child_process');
   return new Promise((resolve, reject) => {
     cp.exec(`${getRakeCmd()} db:db_reset`, (error: Error) => {
       if (error) {
+        logger("RAILS_CMD").error(error);
         console.log(error);
         reject(error);
       }
@@ -49,10 +52,10 @@ export const resetDb = async () => {
 };
 
 export const createRejectCard = (cardNumber: string) => {
-  const cp = require('child_process');
   return new Promise((resolve, reject) => {
-    cp.exec(`${getRakeCmd()} db:reject_card["${cardNumber}"]`, (error: Error) => {
+    cp.exec(`${getRakeCmd()} db:reject_card["${cardNumber}"]`, (error) => {
       if (error) {
+        logger("RAILS_CMD").error(error);
         console.log(error);
         reject(error);
       }
@@ -62,11 +65,11 @@ export const createRejectCard = (cardNumber: string) => {
 };
 
 export const cancelMemberSubscription = (memberEmail: string, paypal?: boolean) => {
-  const cp = require('child_process');
   return new Promise((resolve, reject) => {
     const cmd = paypal ? "paypal_webhook" : "braintree_webhook";
-    cp.exec(`${getRakeCmd()} db:${cmd}["${memberEmail}"]`, (error: Error) => {
+    cp.exec(`${getRakeCmd()} db:${cmd}["${memberEmail}"]`, (error) => {
       if (error) {
+        logger("RAILS_CMD").error(error);
         console.log(error);
         reject(error);
       }

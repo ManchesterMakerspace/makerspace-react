@@ -25,3 +25,6 @@ export const displayMemberExpiration = (member: Member | MemberSummary | number)
 export const buildProfileRouting = (memberId: string) => {
   return Routing.Profile.replace(Routing.PathPlaceholder.MemberId, memberId);
 };
+
+export const buildNewMemberProfileRoute = (memberId: string) =>
+  buildProfileRouting(memberId) + "?newMember=true";

@@ -124,7 +124,7 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
 
   return (
     <>
-      <Typography variant="headline" gutterBottom>Transaction Filters</Typography>
+      <Typography variant="subtitle1" gutterBottom>Transaction Filters</Typography>
       <Grid item xs={12} style={{ marginBottom: "1em" }}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Filter by Transaction Type</FormLabel>

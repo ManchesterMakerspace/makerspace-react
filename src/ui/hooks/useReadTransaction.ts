@@ -15,7 +15,8 @@ const useReadTransaction = <Args, Resp>(
   transaction: ApiFunction<Args, Resp>,
   args: Args,
   delay?: boolean,
-  key?: string // Can pass optional key to make transaction distinct in store
+  key?: string, // Can pass optional key to make transaction distinct in store
+  refreshOnMount?: boolean,
 ): ReadTransaction<Args, Resp> => {
   const [state, dispatch] = useApiState<Resp>(buildQueryString(transaction, args, key as any));
   const [force, setForce] = React.useState(false);
@@ -26,9 +27,15 @@ const useReadTransaction = <Args, Resp>(
     return getApiState(apiKey, getStore().getState());
   }, [transaction, stringifyArgs(args), key]);
 
+  const [mounted, setMounted] = React.useState(false);
+
   React.useEffect(() => {
     const callTransaction = async () => {
       const currentState = getCurrentState();
+
+      if (currentState?.response && refreshOnMount === false && !mounted) {
+        return;
+      }
       if (!currentState || !currentState.isRequesting) {
         dispatch({ type: TransactionAction.Start });
 
@@ -54,6 +61,8 @@ const useReadTransaction = <Args, Resp>(
 
     !delay && callTransaction();
   }, [stringifyArgs(args), key, force, delay]);
+
+  React.useEffect(() => setMounted(true), []);
 
   return { ...state, refresh };
 };

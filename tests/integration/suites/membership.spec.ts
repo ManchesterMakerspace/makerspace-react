@@ -16,7 +16,6 @@ import { checkout } from "../../pageObjects/checkout";
 import memberPO from "../../pageObjects/member";
 import { selfRegisterMember } from "../utils/auth";
 import { buildTestMember } from "../../constants/member";
-import invoicePO from "../../pageObjects/invoice";
 
 describe("Membership", () => {
   beforeEach(async () => {
@@ -49,7 +48,7 @@ describe("Membership", () => {
     // Select a subscription
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
     await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-    await signup.selectMembershipOption(invoiceOptionIds.monthly);
+    await signup.selectMembershipOption(invoiceOptionIds.monthly, false);
     await utils.clickElement(signup.membershipSelectForm.submit);
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
@@ -164,53 +163,28 @@ describe("Membership", () => {
     await createRejectCard(rejectionUid);
     const newMember = buildTestMember("cancel-sign-up");
     await selfRegisterMember(newMember);
-    await utils.waitForNotVisible(memberPO.memberDetail.loading);
-    await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
-    const memberProfileUrl = await browser.getUrl();
-    await memberPO.verifyProfileInfo({
-      ...newMember,
-      expirationTime: null
-      });
-    await utils.clickElement(invoicePO.actionButtons.payNow);
-    await utils.waitForPageLoad(checkout.checkoutUrl);
     // Add a payment method
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
+    await utils.waitForVisible(paymentMethods.paymentMethodAccordian.creditCard);
     expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
-    await utils.clickElement(paymentMethods.addPaymentButton);
-    await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
-    await browser.pause(1000);
-    await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
-    await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
-    await utils.waitForVisible(creditCard.creditCardForm.submit);
-    await utils.waitForNotVisible(creditCard.creditCardForm.loading);
+    await utils.clickElement(paymentMethods.paymentMethodAccordian.creditCard);
     await creditCard.fillInput("cardNumber", newVisa.number);
     await creditCard.fillInput("csv", newVisa.csv);
     await creditCard.fillInput("expirationDate", newVisa.expiration);
     await creditCard.fillInput("postalCode", newVisa.postalCode);
-    await utils.clickElement(creditCard.creditCardForm.submit);
-    await utils.waitForNotVisible(creditCard.creditCardForm.loading);
-    await utils.waitForNotVisible(creditCard.creditCardForm.submit);
-    // Assert the payment method
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    await browser.waitUntil(async () => {
-      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
-      return numPaymentMethods === 1;
-    }, undefined, "Payment methods table never reloaded");
-    await utils.clickElement(checkout.nextButton);
-    // Submit payment
-    await utils.clickElement(checkout.submit);
+    await creditCard.fillInput("cardholderName", newVisa.name);
+    await signup.goNext();
+    await utils.waitForNotVisible(paymentMethods.paymentMethodAccordian.creditCard);
     // Accept recurring payment authorization
     await utils.waitForVisible(checkout.authAgreementCheckbox);
     await utils.clickElement(checkout.authAgreementCheckbox);
-    await utils.clickElement(checkout.authAgreementSubmit);
-    await utils.waitForNotVisible(checkout.authAgreementSubmit);
-    // view receipt & return to profile
-    await utils.waitForPageToMatch(Routing.Receipt, undefined, 30 * 1000);
-    await utils.waitForNotVisible(checkout.receiptLoading);
-    await utils.clickElement(checkout.backToProfileButton);
+    // Submit payment
+    await signup.goNext();
     await utils.waitForPageToMatch(Routing.Profile);
     await utils.waitForNotVisible(memberPO.memberDetail.loading);
+    await utils.waitForVisible(memberPO.memberDetail.notificationModalSubmit);
+    await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
     await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
+    const memberProfileUrl = (await browser.getUrl());
     // Verify no expiration set from user POV
     await memberPO.verifyProfileInfo({
       ...newMember,
@@ -298,7 +272,7 @@ describe("Membership", () => {
     // Select a new membership and pay for it
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
     await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-    await signup.selectMembershipOption(invoiceOptionIds.monthly);
+    await signup.selectMembershipOption(invoiceOptionIds.monthly, false);
     await utils.clickElement(signup.membershipSelectForm.submit);
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
@@ -332,53 +306,28 @@ describe("Membership", () => {
     await createRejectCard(rejectionUid);
     const newMember = buildTestMember("braintree-cancel-sign-up");
     await selfRegisterMember(newMember);
-    await utils.waitForNotVisible(memberPO.memberDetail.loading);
-    await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
-    const memberProfileUrl = await browser.getUrl();
-    await memberPO.verifyProfileInfo({
-      ...newMember,
-      expirationTime: null
-    });
-    await utils.clickElement(invoicePO.actionButtons.payNow);
-    await utils.waitForPageLoad(checkout.checkoutUrl);
     // Add a payment method
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
+    await utils.waitForVisible(paymentMethods.paymentMethodAccordian.creditCard);
     expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
-    await utils.clickElement(paymentMethods.addPaymentButton);
-    await utils.waitForVisible(paymentMethods.paymentMethodFormSelect.creditCard);
-    await browser.pause(1000);
-    await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
-    await utils.clickElement(paymentMethods.paymentMethodFormSelect.creditCard);
-    await utils.waitForVisible(creditCard.creditCardForm.submit);
-    await utils.waitForNotVisible(creditCard.creditCardForm.loading);
+    await utils.clickElement(paymentMethods.paymentMethodAccordian.creditCard);
     await creditCard.fillInput("cardNumber", newVisa.number);
     await creditCard.fillInput("csv", newVisa.csv);
     await creditCard.fillInput("expirationDate", newVisa.expiration);
     await creditCard.fillInput("postalCode", newVisa.postalCode);
-    await utils.clickElement(creditCard.creditCardForm.submit);
-    await utils.waitForNotVisible(creditCard.creditCardForm.loading);
-    await utils.waitForNotVisible(creditCard.creditCardForm.submit);
-    // Assert the payment method
-    await utils.waitForNotVisible(paymentMethods.paymentMethodSelect.loading);
-    await browser.waitUntil(async () => {
-      const numPaymentMethods = (await paymentMethods.getPaymentMethods()).length;
-      return numPaymentMethods === 1;
-    }, undefined, "Payment methods table never reloaded");
-    await utils.clickElement(checkout.nextButton);
-    // Submit payment
-    await utils.clickElement(checkout.submit);
+    await creditCard.fillInput("cardholderName", newVisa.name);
+    await signup.goNext();
+    await utils.waitForNotVisible(paymentMethods.paymentMethodAccordian.creditCard);
     // Accept recurring payment authorization
-    await utils.waitForVisible(checkout.authAgreementCheckbox);
     await utils.clickElement(checkout.authAgreementCheckbox);
-    await utils.clickElement(checkout.authAgreementSubmit);
-    await utils.waitForNotVisible(checkout.authAgreementSubmit);
-    // view receipt & return to profile
-    await utils.waitForPageToMatch(Routing.Receipt, undefined, 30 * 1000);
-    await utils.waitForNotVisible(checkout.receiptLoading);
-    await utils.clickElement(checkout.backToProfileButton);
+    await utils.waitForVisible(checkout.authAgreementCheckbox);
+    // Submit payment
+    await signup.goNext();
     await utils.waitForPageToMatch(Routing.Profile);
     await utils.waitForNotVisible(memberPO.memberDetail.loading);
+    await utils.waitForVisible(memberPO.memberDetail.notificationModalSubmit);
+    await utils.clickElement(memberPO.memberDetail.notificationModalSubmit);
     await utils.waitForNotVisible(memberPO.memberDetail.notificationModalSubmit);
+    const memberProfileUrl = await browser.getUrl();
     // Verify no expiration set from user POV
     await memberPO.verifyProfileInfo({
       ...newMember,
@@ -442,7 +391,7 @@ describe("Membership", () => {
     // Select a new membership and pay for it
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
     await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-    await signup.selectMembershipOption(invoiceOptionIds.monthly);
+    await signup.selectMembershipOption(invoiceOptionIds.monthly, false);
     await utils.clickElement(signup.membershipSelectForm.submit);
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
     // Select the payment method
@@ -508,7 +457,7 @@ describe("Membership", () => {
     // Select a new membership and pay for it
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
     await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-    await signup.selectMembershipOption(invoiceOptionIds.monthly);
+    await signup.selectMembershipOption(invoiceOptionIds.monthly, false);
     await utils.clickElement(signup.membershipSelectForm.submit);
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 
@@ -538,6 +487,7 @@ describe("Membership", () => {
       return numPaymentMethods === 1;
     }, undefined, "Payment methods table never reloaded");
     await paymentMethods.selectPaymentMethodByIndex(0);
+
     await utils.clickElement(checkoutPo.nextButton);
     // Submit payment
     await utils.clickElement(checkoutPo.submit);
@@ -571,7 +521,7 @@ describe("Membership", () => {
     // Select a subscription
     await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
     await utils.waitForNotVisible(signup.membershipSelectForm.loading);
-    await signup.selectMembershipOption(invoiceOptionIds.monthly);
+    await signup.selectMembershipOption(invoiceOptionIds.monthly, false);
     await utils.clickElement(signup.membershipSelectForm.submit);
     await utils.waitForPageLoad(checkoutPo.checkoutUrl);
 

@@ -62,7 +62,7 @@ const NoSubscriptionDetails: React.FC<Props> = ({ member }) => {
           <MembershipSelectForm allowNone={false} onSelect={onSelect}/>
         </FormModal>
       )}
-      <Grid container spacing={16}>
+      <Grid container spacing={2}>
         <Grid item xs={12}>
           <KeyValueItem label="Membership Expiration">
             <span id="member-detail-expiration">{displayMemberExpiration(member)}</span>

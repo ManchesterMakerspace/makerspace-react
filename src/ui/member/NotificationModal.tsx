@@ -6,15 +6,16 @@ import Form from "ui/common/Form";
 
 export enum Notification {
   Welcome = "welcome",
-  WelcomeNeedPayment = "welcomeNeedPayment",
-  MembershipExpired = "membershipExpired",
-  PaymentRequired = "paymentRequired",
+  WelcomeNeedContract = "welcomeNeedContract",
+  // WelcomeNeedPayment = "welcomeNeedPayment",
+  // MembershipExpired = "membershipExpired",
+  // PaymentRequired = "paymentRequired",
   SignRental = "SignRental",
   IdentifcationDetails = "IdentifcationDetails"
 }
 
 const Notifications = {
-  [Notification.Welcome]: {
+  [Notification.WelcomeNeedContract]: {
     title: "Welcome to Manchester Makerspace",
     submit: "Review Documents",
     body: `Thank you joining Manchester Makerspace.
@@ -24,6 +25,16 @@ const Notifications = {
     You can review your profile now. Please note, if you just signed up, your membership will not be active until we receive your payment and you receive your key.
 
     Before proceeding, please take a moment to review and sign the Manchester Makerspace Code of Conduct and Member Contract.`,
+    required: true,
+  },
+  [Notification.Welcome]: {
+    title: "Welcome to Manchester Makerspace",
+    submit: "Close",
+    body: `Thank you joining Manchester Makerspace.
+
+    You will receieve an invitation to the Manchester Makerspace Slack workspace and Google Drive account shortly if you have not already. If you're unfamiliar with these tools, Slack is a messaging application where members collaborate on projects and coordinate use of the space.  Google Drive is where we store all sorts of member resources including equipment manuals.
+
+    You can review your profile now. Please note, if you just signed up, your membership will not be active until we receive your payment and you receive your key.`,
     required: true,
   },
   [Notification.SignRental]: {

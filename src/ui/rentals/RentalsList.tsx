@@ -94,7 +94,7 @@ const RentalsList: React.FC<{ member?: Member }> = ({ member }) => {
   const selectedRental = rentals.find(rental => rental.id === selectedId);
 
   return (
-    <Grid container spacing={24} justify="center">
+    <Grid container spacing={3} justify="center">
       <Grid item md={member ? 12 : 10} xs={12}>
         {isAdmin && (
           <Grid>
