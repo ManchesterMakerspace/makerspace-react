@@ -5,7 +5,7 @@ import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";
 
 import { isApiErrorResponse, listBillingDiscounts, } from "makerspace-ts-api-client";
-import { discountParam, invoiceOptionParam } from '../MembershipOptions';
+import { discountParam, invoiceOptionParam, ssmDiscount } from '../MembershipOptions';
 import { useSearchQuery, useSetSearchQuery } from "hooks/useSearchQuery";
 import { useMembershipOptions } from "hooks/useMembershipOptions";
 import useReadTransaction from "ui/hooks/useReadTransaction";
@@ -20,7 +20,6 @@ interface Props {
   readOnly?: boolean;
 }
 
-const ssmDiscount = "MMS_10%";
 
 const fields = {
   invoiceOption: {

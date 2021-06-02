@@ -8,8 +8,6 @@ import ErrorMessage from "ui/common/ErrorMessage";
 import { FormField } from "components/Form/FormField";
 import { paypalValidation } from "./constants";
 
-const Button = PayPal.Button;
-
 interface PayPalContext {
   initialize(): void;
   loading: boolean;

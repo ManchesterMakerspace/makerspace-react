@@ -30,8 +30,8 @@ export function FormField<T extends (string | number | boolean)>({
   const [mounted, setMounted] = React.useState(false);
 
   const validator = React.useCallback((value: T) => {
-    if (validate) return validate(value);
-    if (required && !value) return "Required";
+    const validateErr = validate?.(value);
+    return validateErr ||  (required && !value && "Required");
   }, [validate, required, fieldName]);
 
   // Attach field to Form
@@ -58,7 +58,7 @@ export function FormField<T extends (string | number | boolean)>({
       const fieldName = event.target.name;
       // Set value depending on checked state for checkboxes and radios
       const fieldValue = (event.target.type === "checkbox" ? event.target.checked : event.target.value) as T;
-      const fieldError = validator?.(fieldValue);
+      const fieldError = validator(fieldValue);
       
       setValue(fieldValue);
       propsOnChange?.(fieldValue);

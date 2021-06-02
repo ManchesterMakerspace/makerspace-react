@@ -3,9 +3,7 @@ import * as React from "react";
 import useReadTransaction from "ui/hooks/useReadTransaction";
 import { InvoiceOption, listInvoiceOptions, InvoiceableResource } from "makerspace-ts-api-client";
 import { noneInvoiceOption } from "ui/membership/MembershipSelectForm";
-
-const byAmount = (a: InvoiceOption, b: InvoiceOption) => Number(a.amount) - Number(b.amount);
-const defaultPlanId = "membership-one-month-recurring";
+import { byAmount, defaultPlanId } from "pages/registration/MembershipOptions";
 
 interface ParsedInvoiceOptions {
   loading: boolean;
