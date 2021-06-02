@@ -44,11 +44,12 @@ const App: React.FC = () => {
         if (
             initialPath &&
             initialPath !== Routing.Root && // Don't nav to initial if initial is root
-            !publicPaths.some(path => initialPath.startsWith(path)) && // or initial is a public path
-            !pathname.startsWith(Routing.SignUp) // or user just signed up
+            !publicPaths.some(path => initialPath.startsWith(path)) // or initial is a public path
           ) {
           history.push(initialPath + initialSearch + initialHash);
-        } else {
+
+          // Don't redirect after a user signs up
+        } else if (!pathname.startsWith(Routing.SignUp)) {
           history.push(buildProfileRouting(currentUserId));
         }
         setAuthSettled(true);
