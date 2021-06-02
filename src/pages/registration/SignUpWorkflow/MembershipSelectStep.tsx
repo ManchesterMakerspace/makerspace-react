@@ -22,8 +22,6 @@ import { Routing } from "app/constants";
 
 interface Props {}
 
-const ssmDiscount = "MMS_10%";
-
 export const MembershipSelectStep: React.FC<Props> = ({ children }) => {
   const {
     invoiceOptionId: invoiceOptionIdParam,

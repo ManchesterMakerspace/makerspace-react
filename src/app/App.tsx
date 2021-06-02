@@ -49,7 +49,7 @@ const App: React.FC = () => {
           ) {
           history.push(initialPath + initialSearch + initialHash);
         } else {
-          // history.push(buildProfileRouting(currentUserId));
+          history.push(buildProfileRouting(currentUserId));
         }
         setAuthSettled(true);
       }

@@ -1,6 +1,9 @@
 import * as React from "react";
 import useReactRouter from "use-react-router";
 
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import { paymentMethodQueryParam } from "../PaymentMethods";
@@ -12,7 +15,6 @@ import Typography from "@material-ui/core/Typography";
 import { buildProfileRouting, buildNewMemberProfileRoute } from "ui/member/utils";
 import { MembershipPreview } from "./CartPreview";
 import { CheckboxInput } from "components/Form/inputs/CheckboxInput";
-import { Box, Button, Link } from "@material-ui/core";
 import { useSignUpContext } from "./SignUpContext";
 import useReadTransaction from "ui/hooks/useReadTransaction";
 import { createTransaction, getPaymentMethod, isApiErrorResponse, Transaction } from "makerspace-ts-api-client";

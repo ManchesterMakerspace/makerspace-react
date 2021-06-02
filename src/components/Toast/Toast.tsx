@@ -40,7 +40,7 @@ export const ToastContextProvider: React.FC = ({ children }) => {
   return (
     <ToastContext.Provider value={{ create }}>
       <Snackbar 
-        open={!!toastProps} 
+        open={!!toastProps?.message} 
         autoHideDuration={6000} 
         onClose={onClose}
         anchorOrigin={{
@@ -49,7 +49,7 @@ export const ToastContextProvider: React.FC = ({ children }) => {
         }}
       >
         <div style={{ padding: "1em", backgroundColor: toastProps?.status }}>
-          {toastProps?.message || null}
+          {toastProps?.message}
           <Box textAlign="right" component="span">
             <IconButton size="small" aria-label="close" color="inherit" onClick={onClose}>
               <CloseIcon fontSize="small" />
