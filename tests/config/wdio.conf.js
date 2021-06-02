@@ -71,12 +71,12 @@ exports.config = {
         require("./customCommands");
     },
     async beforeHook() {
-        await browser.maximizeWindow()
-        // if (process.env.SIZE === "mobile") {
-        //     await browser.setWindowSize(640, 1136)
-        // } else {
-        //     await browser.maximizeWindow()
-        // }
+        if (process.env.SIZE === "mobile") {
+            // Set to a width of 900 b/c the dev tools panel is open and included in this size
+            await browser.setWindowSize(900, 1136)
+        } else {
+            await browser.maximizeWindow()
+        }
     },
     async afterTest(
         { title },
