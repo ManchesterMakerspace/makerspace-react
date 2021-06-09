@@ -51,6 +51,7 @@ module.exports.tagRepo = async (repo, forceTag) => {
       return commitTagsList[0];
     }
   
+    console.log(lastTag)
     const [major, minor, patch] = lastTag.split(".");
     if (majorRegex.exec(message)) {
       nextTag = `${Number(major)+1}.0.0`;

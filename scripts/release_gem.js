@@ -65,7 +65,7 @@ const packageGem = async (newVersion) => {
   await publishGem(newVersion);
 
   if (fs.existsSync(tmp)) {
-    fs.rmdirSync((tmp));
+    fs.rmdirSync(tmp, { recursive: true });
   }
 }
 
@@ -79,9 +79,7 @@ const publishGem = async (version) => {
         return;
       }
   
-      exec(`echo ":rubygems_api_key: $GEM_HOST_API_KEY" >> ~/.gem/credentials; \
-            chmod 0600 ~/.gem/credentials; \
-            gem push makerspace-react-rails-${version}.gem`, { shell: true }, (err) => {
+      exec(`gem push makerspace-react-rails-${version}.gem`, { shell: true }, (err) => {
         if (err) {
           console.error(`Error publishing gem: ${err}`);
           return;
