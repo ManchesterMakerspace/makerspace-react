@@ -2,8 +2,7 @@
 import * as React from "react";
 import useReadTransaction from "ui/hooks/useReadTransaction";
 import { InvoiceOption, listInvoiceOptions, InvoiceableResource } from "makerspace-ts-api-client";
-import { noneInvoiceOption } from "ui/membership/MembershipSelectForm";
-import { byAmount, defaultPlanId } from "pages/registration/MembershipOptions";
+import { byAmount, defaultPlanId, noneInvoiceOption } from "pages/registration/MembershipOptions";
 
 interface ParsedInvoiceOptions {
   loading: boolean;
@@ -44,7 +43,7 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
       return opts;
     }, [] as InvoiceOption[]);
 
-    const sortedNormalOpts = normalOptions.sort(byAmount);
+    const sortedNormalOpts = normalOptions.sort(byAmount).concat(includeNone ? [noneInvoiceOption] : []);
     
     return {
       error,
@@ -52,7 +51,7 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
       promotionOptions,
       normalOptions: sortedNormalOpts,
       defaultOption: defaultOption || sortedNormalOpts[0],
-      allOptions: promotionOptions.concat(sortedNormalOpts).concat(includeNone ? [noneInvoiceOption] : [])
+      allOptions: promotionOptions.concat(sortedNormalOpts)
     };
   }, [membershipOptions, isRequesting, error]);
 }

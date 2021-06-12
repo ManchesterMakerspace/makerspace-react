@@ -113,7 +113,7 @@ const InvoicesTable: React.FC<{ stageInvoice(invoice: Invoice): void }> = ({ sta
       cell: (row: Invoice) => {
         if (row.subscriptionId && viewingOwnInvoices) {
           return (
-            <Link to={`${Routing.Billing}/${SubRoutes.Subscriptions}?q=${encodeURIComponent(row.memberName)}`}>
+            <Link to={`${Routing.Settings.replace(Routing.PathPlaceholder.MemberId, row.memberId)}/${SubRoutes.Subscriptions}`}>
               Manage Subscription
             </Link>
           )

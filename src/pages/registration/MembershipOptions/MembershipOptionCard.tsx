@@ -8,6 +8,7 @@ import { InvoiceOption } from 'makerspace-ts-api-client';
 
 import { useGoToSignUp } from '../useGoToSignUp';
 import Card from 'components/Card/Card';
+import { numberAsCurrency } from 'ui/utils/numberAsCurrency';
 
 interface Props {
   option: InvoiceOption;
@@ -40,9 +41,9 @@ export const MembershipOptionCard: React.FC<Props> = ({ option, signUpButton, ch
 
         <Grid item xs={6}>
           <Box textAlign="left">
-            <Typography variant="body1">
-              ${option.amount} / {option.quantity === 1 ? "month" : `${option.quantity} months`}
-            </Typography>
+            {option.amount && <Typography variant="body1">
+              {numberAsCurrency(option.amount)} {!!option.quantity && <>/ {option.quantity === 1 ? "month" : `${option.quantity} months`}</>}
+            </Typography>}
           </Box>
         </Grid>
         <Grid item xs={6}>

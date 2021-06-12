@@ -69,72 +69,74 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
 
   return !!invoiceOption && (
     <div id="cart-preview">
-      <Grid item xs={12}>
-        <Typography variant="subtitle1">
-          <strong>Name:</strong> {invoiceOption.name}
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="subtitle1">
-          <strong>Description:</strong> {invoiceOption.description || "-"}
-        </Typography>
-      </Grid>
-      {!isNoneOption && (
-        <>
-          <Grid item xs={12}>
-            <Typography variant="subtitle1">
-              <strong>Amount:</strong> {
-              `${numberAsCurrency(invoiceOption.amount)}${!invoiceOption.planId ? "" : 
-              ` / ${
-                singleMonth ? "" : `${invoiceOption.quantity} `} month${singleMonth ? "" : "s"}`}`
-              }
-            </Typography>
-          </Grid>
-          {renderDiscountSection && (
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="subtitle1">
+            <strong>Name:</strong> {invoiceOption.name}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="subtitle1">
+            <strong>Description:</strong> {invoiceOption.description || "-"}
+          </Typography>
+        </Grid>
+        {!isNoneOption && (
+          <>
+            <Grid item xs={12}>
+              <Typography variant="subtitle1">
+                <strong>Amount:</strong> {
+                `${numberAsCurrency(invoiceOption.amount)}${!invoiceOption.planId ? "" : 
+                ` / ${
+                  singleMonth ? "" : `${invoiceOption.quantity} `} month${singleMonth ? "" : "s"}`}`
+                }
+              </Typography>
+            </Grid>
+            {renderDiscountSection && (
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+            )}
+            {renderDiscountSection && (
+              <Grid item xs={12}>
+                {readOnly ? <KeyValueItem label={fields.discountId.label}>{discountId}</KeyValueItem> : (
+                  <>
+                    <Typography variant="subtitle1">
+                      Qualify for a discount? Select one below or enter a discount code. Proof of applicable affiliation required during orientation.
+                    </Typography>
+
+                    <CheckboxInput
+                      value={isSsmDiscount}
+                      fieldName={ssmDiscount}
+                      disabled={discountId && discountId !== ssmDiscount}
+                      onChange={checked => updateDiscountId(checked ? ssmDiscount : "")}
+                      label={`Student, Military, Senior 10% off`}
+                    />
+
+                    <TextInput 
+                      fieldName={fields.discountId.name}
+                      label={fields.discountId.label} 
+                      onChange={updateDiscountId}
+                      value={discountId}
+                      disabled={isSsmDiscount}
+                      validate={fields.discountId.validate(discounts.map(d => d.id))}
+                    />
+                  </>
+                )}
+              </Grid>
+            )}
             <Grid item xs={12}>
               <Divider />
             </Grid>
-          )}
-          {renderDiscountSection && (
+
             <Grid item xs={12}>
-              {readOnly ? <KeyValueItem label={fields.discountId.label}>{discountId}</KeyValueItem> : (
-                <>
-                  <Typography variant="subtitle1">
-                    Qualify for a discount? Select one below or enter a discount code. Proof of applicable affiliation required during orientation.
-                  </Typography>
-
-                  <CheckboxInput
-                    value={isSsmDiscount}
-                    fieldName={ssmDiscount}
-                    disabled={discountId && discountId !== ssmDiscount}
-                    onChange={checked => updateDiscountId(checked ? ssmDiscount : "")}
-                    label={`Student, Military, Senior 10% off`}
-                  />
-
-                  <TextInput 
-                    fieldName={fields.discountId.name}
-                    label={fields.discountId.label} 
-                    onChange={updateDiscountId}
-                    value={discountId}
-                    disabled={isSsmDiscount}
-                    validate={fields.discountId.validate(discounts.map(d => d.id))}
-                  />
-                </>
-              )}
+              <Typography variant="body1" paragraph={true}>
+                <strong>Total: </strong>
+                {invoiceOption ? numberAsCurrency(Number(invoiceOption.amount) * (selectedDiscountAmt ? Number(selectedDiscountAmt) : 1)) : "-"}
+              </Typography>
             </Grid>
-          )}
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="body1">
-              <strong>Total: </strong>
-              {invoiceOption ? numberAsCurrency(Number(invoiceOption.amount) * (selectedDiscountAmt ? Number(selectedDiscountAmt) : 1)) : "-"}
-            </Typography>
-          </Grid>
-        </>
-      )}
+          </>
+        )}
+      </Grid>
     </div>
   );
 }
@@ -157,7 +159,9 @@ export const CartPreview: React.FC<Props> = ({ readOnly }) => {
         </Grid>
 
         {invoiceOptionIdParam ? (
-          <MembershipPreview readOnly={readOnly} />
+          <Grid item xs={12}>
+            <MembershipPreview readOnly={readOnly} />
+          </Grid>
         ) : (
           <Grid item xs={12}>
             <Typography variant="h5">

@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const MembershipOptionsTable: React.FC<Props> = ({ showNoneOption, onSelect }) => {
-  const { normalOptions, loading, error } = useMembershipOptions();
+  const { normalOptions, loading, error } = useMembershipOptions(showNoneOption);
   const { membershipOptionId } = useSearchQuery({ membershipOptionId: invoiceOptionParam });
 
   const fields = React.useMemo(() =>  [
@@ -63,7 +63,7 @@ export const MembershipOptionsTable: React.FC<Props> = ({ showNoneOption, onSele
       title="Membership Options"
       loading={loading}
       error={error}
-      data={[...normalOptions, ...showNoneOption ? [noneInvoiceOption] : []]}
+      data={normalOptions}
       columns={fields}
       rowId={(row: InvoiceOption) => row.id}
     />
