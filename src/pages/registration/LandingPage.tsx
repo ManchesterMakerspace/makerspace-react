@@ -72,7 +72,7 @@ import { AppLoading } from 'components/AppLoading/AppLoading';
           <Typography align="center" variant="h4">Our Membership Options</Typography>
         </Grid>
         <Grid item md={10} xs={12}>
-          <MembershipOptions onSelect={goToSignUp} shortForm={true} />
+          <MembershipOptions onSelect={goToSignUp} shortForm={false} />
         </Grid>
       </Grid>
     </>

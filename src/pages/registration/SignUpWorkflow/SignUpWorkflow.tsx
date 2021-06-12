@@ -149,6 +149,9 @@ export const SignUpWorkflow: React.FC = () => {
   const isSignUpEditable = activeStep > stepOrder.indexOf(AgreementStep);
   const { component: Component } = steps[activeStep];
 
+  const disableBack = activeStep <= stepOrder.indexOf(MembershipSelectStep);
+  const nextLabel = activeStep === stepOrder.indexOf(ReviewStep) ? "Submit Payment" : 
+                    (activeStep === stepOrder.length - 1 ? "Submit" : "Next");
   return (
     <PaymentMethodsProvider>
       <SignUpContextProvider setActiveStep={setActiveStep}>
@@ -168,7 +171,7 @@ export const SignUpWorkflow: React.FC = () => {
                     onClick={() => onNext(allowLeave)} 
                     id="sign-up-next"
                   >
-                    {activeStep === steps.length - 1 ? "Submit Payment" : "Next"}
+                    {nextLabel}
                     {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
                   </Button>
                 }
@@ -176,7 +179,7 @@ export const SignUpWorkflow: React.FC = () => {
                   <Button 
                     size="small" 
                     onClick={onBack} 
-                    disabled={prevDisabled ?? activeStep === 0}
+                    disabled={prevDisabled ?? disableBack}
                     id="sign-up-back"
                   >
                     {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
@@ -204,7 +207,7 @@ export const SignUpWorkflow: React.FC = () => {
             {!isSmallMedia && <Grid item sm={10} xs={12}>
               {isSignUpEditable && (
                 <Button 
-                  disabled={prevDisabled ?? activeStep === 0} 
+                  disabled={prevDisabled ?? disableBack}
                   variant="contained" 
                   style={{ marginRight: "1rem" }} 
                   onClick={onBack} 
@@ -220,7 +223,7 @@ export const SignUpWorkflow: React.FC = () => {
                 onClick={() => onNext(allowLeave)} 
                 id="sign-up-next"
               >
-                {activeStep === steps.length - 1 ? "Submit Payment" : "Next"}
+                {nextLabel}
               </Button>
             </Grid>}
           </Grid>
