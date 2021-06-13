@@ -10,12 +10,14 @@ import { checkout as checkoutPo } from "../../pageObjects/checkout";
 import settingsPO from "../../pageObjects/settings";
 import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
 import { Routing } from "app/constants";
+import { dateToTime } from "ui/utils/timeToDate";
 import { cancelMemberSubscription, createRejectCard, getAdminUserLogin, getBasicUserLogin, invoiceOptionIds, paypalUserLogins } from "../../constants/api_seed_data";
 import { newVisa, newMastercard } from "../../constants/paymentMethod";
 import { checkout } from "../../pageObjects/checkout";
 import memberPO from "../../pageObjects/member";
 import { selfRegisterMember } from "../utils/auth";
 import { buildTestMember } from "../../constants/member";
+const payPalMember = paypalUserLogins.shift();
 
 describe("Membership", () => {
   beforeEach(async () => {
@@ -417,16 +419,17 @@ describe("Membership", () => {
   });
 
   it("Members can sign up after canceling a PayPal membership via PayPal", async () => {
-    const payPalMember = paypalUserLogins.shift();
     await auth.goToLogin();
     await auth.signInUser(payPalMember);
     await utils.waitForPageToMatch(Routing.Profile);
 
     const memberProfileUrl = await browser.getUrl();
     
+    const startingExpiration = await utils.getElementText(memberPO.memberDetail.expiration);
+    const startingAsMs: number = dateToTime(startingExpiration);
     await memberPO.verifyProfileInfo({ // Verify user sees same expiration time
       ...payPalMember,
-      expirationTime: moment().valueOf()
+      expirationTime: startingAsMs
     } as any);   
 
     // Go to settings to start a new membership
@@ -446,7 +449,7 @@ describe("Membership", () => {
     await utils.waitForPageToMatch(Routing.Profile);
     await memberPO.verifyProfileInfo({ // Verify user sees same expiration time
       ...payPalMember,
-      expirationTime: moment().valueOf()
+      expirationTime: startingAsMs
     } as any);   
 
     // Go to settings to start a new membership
@@ -501,6 +504,10 @@ describe("Membership", () => {
     await utils.waitForNotVisible(checkoutPo.receiptLoading);
     await utils.clickElement(checkoutPo.backToProfileButton);
     await utils.waitForPageToMatch(Routing.Profile);
+    await memberPO.verifyProfileInfo({ // Verify user sees updated expiration time
+      ...payPalMember,
+      expirationTime: moment(startingAsMs).add(1, "months").valueOf()
+    } as any);   
   });
 
   it("Admins can cancel a membership", async function () {
