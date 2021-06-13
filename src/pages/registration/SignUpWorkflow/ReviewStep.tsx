@@ -94,7 +94,6 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
     paymentError && document.getElementById("review-checkout-error")?.scrollIntoView(true);
   }, [paymentError]);
 
-  console.error("ReviewStep", "allOptions", allOptions);
   const selectedOpt = allOptions.find(opt => opt.id === invoiceOptionIdParam);
   
   const { response, isRequesting, error } = useReadTransaction(getPaymentMethod, { id: paymentMethodIdParam }, !paymentMethodIdParam);

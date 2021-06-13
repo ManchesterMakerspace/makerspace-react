@@ -8,7 +8,6 @@ export const buildQueryString = <Args, Resp>(
   apiFunction: ApiFunction<Args, Resp>,
  ...args: Args[]
 ): string =>  {
-  console.error("apiFunction", apiFunction.name);
   return `${apiFunction.name}:${JSON.stringify(args)}`;
 };
 

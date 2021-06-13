@@ -44,7 +44,6 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
 
   const { allOptions } = useMembershipOptions(true);
 
-  console.error("CartPreview", "allOptions", allOptions);
   React.useEffect(() => {
     setInvoiceOption(allOptions.find(({ id }) => id === invoiceOptionIdParam));
   }, [invoiceOptionIdParam, allOptions]);
@@ -66,7 +65,6 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
   const singleMonth = invoiceOption?.quantity === 1;
   const isSsmDiscount = discountId === ssmDiscount;
   const renderDiscountSection = !readOnly || discountId;
-  console.error("CartPreview", "discounts", discounts)
   const selectedDiscountAmt = isSsmDiscount ? 0.1 : discounts.find(d => d.id === discountId)?.amount;
 
   return !!invoiceOption && (
