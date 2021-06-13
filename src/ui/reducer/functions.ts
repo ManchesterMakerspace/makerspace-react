@@ -7,7 +7,10 @@ type ApiFunction<Args, Resp> = (args: Args) => Promise<ApiErrorResponse | ApiDat
 export const buildQueryString = <Args, Resp>(
   apiFunction: ApiFunction<Args, Resp>,
  ...args: Args[]
-): string =>  `${apiFunction.name}:${JSON.stringify(args)}`;
+): string =>  {
+  console.error("apiFunction", apiFunction.name);
+  return `${apiFunction.name}:${JSON.stringify(args)}`;
+};
 
 export const buildTransactionString = <Args, Resp>(
   apiFunction: ApiFunction<Args, Resp>,
