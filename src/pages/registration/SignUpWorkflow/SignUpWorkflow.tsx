@@ -102,6 +102,12 @@ export const SignUpWorkflow: React.FC = () => {
   
   const [activeStep, setActiveStep] = React.useState(determineStartStep());
 
+  React.useEffect(() => {
+    if (activeStep < 0 || activeStep > stepOrder.length - 1) {
+      history.push(buildNewMemberProfileRoute(currentUser?.id));
+    }
+  }, [activeStep]);
+
   const { history } = useReactRouter();
   const { create } = useToastContext();
   React.useEffect(() => {
@@ -147,7 +153,13 @@ export const SignUpWorkflow: React.FC = () => {
   const isSmallMedia = useMediaQuery(theme.breakpoints.down("sm"));
   // Can only edit membership and payment method steps
   const isSignUpEditable = activeStep > stepOrder.indexOf(AgreementStep);
-  const { component: Component } = steps[activeStep];
+
+  const currentStep = steps[activeStep];
+  if (!currentStep) {
+    return null;
+  }
+
+  const { component: Component } = currentStep;
 
   const disableBack = activeStep <= stepOrder.indexOf(MembershipSelectStep);
   const nextLabel = activeStep === stepOrder.indexOf(ReviewStep) ? "Submit Payment" : 
