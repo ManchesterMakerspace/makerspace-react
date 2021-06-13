@@ -7,6 +7,8 @@ import { FormContextProvider, useFormContext } from "components/Form/FormContext
 import ErrorMessage from "ui/common/ErrorMessage";
 import { FormField } from "components/Form/FormField";
 import { paypalValidation } from "./constants";
+import { message } from "makerspace-ts-api-client";
+import useWriteTransaction from "ui/hooks/useWriteTransaction";
 
 interface PayPalContext {
   initialize(): void;
@@ -31,6 +33,8 @@ export const PayPalProvider: React.FC<Props> = ({ children }) => {
   const [instanceError, setInstanceError] = React.useState<Braintree.BraintreeError>();
   const [instance, setInstance] = React.useState<Braintree.HostedFields>();
   const [instanceLoading, setInstanceLoading] = React.useState(true);
+
+  const { call: reportError } = useWriteTransaction(message);
 
   const initFields = React.useCallback(() => {
     setInstanceLoading(true);
@@ -59,6 +63,7 @@ export const PayPalProvider: React.FC<Props> = ({ children }) => {
             setInstanceLoading(false);
             if (err) {
               setInstanceError(err);
+              reportError({ body: { message: err } });
               return;
             }
             
@@ -72,12 +77,13 @@ export const PayPalProvider: React.FC<Props> = ({ children }) => {
 
         onError: (err: any) => {
           if (err) {
-            setInstanceError(err)
+            setInstanceError(err);
+            reportError(err);
           }
         }
       }, '#paypal-button');
     });
-  }, [braintreeClient, setInstance, setInstanceError, setInstanceLoading]);
+  }, [braintreeClient, setInstance, setInstanceError, setInstanceLoading, reportError]);
 
   const context: PayPalContext = React.useMemo(() => {
     return {

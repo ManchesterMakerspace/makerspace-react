@@ -7,6 +7,8 @@ import { useFormContext, FormContextProvider } from "components/Form/FormContext
 import { EmittedBy, CreditCardFields, hostedFieldStyles } from "./constants";
 import ErrorMessage from "ui/common/ErrorMessage";
 import { CollectionOf } from "app/interfaces";
+import { message } from "makerspace-ts-api-client";
+import useWriteTransaction from "ui/hooks/useWriteTransaction";
 
 interface CreditCardContext {
   initialize(): void;
@@ -39,6 +41,8 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
   const [instanceLoading, setInstanceLoading] = React.useState(true);
   const [cardType, setCardType] = React.useState<HostedFieldsHostedFieldsCard>();
 
+  const { call: reportError } = useWriteTransaction(message);
+
   const initFields = React.useCallback(() => {
     setInstanceLoading(true);
     Braintree.hostedFields.create({
@@ -56,6 +60,7 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
       
       if (err) {
         setInstanceError(err);
+        reportError({ body: { message: err.message } });
         return;
       };
       setInstance(hostedFieldsInstance);

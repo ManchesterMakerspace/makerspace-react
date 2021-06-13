@@ -60,6 +60,7 @@ export const PaymentMethods: React.FC<Props> = () => {
   React.useEffect(() => {
     if (!isRequesting) {
       if (!!paymentMethods.length) {
+        console.error("PaymentMethods", "paymentMethods", paymentMethods);
         const foundMethod = selectedPaymentMethodId && paymentMethods.find(pm => pm.id === selectedPaymentMethodId) || paymentMethods[0]
         setSelectedPaymentMethodId(foundMethod.id);
         setValue(paymentTypeFieldName, PaymentType.Existing);

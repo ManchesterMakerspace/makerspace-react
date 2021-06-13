@@ -10,7 +10,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = env => ({
   mode: "production",
   optimization: {
-    // minimizer: [new TerserPlugin({ /* additional options here */ })],
+    minimizer: [new TerserPlugin({ /* additional options here */ })],
   },
   entry: ["@babel/polyfill", "./src/app/main.tsx"],
   output: {

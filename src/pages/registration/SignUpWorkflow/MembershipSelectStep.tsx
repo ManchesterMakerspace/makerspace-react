@@ -36,6 +36,7 @@ export const MembershipSelectStep: React.FC<Props> = ({ children }) => {
   const { create } = useToastContext();
 
   const { allOptions, promotionOptions, defaultOption } = useMembershipOptions(true);
+  console.error("MembershipSelectStep", "allOptions", allOptions);
 
   React.useEffect(() => {
     setInvoiceOption(allOptions.find(({ id }) => id === invoiceOptionIdParam));
