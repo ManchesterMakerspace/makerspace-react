@@ -7,7 +7,7 @@ import Link from "@material-ui/core/Link";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import { paymentMethodQueryParam } from "../PaymentMethods";
-import { discountParam, invoiceOptionParam } from "../MembershipOptions";
+import { discountParam, invoiceOptionParam, ssmDiscount } from "../MembershipOptions";
 import { useSearchQuery } from "hooks/useSearchQuery";
 import { useAuthState } from "ui/reducer/hooks";
 import { useMembershipOptions } from "hooks/useMembershipOptions";
@@ -78,17 +78,27 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
     discountId: discountParam,
     paymentMethodId: paymentMethodQueryParam
   });
-  const { allOptions } = useMembershipOptions(true);
+  const { allOptions, discounts } = useMembershipOptions(true);
 
   const onSubmit = React.useCallback(async () => {
+    const discountId = discountIdParam === ssmDiscount ? 
+      allOptions.find(opt => opt.id === invoiceOptionIdParam)?.discountId : discountIdParam;
+
     await call({
       body: {
+        discountId,
         invoiceOptionId: invoiceOptionIdParam,
-        discountId: discountIdParam,
         paymentMethodId: paymentMethodIdParam
       }
     });
-  }, [call, invoiceOptionIdParam, discountIdParam, paymentMethodIdParam]);
+  }, [
+    call, 
+    invoiceOptionIdParam, 
+    discountIdParam, 
+    paymentMethodIdParam, 
+    discounts,
+    allOptions
+  ]);
 
   React.useEffect(() => {
     paymentError && document.getElementById("review-checkout-error")?.scrollIntoView(true);

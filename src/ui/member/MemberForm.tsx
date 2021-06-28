@@ -151,7 +151,7 @@ class MemberForm extends React.Component<OwnProps, State> {
       <Grid item xs={12}>
         <TextField
           fullWidth
-          required
+          required={!isAdmin}
           value={member.address && member.address.street}
           label={fields.street.label}
           name={fields.street.name}
@@ -172,7 +172,7 @@ class MemberForm extends React.Component<OwnProps, State> {
       <Grid item sm={12} md={5}>
         <TextField
           fullWidth
-          required
+          required={!isAdmin}
           value={member.address && member.address.city}
           label={fields.city.label}
           name={fields.city.name}
@@ -188,7 +188,7 @@ class MemberForm extends React.Component<OwnProps, State> {
           value={member.address && member.address.state}
           fullWidth
           native
-          required
+          required={!isAdmin}
           placeholder={fields.state.placeholder}
         >
           {[<option id={`${fields.state.name}-option-none`} key={"none"} value={""}>{fields.state.placeholder}</option>].concat(Object.keys(states).map(
@@ -199,7 +199,7 @@ class MemberForm extends React.Component<OwnProps, State> {
         <Grid item sm={6} md={3}>
         <TextField
           fullWidth
-          required
+          required={!isAdmin}
           value={member.address && member.address.postalCode}
           label={fields.postalCode.label}
           name={fields.postalCode.name}

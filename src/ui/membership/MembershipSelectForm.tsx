@@ -58,11 +58,10 @@ const MembershipSelect: React.FC<Props> = ({ onSelect, allowNone, title }) => {
     const trailingOptions: InvoiceOption[] = allowNone ? [noneInvoiceOption] : [];
 
     const normalOptions = options.reduce((opts, option) => {
-      if (option.isPromotion) {
-        promotionOptions.push(option);
-      } else {
-        opts.push(option);
+      if (!option.disabled) {
+        (option.isPromotion ? promotionOptions : opts).push(option);
       }
+
       return opts;
     }, []);
     return [
