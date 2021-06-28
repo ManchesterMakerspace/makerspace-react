@@ -22,14 +22,14 @@ import StatefulTable from "../common/table/StatefulTable";
 import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
 import { useAuthState } from "ui/reducer/hooks";
 
-const fields: Column<MemberSummary>[] = [
+const getFields = (isAdmin: boolean): Column<MemberSummary>[] => [
   {
     id: "lastname",
     label: "Name",
     cell: (row: MemberSummary) => (
       <>
         <Link to={`/members/${row.id}`}>{row.firstname} {row.lastname}</Link>
-        {row.notes && (
+        {isAdmin && row.notes && (
           <Tooltip title={row.notes} classes={{ tooltip: "preformatted" }}>
             <IconButton aria-label={row.notes}>
               <InfoOutlined fontSize="small" />
@@ -103,7 +103,7 @@ const MembersList: React.FC = () => {
           totalItems={extractTotalItems(response)}
           selectedIds={selectedId}
           setSelectedIds={setSelectedId}
-          columns={fields}
+          columns={getFields(isAdmin)}
           rowId={rowId}
           renderSearch={true}
         />

@@ -12,6 +12,9 @@ export const renderTransactionStatus = (transaction: Transaction) => {
       color = Status.Success;
       label = "Successful";
       break;
+    case TransactionStatusEnum.SubmmittedForSettlement:
+      color = Status.Warn;
+      label = "Pending";
     case TransactionStatusEnum.Failed:
     case TransactionStatusEnum.ProcessorDeclined:
     case TransactionStatusEnum.SettlementDeclined:

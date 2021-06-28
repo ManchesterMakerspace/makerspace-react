@@ -1,5 +1,6 @@
 import { Properties } from "app/entities/invoice";
 import { InvoiceableResource } from "makerspace-ts-api-client";
+import { dateToTime } from "ui/utils/timeToDate";
 
 export enum Action {
   StartReadRequest = "BILLING/START_READ_REQUEST",
@@ -73,5 +74,11 @@ export const fields = {
     label: "Mark as a Promotion. This will list it at the top, separate of other options in the billing  menu",
     name: `${formPrefix}-promotion`,
     transform: (val: string) => !!val,
+  },
+  promotionEndDate: {
+    label: "Expiration Date",
+    name: `${formPrefix}-expirationTime`,
+    placeholder: "Membership Expiration",
+    error: "Invalid expiration"
   },
 }

@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import useReadTransaction from "ui/hooks/useReadTransaction";
-import { InvoiceOption, listInvoiceOptions, InvoiceableResource } from "makerspace-ts-api-client";
+import { InvoiceOption, listInvoiceOptions, InvoiceableResource, listBillingDiscounts, Discount } from "makerspace-ts-api-client";
 import { byAmount, defaultPlanId, noneInvoiceOption } from "pages/registration/MembershipOptions";
 
 interface ParsedInvoiceOptions {
@@ -11,6 +11,7 @@ interface ParsedInvoiceOptions {
   normalOptions: InvoiceOption[];
   defaultOption: InvoiceOption;
   allOptions: InvoiceOption[];
+  discounts: Discount[];
 }
 
 export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOptions => {
@@ -26,6 +27,8 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
     false
   );
 
+  const { data: discounts = [] } = useReadTransaction(listBillingDiscounts, {});
+
   return React.useMemo(() => {
     const promotionOptions: InvoiceOption[] = [];
     let defaultOption: InvoiceOption;
@@ -35,10 +38,8 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
         defaultOption = option;
       }
       
-      if (option.isPromotion) {
-        promotionOptions.push(option);
-      } else {
-        opts.push(option);
+      if (!option.disabled) {
+        (option.isPromotion ? promotionOptions : opts).push(option);
       }
       return opts;
     }, [] as InvoiceOption[]);
@@ -49,9 +50,10 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
       error,
       loading: isRequesting,
       promotionOptions,
+      discounts,
       normalOptions: sortedNormalOpts,
       defaultOption: defaultOption || sortedNormalOpts[0],
       allOptions: promotionOptions.concat(sortedNormalOpts)
     };
-  }, [membershipOptions, isRequesting, error]);
+  }, [membershipOptions, isRequesting, error, discounts]);
 }

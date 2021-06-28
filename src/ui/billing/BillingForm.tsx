@@ -20,6 +20,7 @@ import { fields } from "ui/billing/constants";
 import { CollectionOf } from "app/interfaces";
 
 import { BillingContext, Context } from "ui/billing/BillingContextContainer";
+import { toDatePicker } from "ui/utils/timeToDate";
 
 interface Props {
   option?: Partial<InvoiceOption>;
@@ -308,18 +309,16 @@ export class BillingFormComponent extends React.Component<OwnProps, State>{
             />
           </Grid>
           <Grid item xs={12}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name={fields.isPromotion.name}
-                  value={fields.isPromotion.name}
-                  checked={isPromotion}
-                  onChange={this.togglePromotionOption}
-                  disabled={isRequesting}
-                  color="default"
-                />
-              }
-              label={fields.isPromotion.label}
+            <TextField
+              fullWidth
+              value={option && toDatePicker(option.promotionEndDate)}
+              label={fields.promotionEndDate.label}
+              name={fields.promotionEndDate.name}
+              placeholder={fields.promotionEndDate.placeholder}
+              type="date"
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
           </Grid>
         </Grid>
