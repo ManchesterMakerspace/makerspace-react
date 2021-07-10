@@ -4,17 +4,16 @@ import Grid from '@material-ui/core/Grid';
 import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";
 
-import { isApiErrorResponse, listBillingDiscounts, } from "makerspace-ts-api-client";
 import { discountParam, invoiceOptionParam, ssmDiscount } from '../MembershipOptions';
 import { useSearchQuery, useSetSearchQuery } from "hooks/useSearchQuery";
 import { useMembershipOptions } from "hooks/useMembershipOptions";
-import useReadTransaction from "ui/hooks/useReadTransaction";
 import { noneInvoiceOption } from "ui/membership/MembershipSelectForm";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { TextInput } from "components/Form/inputs/TextInput";
 import { CheckboxInput } from "components/Form/inputs/CheckboxInput";
 import { FormField } from "components/Form/FormField";
 import KeyValueItem from "ui/common/KeyValueItem";
+import { useTotal } from "./constant";
 
 interface Props {
   readOnly?: boolean;
@@ -62,7 +61,7 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
   const singleMonth = invoiceOption?.quantity === 1;
   const isSsmDiscount = discountId === ssmDiscount;
   const renderDiscountSection = !readOnly || discountId;
-  const selectedDiscountAmt = isSsmDiscount ? 0.9 : discounts.find(d => d.id === discountId)?.amount;
+  const total = useTotal(invoiceOption && Number(invoiceOption.amount), discountId);
 
   return !!invoiceOption && (
     <div id="cart-preview">
@@ -81,7 +80,7 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
           <>
             <Grid item xs={12}>
               <Typography variant="subtitle1">
-                <strong>Amount:</strong> {
+                <strong>Subtotal:</strong> {
                 `${numberAsCurrency(invoiceOption.amount)}${!invoiceOption.planId ? "" : 
                 ` / ${
                   singleMonth ? "" : `${invoiceOption.quantity} `} month${singleMonth ? "" : "s"}`}`
@@ -126,9 +125,9 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="body1" paragraph={true}>
-                <strong>Total: </strong>
-                {invoiceOption ? numberAsCurrency(Number(invoiceOption.amount) * (selectedDiscountAmt ? Number(selectedDiscountAmt) : 1)) : "-"}
+              <Typography variant="h6" paragraph={true}>
+                <strong>Total Due: </strong>
+                {total}
               </Typography>
             </Grid>
           </>

@@ -6,11 +6,13 @@ interface StatusLabelProps {
   color: Status;
   id?: string;
 }
-const statusToStyleMap = {
+const statusToStyleMap: Record<Status, { backgroundColor: string }> = {
   [Status.Danger]: {backgroundColor: "rgba(255, 0, 0, 1)"},
+  [Status.Default]: { backgroundColor: "rgba(0, 0, 0, 0.12)"},
   [Status.Success]: { backgroundColor: "rgba(88, 227, 111, 1)" },
   [Status.Info]: { backgroundColor: "rgba(0, 0, 0, 0.12)"},
   [Status.Primary]: { backgroundColor: "rgba(33, 150, 243, 1)"},
+  [Status.Warn]: {backgroundColor: "rgba(255, 152, 0, 1)"},
 }
 
 const circleStyle = {

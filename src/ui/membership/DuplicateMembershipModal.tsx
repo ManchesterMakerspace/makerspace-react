@@ -85,6 +85,9 @@ const DuplicateMembershipModal: React.FC = () => {
           Purchasing a new membership afterwards will simply extend your current membership based on the new membership term.
         </Grid>
         <Grid item xs={12}>
+          If you just signed up, your membership will activate once you receive your key.
+        </Grid>
+        <Grid item xs={12}>
           If you would like to purchase a membership for someone else, you must create a separate account.
         </Grid>
         <Grid item xs={12}>

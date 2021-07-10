@@ -17,6 +17,8 @@ import useReadTransaction from "ui/hooks/useReadTransaction";
 import LoadingOverlay from "ui/common/LoadingOverlay";
 import SubscriptionSettings from "ui/settings/SubscriptionSettings";
 import useSubresourcePath from "ui/hooks/useSubresourcePath";
+import { useDispatch } from "react-redux";
+import { loginUserAction } from "ui/auth/actions";
 
 export enum SubRoutes {
   Profile = "profile",
@@ -27,6 +29,12 @@ export enum SubRoutes {
 const SettingsContainer: React.FC = () => {
   const { currentUser: { id: currentUserId }, permissions } = useAuthState();
   const billingEnabled = !!permissions[Whitelists.billing];
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(loginUserAction());
+  }, [dispatch]);
+
   const [selectedIndex, setIndex] = React.useState(0);
   const {
     isRequesting: loadingMember,
