@@ -25,6 +25,7 @@ import { Form } from "components/Form/Form";
 import useWriteTransaction, { SuccessTransactionState } from "ui/hooks/useWriteTransaction";
 import { ToastStatus, useToastContext } from "components/Toast/Toast";
 import { Routing } from "app/constants";
+import { useTotal } from "./constant";
 
 interface Props {}
 
@@ -79,11 +80,10 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
     paymentMethodId: paymentMethodQueryParam
   });
   const { allOptions, discounts } = useMembershipOptions(true);
+  const discountId = discountIdParam === ssmDiscount ? 
+    allOptions.find(opt => opt.id === invoiceOptionIdParam)?.discountId : discountIdParam;
 
   const onSubmit = React.useCallback(async () => {
-    const discountId = discountIdParam === ssmDiscount ? 
-      allOptions.find(opt => opt.id === invoiceOptionIdParam)?.discountId : discountIdParam;
-
     await call({
       body: {
         discountId,
@@ -94,10 +94,9 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
   }, [
     call, 
     invoiceOptionIdParam, 
-    discountIdParam, 
+    discountId, 
     paymentMethodIdParam, 
     discounts,
-    allOptions
   ]);
 
   React.useEffect(() => {
@@ -105,7 +104,7 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
   }, [paymentError]);
 
   const selectedOpt = allOptions.find(opt => opt.id === invoiceOptionIdParam);
-  
+  const total = useTotal(Number(selectedOpt?.amount), discountIdParam)
   const { response, isRequesting, error } = useReadTransaction(getPaymentMethod, { id: paymentMethodIdParam }, !paymentMethodIdParam);
   const paymentMethod = !isApiErrorResponse(response) && response?.data;
 
@@ -231,7 +230,7 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
                 <Grid container spacing={2} justify="center">
                   <Grid item xs={11}>
                     <Typography variant="body1">
-                      I, {currentUser.firstname} {currentUser.lastname}, authorize Manchester Makerspace to charge ${selectedOpt?.amount}{" "}
+                      I, {currentUser.firstname} {currentUser.lastname}, authorize Manchester Makerspace to charge {total}{" "}
                       to the payment method I have selected every {selectedOpt?.quantity} month(s). I understand that this authorization
                       will remain in effect until I notify Manchester Makerspace of cancellation in writing or electronically
                       through <a target="_blank" href={`${buildProfileRouting(currentUser.id)}/settings`}>Subscription Settings</a>.

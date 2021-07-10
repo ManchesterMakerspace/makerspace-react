@@ -6,15 +6,17 @@ import { Transaction, TransactionStatusEnum } from "makerspace-ts-api-client";
 export const renderTransactionStatus = (transaction: Transaction) => {
   let label = "Pending";
   let color = Status.Info;
+  console.error("transaction.stat", transaction.status);
 
   switch (transaction.status) {
     case TransactionStatusEnum.Settled:
       color = Status.Success;
       label = "Successful";
       break;
-    case TransactionStatusEnum.SubmmittedForSettlement:
+    case "submitted_for_settlement" as TransactionStatusEnum:
       color = Status.Warn;
       label = "Pending";
+      break;
     case TransactionStatusEnum.Failed:
     case TransactionStatusEnum.ProcessorDeclined:
     case TransactionStatusEnum.SettlementDeclined:
@@ -26,6 +28,7 @@ export const renderTransactionStatus = (transaction: Transaction) => {
     default:
       color = Status.Warn;
       label = "Unknown";
+      break;
   }
 
   return (
