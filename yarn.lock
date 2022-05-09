@@ -7505,10 +7505,10 @@ makerspace-ts-api-client-generator@2.2.7:
   dependencies:
     yargs "^13.2.4"
 
-makerspace-ts-api-client@2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-2.8.0.tgz#d30eed89ee7515517ba3dc94cc0926feaa5ae354"
-  integrity sha512-PmmllRvaJ1BjaVkumrTVkmkFuIig9quHWCDJ9rsqxcVAvJLN0LdHd4pcAYxGiUZqnmjp//fhk0XoRyoSLexqLg==
+makerspace-ts-api-client@2.9.0:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/makerspace-ts-api-client/-/makerspace-ts-api-client-2.9.0.tgz#81d0f3af900a9ad12fea9a2350188f201724e5e3"
+  integrity sha512-vUg63oEiQFVFpfI+RsiQplKIxxiMnWBxDnKZhLmKVCsRg3UT5qqWbH9sE3tIGhUceNiftf1h5S4EVc+AuAy5cQ==
 
 makerspace-ts-mock-client@0.7.0:
   version "0.7.0"

@@ -56,6 +56,8 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
     setDiscountId(discountCode);
   }, [setDiscountId, setSearchQuery]);
 
+  const selectedDiscount = discounts.find(d => d.id === discountId);
+
   const isNoneOption = invoiceOption?.id === noneInvoiceOption.id;
 
   const singleMonth = invoiceOption?.quantity === 1;
@@ -116,6 +118,11 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
                       disabled={isSsmDiscount}
                       validate={fields.discountId.validate(discounts.map(d => d.id))}
                     />
+                    {selectedDiscount &&
+                      <Typography variant="subtitle1">
+                        {selectedDiscount.name}
+                      </Typography>
+                    }
                   </>
                 )}
               </Grid>

@@ -13,6 +13,8 @@ import RadioGroup from "@material-ui/core/RadioGroup";
 import { useQueryContext } from "../common/Filters/QueryContext";
 import { withFilterButton } from "../common/FilterButton";
 import { toDatePicker, dateToMidnight } from "../utils/timeToDate";
+import useReadTransaction from "ui/hooks/useReadTransaction";
+import { isApiErrorResponse, listBillingDiscounts } from "makerspace-ts-api-client";
 
 export const transactionStatuses = {
   authorizing: {
@@ -118,6 +120,12 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
     close();
   }, [setParam, onChange, close]);
 
+  const {
+    response,
+  } = useReadTransaction(listBillingDiscounts, { orderBy: "amount" })
+
+  const discounts = !isApiErrorResponse(response) && response?.data || [];
+
   const paramToVal = (param: any) => {
     return param === true ? "true" : param === false ? "false" : "both"
   }
@@ -176,8 +184,23 @@ const TransactionFilters: React.FC<{ close: () => void, onChange: () => void }> 
               {Object.values(transactionStatuses).map(status => (
               <FormControlLabel
                 key={status.value}
-                control={<Checkbox checked={params.transactionStatus.includes(status.value)} onChange={onCheckboxChange("transactionStatus")} value={status.value} />}
+                control={<Checkbox checked={params.transactionStatus?.includes(status.value)} onChange={onCheckboxChange("transactionStatus")} value={status.value} />}
                 label={status.label}
+              />
+              ))}
+          </FormGroup>
+        </FormControl>
+      </Grid>
+
+      <Grid item xs={12} style={{ marginBottom: "1em" }}>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Discount</FormLabel>
+            <FormGroup>
+              {discounts.map(discount => (
+              <FormControlLabel
+                key={discount.id}
+                control={<Checkbox checked={params.discountId?.includes(discount.id)} onChange={onCheckboxChange("discountId")} value={discount.id} />}
+                label={discount.name}
               />
               ))}
           </FormGroup>

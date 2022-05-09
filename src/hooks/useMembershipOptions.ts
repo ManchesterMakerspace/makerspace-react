@@ -44,14 +44,14 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
       return opts;
     }, [] as InvoiceOption[]);
 
-    const sortedNormalOpts = normalOptions.sort(byAmount).concat(includeNone ? [noneInvoiceOption] : []);
+    const sortedNormalOpts = normalOptions.sort(byAmount);
     
     return {
       error,
       loading: isRequesting,
       promotionOptions,
       discounts,
-      normalOptions: sortedNormalOpts,
+      normalOptions: sortedNormalOpts.concat(includeNone ? [noneInvoiceOption] : []),
       defaultOption: defaultOption || sortedNormalOpts[0],
       allOptions: promotionOptions.concat(sortedNormalOpts)
     };

@@ -4,7 +4,7 @@ import { ssmDiscount } from "../MembershipOptions";
 
 export function useTotal(invoiceAmount: number, discountId: string): string {
   const { discounts } = useMembershipOptions();
-  const selectedDiscountAmt = discountId === ssmDiscount ? 0.9 : discounts.find(d => d.id === discountId)?.amount;
+  const selectedDiscountAmt = discountId === ssmDiscount ? (0.1 * invoiceAmount) : discounts.find(d => d.id === discountId)?.amount;
 
-  return invoiceAmount ? numberAsCurrency(invoiceAmount * (selectedDiscountAmt ? Number(selectedDiscountAmt) : 1)) : "-";
+  return invoiceAmount ? numberAsCurrency(invoiceAmount - (selectedDiscountAmt ? Number(selectedDiscountAmt) : 0)) : "-";
 }
