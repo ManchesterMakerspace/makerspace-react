@@ -14,7 +14,7 @@
     "connected-react-router": "^6.4.0",
     "history": "^4.7.2",
     "lodash-es": "^4.17.21",
-    "makerspace-ts-api-client": "2.8.0",
+    "makerspace-ts-api-client": "2.9.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.23",
     "paypal-checkout": "^4.0.217",

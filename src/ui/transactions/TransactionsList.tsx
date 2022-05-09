@@ -8,7 +8,7 @@ import { Column } from "ui/common/table/Table";
 import { timeToDate, dateToMidnight } from "ui/utils/timeToDate";
 import RefundTransactionModal from "ui/transactions/RefundTransactionModal";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
-import { renderTransactionStatus, getTransactionDescription } from "ui/transactions/utils";
+import { renderTransactionStatus, getTransactionDescription, writeReport } from "ui/transactions/utils";
 import { Member, Transaction, adminListTransaction, listTransactions } from "makerspace-ts-api-client";
 import { useAuthState } from "../reducer/hooks";
 import { useQueryContext, withQueryContext } from "../common/Filters/QueryContext";
@@ -17,6 +17,8 @@ import StatefulTable from "../common/table/StatefulTable";
 import extractTotalItems from "../utils/extractTotalItems";
 import TransactionsFilter from "./TransactionsFilter";
 import ViewTransactionModal from "./ViewTransactionModal";
+import { useSearchQuery } from "hooks/useSearchQuery";
+import { ActionButton } from "ui/common/ButtonRow";
 
 const getFields = (includeMember: boolean): Column<Transaction>[] => [
   {
@@ -78,8 +80,17 @@ const getFields = (includeMember: boolean): Column<Transaction>[] => [
 
 const rowId = (sub: Transaction) => sub.id;
 
+const discountIdParam = "discountId";
+const transactionStatusParam = "transactionStatus";
+
 const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
   const [selectedId, setSelectedId] = React.useState<string>();
+
+  const { initialDiscountId, initialStatus } = useSearchQuery({ 
+    initialDiscountId: discountIdParam,
+    initialStatus: transactionStatusParam
+  })
+
   const { currentUser: { isAdmin } } = useAuthState();
   const {
     params: { pageNum, order, orderBy, ...restParams },
@@ -89,7 +100,9 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
     endDate: dateToMidnight(new Date()),
     type: undefined,
     refund: undefined,
-    transactionStatus: []
+    transactionStatus: initialStatus ? 
+      (Array.isArray(initialStatus) ? initialStatus : [initialStatus]) : [],
+    discountId: initialDiscountId ? [initialDiscountId] : []
   });
 
   const adminResponse = useReadTransaction(
@@ -126,6 +139,16 @@ const TransactionsTable: React.FC<{ member?: Member }> = ({ member }) => {
           />
           <TransactionsFilter onChange={refresh}/>
         </Grid>
+
+        <ActionButton
+          id="transactions-table-download"
+          style={{ float: "right" }}
+          variant="contained"
+          color="primary"
+          disabled={isRequesting || !!error}
+          onClick={() => writeReport(Object.values(transactions), "Transactions")}
+          label="Download table"
+        />
 
         <StatefulTable
           id="transactions-table"

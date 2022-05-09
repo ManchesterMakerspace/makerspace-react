@@ -14,8 +14,9 @@ import { MembershipOptionCard } from "./MembershipOptionCard";
 interface Props {
   onSelect(option: InvoiceOption): void;
   shortForm?: boolean;
+  showNoneOption?: boolean
 }
-export const MembershipOptions: React.FC<Props> = ({ onSelect, shortForm }) => {
+export const MembershipOptions: React.FC<Props> = ({ onSelect, shortForm, showNoneOption = true }) => {
   const { defaultOption } = useMembershipOptions();
 
   return (
@@ -43,7 +44,7 @@ export const MembershipOptions: React.FC<Props> = ({ onSelect, shortForm }) => {
               <PromotionCards onSelect={onSelect} />
             </Grid>
             <Grid item xs={12}>
-              <MembershipOptionCards showNoneOption={true} onSelect={onSelect} />
+              <MembershipOptionCards showNoneOption={showNoneOption} onSelect={onSelect} />
             </Grid>
           </Hidden>
 
@@ -52,7 +53,7 @@ export const MembershipOptions: React.FC<Props> = ({ onSelect, shortForm }) => {
               <PromotionsTable onSelect={onSelect} />
             </Grid>
             <Grid item xs={12}>
-              <MembershipOptionsTable showNoneOption={true} onSelect={onSelect} />
+              <MembershipOptionsTable showNoneOption={showNoneOption} onSelect={onSelect} />
             </Grid>
           </Hidden>
         </>
