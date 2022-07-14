@@ -13,7 +13,7 @@
     "braintree-web": "^3.6.0",
     "connected-react-router": "^6.4.0",
     "history": "^4.7.2",
-    "lodash-es": "^4.17.14",
+    "lodash-es": "^4.17.21",
     "makerspace-ts-api-client": "2.8.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.23",
