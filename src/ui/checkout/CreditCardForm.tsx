@@ -50,6 +50,11 @@ const CreditCardFields: FormFields = {
     label: "Zipcode",
     name: `${formPrefix}-zipcode`,
     placeholder: "90210"
+  },
+  cardholderName: {
+    label: "Cardholder Name",
+    name: `${formPrefix}-name`,
+    placeholder: "Old MacDonald"
   }
 }
 
@@ -210,6 +215,17 @@ class CreditCardForm extends React.Component<Props, State> {
               />
               {inputErrors["postalCode"] &&
                 <ErrorMessage error={inputErrors["postalCode"]}/>
+              }
+            </Grid>
+          </Grid>
+          <Grid container spacing={8}>
+            <Grid item xs={12}>
+              <HostedInput
+                label={CreditCardFields.cardholderName.label}
+                id={CreditCardFields.cardholderName.name}
+              />
+              {inputErrors["cardholderName"] &&
+                <ErrorMessage error={inputErrors["cardholderName"]} />
               }
             </Grid>
           </Grid>

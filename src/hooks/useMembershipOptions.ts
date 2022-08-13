@@ -18,7 +18,7 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
   const {
     isRequesting,
     error,
-    data: membershipOptions = []
+    data: membershipOptions
   } = useReadTransaction(
     listInvoiceOptions, 
     { types: [InvoiceableResource.Member] },
@@ -27,13 +27,13 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
     false
   );
 
-  const { data: discounts = [] } = useReadTransaction(listBillingDiscounts, {});
+  const { data: discounts } = useReadTransaction(listBillingDiscounts, {});
 
   return React.useMemo(() => {
     const promotionOptions: InvoiceOption[] = [];
     let defaultOption: InvoiceOption;
 
-    const normalOptions = membershipOptions.reduce((opts, option) => {
+    const normalOptions = (membershipOptions || []).reduce((opts, option) => {
       if (option.planId === defaultPlanId) {
         defaultOption = option;
       }
@@ -50,7 +50,7 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
       error,
       loading: isRequesting,
       promotionOptions,
-      discounts,
+      discounts: discounts || [],
       normalOptions: sortedNormalOpts.concat(includeNone ? [noneInvoiceOption] : []),
       defaultOption: defaultOption || sortedNormalOpts[0],
       allOptions: promotionOptions.concat(sortedNormalOpts)

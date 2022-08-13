@@ -1,5 +1,6 @@
 const { mkdirSync } = require("fs");
 const { resolve } = require("path");
+const allure = require('allure-commandline')
 
 const screenshotDir = resolve(process.cwd(), "tmp", "screenshots");
 
@@ -11,12 +12,14 @@ exports.config = {
     baseUrl: rootURL,
     framework: "mocha",
     maxInstances: 1,
-    reporters: ['spec'],
+    reporters: ['spec', ["allure", {
+        outputDir: "./tmp/allure-results",
+    }]],
     waitForTimeout: 5 * 1000,
     mochaOpts: {
         ui: "bdd",
         retries: 3,
-        timeout: 2 * 60 * 1000,
+        timeout: 12 * 60 * 1000,
         require: [
             "tsconfig-paths/register"
         ],
@@ -29,8 +32,8 @@ exports.config = {
     connectionRetryTimeout: 90 * 1000,
     connectionRetryCount: 3,
     services: [
-        "selenium-standalone", 
-        "devtools", 
+        "selenium-standalone",
+        "devtools",
         ...process.env.STATIC_SERVER ? [
             ['static-server', {
                 folders: [
@@ -53,6 +56,7 @@ exports.config = {
                 "--disable-features=IsolateOrigins,site-per-process",
                 "--auto-open-devtools-for-tabs",
                 "--disable-dev-shm-usage",
+                "--disable-site-isolation-trials",
                 ...process.env.HEADLESS ? [
                     "--headless",
                     "--disable-gpu",
@@ -88,5 +92,25 @@ exports.config = {
                 await browser.saveScreenshot(resolve(screenshotDir, `${title}.png`));
             } catch {}
         }
+    },
+    onComplete: function () {
+        const reportError = new Error('Could not generate Allure report')
+        const generation = allure(['generate', './tmp/allure-results', '--clean'])
+        return new Promise((resolve, reject) => {
+            const generationTimeout = setTimeout(
+                () => reject(reportError),
+                60000)
+
+            generation.on('exit', function (exitCode) {
+                clearTimeout(generationTimeout)
+
+                if (exitCode !== 0) {
+                    return reject(reportError)
+                }
+
+                console.log('Allure report successfully generated')
+                resolve()
+            })
+        })
     }
 }

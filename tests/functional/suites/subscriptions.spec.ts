@@ -15,16 +15,24 @@ import { creditCard as defaultCreditCard } from "../../constants/paymentMethod";
 import { autoLogin } from "../autoLogin";
 import { defaultTransactions } from "../../constants/transaction";
 import { defaultInvoice } from "../../constants/invoice";
-import { Routing } from "app/constants";
 import { paymentMethods } from "../../pageObjects/paymentMethods";
 import memberPO from "../../pageObjects/member";
 import { LoginMember } from "../../pageObjects/auth";
 import { timeToDate } from "ui/utils/timeToDate";
 import { loadMockserver } from "../mockserver";
 import { Invoice } from "makerspace-ts-api-client";
+import { generateClientToken, loadBraintreeMockserver, mockBraintreeTokenValidation } from "../../constants/braintreeMockserver";
 const mocker = loadMockserver();
+loadBraintreeMockserver();
 
 describe("Paid Subscriptions", () => {
+  beforeEach(() => {
+    mocker.getNewPaymentMethod_200({
+      clientToken: generateClientToken()
+    }, { unlimited: true });
+    mockBraintreeTokenValidation(defaultCreditCard);
+  });
+
   describe("Admin subscription", () => {
     beforeEach(async () => {
       return autoLogin(mocker, adminUser, undefined, { billing: true }).then(async () => {
@@ -96,11 +104,11 @@ describe("Paid Subscriptions", () => {
       mocker.createInvoice_200({ body: membershipOption }, newInvoice);
       mocker.listInvoiceOptions_200(membershipOptionQueryParams, [membershipOption], { unlimited: true });
       mocker.listPaymentMethods_200([newCard]);
+      mocker.getPaymentMethod_200({ id: newCard.id }, newCard);
       await utils.clickElement(settingsPO.nonSubscriptionDetails.createSubscription);
       await utils.waitForNotVisible(signup.membershipSelectForm.loading);
       await signup.selectMembershipOption(membershipId, false);
-      await utils.clickElement(signup.membershipSelectForm.submit);
-      await utils.waitForPageLoad(checkoutPo.checkoutUrl);
+      await signup.goNext();
 
       // Submit payment
       const subscribedMember = { ...basicUser, subscriptionId: initSubscription.id, subscription: true };
@@ -109,27 +117,18 @@ describe("Paid Subscriptions", () => {
       mocker.getMember_200({ id: basicUser.id }, subscribedMember);
       mocker.signIn_200({ body: {} }, subscribedMember);
       mocker.listMembersPermissions_200({ id: subscribedMember.id }, { billing: true });
+      await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
       await utils.clickElement(paymentMethods.getPaymentMethodSelectId(newCard.id));
+      await signup.goNext();
 
-      await utils.clickElement(checkoutPo.nextButton);
       const total = numberAsCurrency(initSubscription.amount);
-      expect(await utils.getElementText(checkoutPo.total)).to.eql(`Total ${total}`);
-      await utils.clickElement(checkoutPo.submit);
-
+      expect(await utils.getElementText(checkoutPo.total)).to.eql(`Total Due: ${total}`);
       // Accept recurring payment authorization
       await utils.waitForVisible(checkoutPo.authAgreementCheckbox);
       await utils.clickElement(checkoutPo.authAgreementCheckbox);
-      await utils.clickElement(checkoutPo.authAgreementSubmit);
-      await utils.waitForNotVisible(checkoutPo.authAgreementSubmit);
 
+      await signup.goNext();
 
-      await utils.assertNoInputError(checkoutPo.checkoutError, true);
-      // Wait for receipt
-      await utils.waitForPageToMatch(Routing.Receipt)
-      // Verify transactions are displayed
-      expect(await utils.isElementDisplayed(checkoutPo.receiptContainer)).to.be.true;
-      // Return to profile
-      await utils.clickElement(checkoutPo.backToProfileButton);
       // Wait for profile redirect
       await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
 
@@ -137,7 +136,6 @@ describe("Paid Subscriptions", () => {
         ...defaultInvoice,
         subscriptionId: initSubscription.id,
       };
-
       await header.navigateTo(header.links.settings);
       await utils.waitForPageToMatch(settingsPO.pageUrl);
 

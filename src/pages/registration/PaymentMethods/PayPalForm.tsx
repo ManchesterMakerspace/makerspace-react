@@ -66,7 +66,7 @@ export const PayPalProvider: React.FC<Props> = ({ children }) => {
               reportError({ body: { message: err } });
               return;
             }
-            
+
             createPaymentMethod(payload.nonce, true);
           });
         },

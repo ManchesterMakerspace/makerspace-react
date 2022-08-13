@@ -5,6 +5,7 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 module.exports = env => ({
   mode: "development",
@@ -119,6 +120,7 @@ module.exports = env => ({
     new webpack.EnvironmentPlugin({
       BILLING_ENABLED: true,
       BASE_URL: (env && env.BASE_URL) || ""
-    })
+    }),
+    ...process.env.ANALYZE ? [new BundleAnalyzerPlugin()] : []
   ]
 });

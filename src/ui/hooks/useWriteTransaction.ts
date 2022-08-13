@@ -7,7 +7,7 @@ interface CallTransactionState<Args, Data> extends TransactionState<Data> {
   call: ApiFunction<Args, Data>;
   reset: () => void;
 }
-export type SuccessTransactionState<Args, Resp> = { 
+export type SuccessTransactionState<Args, Resp> = {
   response: ApiDataResponse<Resp>,
   reset: () => void;
   call: ApiFunction<Args, Resp>;
@@ -42,7 +42,7 @@ const useWriteTransaction = <Args, Resp>(
     }
 
     return response;
-  }, []);
+  }, [onSuccess, transaction, reset]);
 
   return { ...state, call, reset };
 };

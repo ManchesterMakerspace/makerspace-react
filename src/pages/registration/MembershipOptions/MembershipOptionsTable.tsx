@@ -7,7 +7,7 @@ import { useMembershipOptions } from 'hooks/useMembershipOptions';
 import TableContainer from 'ui/common/table/TableContainer';
 import { numberAsCurrency } from 'ui/utils/numberAsCurrency';
 import { actionLabel, invoiceOptionParam, noneInvoiceOption } from './constants';
-import { useSearchQuery } from 'hooks/useSearchQuery';
+import { useSearchQuery, useSetSearchQuery } from 'hooks/useSearchQuery';
 
 interface Props {
   showNoneOption: boolean;
@@ -17,6 +17,20 @@ interface Props {
 export const MembershipOptionsTable: React.FC<Props> = ({ showNoneOption, onSelect }) => {
   const { normalOptions, loading, error } = useMembershipOptions(showNoneOption);
   const { membershipOptionId } = useSearchQuery({ membershipOptionId: invoiceOptionParam });
+  const setSearchQuery = useSetSearchQuery();
+
+  React.useEffect(() => {
+    if (membershipOptionId) {
+      const matchingOpt = normalOptions.find((opt) => 
+        opt.id === membershipOptionId || opt.planId === membershipOptionId
+      );
+
+      // Normalize ID or names with URL
+      if (matchingOpt) {
+        setSearchQuery({ [invoiceOptionParam]: matchingOpt.id })
+      }
+    }
+  }, [membershipOptionId, normalOptions, setSearchQuery]);
 
   const fields = React.useMemo(() =>  [
     {

@@ -15,7 +15,7 @@ export class PageUtils {
 
   public getElementById = async (id: string, timeout: number = undefined) => {
     const waitTime = timeout || this.waitUntilTime;
-    const element = await $(`#${id}`);
+    const element = await $(id);
     await element.waitForExist(waitTime);
     return element;
   }

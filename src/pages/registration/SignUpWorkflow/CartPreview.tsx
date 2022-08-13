@@ -4,10 +4,9 @@ import Grid from '@material-ui/core/Grid';
 import Paper from "@material-ui/core/Paper";
 import Divider from "@material-ui/core/Divider";
 
-import { discountParam, invoiceOptionParam, ssmDiscount } from '../MembershipOptions';
+import { discountParam, invoiceOptionParam, noneInvoiceOption, ssmDiscount } from '../MembershipOptions';
 import { useSearchQuery, useSetSearchQuery } from "hooks/useSearchQuery";
 import { useMembershipOptions } from "hooks/useMembershipOptions";
-import { noneInvoiceOption } from "ui/membership/MembershipSelectForm";
 import { numberAsCurrency } from "ui/utils/numberAsCurrency";
 import { TextInput } from "components/Form/inputs/TextInput";
 import { CheckboxInput } from "components/Form/inputs/CheckboxInput";
@@ -81,9 +80,9 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
         {!isNoneOption && (
           <>
             <Grid item xs={12}>
-              <Typography variant="subtitle1">
+              <Typography id="subtotal" variant="subtitle1">
                 <strong>Subtotal:</strong> {
-                `${numberAsCurrency(invoiceOption.amount)}${!invoiceOption.planId ? "" : 
+                `${numberAsCurrency(invoiceOption.amount)}${!invoiceOption.planId ? "" :
                 ` / ${
                   singleMonth ? "" : `${invoiceOption.quantity} `} month${singleMonth ? "" : "s"}`}`
                 }
@@ -96,7 +95,7 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
             )}
             {renderDiscountSection && (
               <Grid item xs={12}>
-                {readOnly ? <KeyValueItem label={fields.discountId.label}>{discountId}</KeyValueItem> : (
+                {readOnly ? <KeyValueItem id="discountId" label={fields.discountId.label}>{discountId}</KeyValueItem> : (
                   <>
                     <Typography variant="subtitle1">
                       Qualify for a discount? Select one below or enter a discount code. Proof of applicable affiliation required during orientation.
@@ -110,9 +109,9 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
                       label={`Student, Military, Senior 10% off`}
                     />
 
-                    <TextInput 
+                    <TextInput
                       fieldName={fields.discountId.name}
-                      label={fields.discountId.label} 
+                      label={fields.discountId.label}
                       onChange={updateDiscountId}
                       value={discountId}
                       disabled={isSsmDiscount}
@@ -132,7 +131,7 @@ export const MembershipPreview: React.FC<Props> = ({ readOnly }) => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant="h6" paragraph={true}>
+              <Typography variant="h6" paragraph={true} id="total">
                 <strong>Total Due: </strong>
                 {total}
               </Typography>

@@ -5,7 +5,7 @@
 //      - Need to verify we can add these post subscription creation.
 //      - We can fake it for now... A specific code === 10% discount?
 // MembershipSelect proceeds to payment method. Select the method, Acknowledge subscription and payment method if applicable
-// ReviewStep is last that goes over everything, allows to return to membership and payment step to change selection 
+// ReviewStep is last that goes over everything, allows to return to membership and payment step to change selection
 // On submit success, redirect to member profile page with dialog saying what the page is and add a toast w/ a link to the receipt.
 
 import * as React from "react";
@@ -31,15 +31,15 @@ import { BeforeLeave, SignUpContextProvider, useAllowLeave } from "./SignUpConte
 import { useFormContext } from "components/Form/FormContext";
 import { PaymentMethodsProvider } from "../PaymentMethods/PaymentMethodsContext";
 import { useSearchQuery } from "hooks/useSearchQuery";
-import { invoiceOptionParam, noneInvoiceOption } from "ui/membership/MembershipSelectForm";
 import { paymentMethodQueryParam } from "../PaymentMethods";
 import { useAuthState } from "ui/reducer/hooks";
 import { ToastStatus, useToastContext } from "components/Toast/Toast";
 import { Routing } from "app/constants";
-import { buildNewMemberProfileRoute } from "ui/member/utils";
+import { buildNewMemberProfileRoute, buildProfileRouting } from "ui/member/utils";
 import Link from "@material-ui/core/Link";
 import useReactRouter from "use-react-router";
 import useWriteTransaction from "ui/hooks/useWriteTransaction";
+import { invoiceOptionParam, noneInvoiceOption } from "../MembershipOptions/constants";
 
 interface Step {
   label: string;
@@ -74,6 +74,7 @@ const getSteps = (requiresPayment: boolean = true): Step[] => [
 export const SignUpWorkflow: React.FC = () => {
   const { currentUser, isRequesting } = useAuthState();
   const { current: authLoadingOnMount } = React.useRef(isRequesting);
+  const { current: isNewMember } = React.useRef(!currentUser.memberContractOnFile);
 
   const {
     invoiceOptionId: invoiceOptionIdParam,
@@ -93,13 +94,13 @@ export const SignUpWorkflow: React.FC = () => {
       if (!memberContractOnFile) return stepOrder.indexOf(AgreementStep);
       if (!invoiceOptionIdParam) return stepOrder.indexOf(MembershipSelectStep);
       if (!paymentMethodIdParam) return stepOrder.indexOf(PaymentStep);
-  
+
       return stepOrder.indexOf(ReviewStep);
     }
-  
+
     return 0;
   }, [currentUser, invoiceOptionIdParam, paymentMethodIdParam, stepOrder]);
-  
+
   const [activeStep, setActiveStep] = React.useState(determineStartStep());
 
   React.useEffect(() => {
@@ -113,7 +114,7 @@ export const SignUpWorkflow: React.FC = () => {
   React.useEffect(() => {
     if (authLoadingOnMount && currentUser?.id) {
       const { subscriptionId } = currentUser;
-
+      const url = isNewMember ? buildNewMemberProfileRoute(currentUser.id) : buildProfileRouting(currentUser.id);
       // Redirect to profile with a notification if they already have a membership
       if (subscriptionId) {
         create({
@@ -121,22 +122,22 @@ export const SignUpWorkflow: React.FC = () => {
           message: (
             <>
               <Typography component="span" variant="body1">Membership already exists</Typography>
-              <Link 
+              <Link
                 style={{ marginLeft: "1em" }}
-                href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUser.id)} 
+                href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUser.id)}
               >
                 <Typography component="span" variant="body1">Manage Membership</Typography>
               </Link>
             </>
           )
         })
-        history.push(buildNewMemberProfileRoute(currentUser.id));
+        history.push(url);
       } else {
         // Move past member info step if started workflow and already auth'd
         setActiveStep(determineStartStep());
       }
     }
-  }, [currentUser, determineStartStep]);
+  }, [currentUser, determineStartStep, isNewMember]);
 
   const onNext = React.useCallback(async (allowLeave: BeforeLeave) => {
     if (allowLeave && !(await allowLeave())) {
@@ -162,7 +163,7 @@ export const SignUpWorkflow: React.FC = () => {
   const { component: Component } = currentStep;
 
   const disableBack = activeStep <= stepOrder.indexOf(MembershipSelectStep);
-  const nextLabel = activeStep === stepOrder.indexOf(ReviewStep) ? "Submit Payment" : 
+  const nextLabel = activeStep === stepOrder.indexOf(ReviewStep) ? "Submit Payment" :
                     (activeStep === stepOrder.length - 1 ? "Submit" : "Next");
   return (
     <PaymentMethodsProvider>
@@ -177,10 +178,10 @@ export const SignUpWorkflow: React.FC = () => {
                 position="static"
                 activeStep={activeStep}
                 nextButton={
-                  <Button 
-                    size="small" 
-                    disabled={nextDisabled ?? activeStep === 5} 
-                    onClick={() => onNext(allowLeave)} 
+                  <Button
+                    size="small"
+                    disabled={nextDisabled ?? activeStep === 5}
+                    onClick={() => onNext(allowLeave)}
                     id="sign-up-next"
                   >
                     {nextLabel}
@@ -188,9 +189,9 @@ export const SignUpWorkflow: React.FC = () => {
                   </Button>
                 }
                 backButton={isSignUpEditable && (
-                  <Button 
-                    size="small" 
-                    onClick={onBack} 
+                  <Button
+                    size="small"
+                    onClick={onBack}
                     disabled={prevDisabled ?? disableBack}
                     id="sign-up-back"
                   >
@@ -208,7 +209,7 @@ export const SignUpWorkflow: React.FC = () => {
                 ))}
               </Stepper>
             )}
-              
+
             </Grid>
 
             <Grid item xs={12} md={10}>
@@ -218,21 +219,21 @@ export const SignUpWorkflow: React.FC = () => {
 
             {!isSmallMedia && <Grid item sm={10} xs={12}>
               {isSignUpEditable && (
-                <Button 
+                <Button
                   disabled={prevDisabled ?? disableBack}
-                  variant="contained" 
-                  style={{ marginRight: "1rem" }} 
-                  onClick={onBack} 
+                  variant="contained"
+                  style={{ marginRight: "1rem" }}
+                  onClick={onBack}
                   id="sign-up-back"
                 >
                   Back
                 </Button>
               )}
-              <Button 
-                disabled={nextDisabled ?? activeStep === 5} 
-                variant="contained" 
-                color="primary" 
-                onClick={() => onNext(allowLeave)} 
+              <Button
+                disabled={nextDisabled ?? activeStep === 5}
+                variant="contained"
+                color="primary"
+                onClick={() => onNext(allowLeave)}
                 id="sign-up-next"
               >
                 {nextLabel}

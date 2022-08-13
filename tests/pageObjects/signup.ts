@@ -47,7 +47,6 @@ export class SignUpPageObject {
     noData: `${this.membershipSelectTableId}-no-data-row`,
     loading: `${this.membershipSelectTableId}-loading`,
     discountCheckbox: "#discount-select",
-    submit: "#select-membership-submit"
   };
 
   private codeOfConductFormId = "#code-of-conduct-form";
@@ -77,7 +76,51 @@ export class SignUpPageObject {
   public signUpControls = {
     nextButton: "#sign-up-next",
     backButton: "#sign-up-back",
-    cartPreview: "#cart-preview"
+    cartPreview: "#cart-preview",
+    discountId: "#discountId"
+  }
+
+  public reviewFields = {
+    subtotal: "#subtotal",
+    discountId: "#discountId",
+    total: "#total"
+  }
+
+  public enterDiscountId = (discountId: string) => {
+    return utils.fillInput(this.signUpControls.discountId, discountId);
+  }
+
+  public verifyReviewStep = async (
+    subtotal: string,
+    discountId: string,
+    total: string
+  ) => {
+    await browser.waitUntil(async () => {
+      const subtotalTxtField = await utils.getElementById(this.reviewFields.subtotal);
+      const subtotalTxt = await subtotalTxtField.getText();
+      return subtotalTxt.includes(subtotal);
+    }, undefined, `Subtotal never equaled ${subtotal}`);
+
+    await browser.waitUntil(async () => {
+      const discountIdTxtField = await utils.getElementById(this.reviewFields.discountId);
+      const discountTxt = await discountIdTxtField.getText();
+      return discountTxt.includes(discountId);
+    }, undefined, `Discount never equaled ${discountId}`);
+
+    await browser.waitUntil(async () => {
+      const totalTxtField = await utils.getElementById(this.reviewFields.total);
+      const totalTxt = await totalTxtField.getText();
+      return totalTxt.includes(total);
+    }, undefined, `Total never equaled ${total}`);
+  }
+
+  public verifyDiscountId = async (expectedDiscount: string) => {
+    return browser.waitUntil(async () => {
+      const input = await utils.getElementById(this.signUpControls.discountId);
+      await input.scrollIntoView();
+      const discount = await input.getValue();
+      return discount === expectedDiscount;
+    }, undefined, `Discount field never equaled ${expectedDiscount}`);
   }
 
   public goBack = async () => {
@@ -113,6 +156,16 @@ export class SignUpPageObject {
         const isNowSelected = (await element.getText()).toLowerCase() === "selected";
         return isNowSelected;
       }
+    }, undefined, `Selected membership ${optionId} never selected`);
+  }
+
+  public verifySelectedMembershipOption = async (optionId: string) => {
+    await browser.waitUntil(async () => {
+      const selector = this.getRow(optionId, this.membershipSelectForm.row.select);
+      const element = await utils.getElementByCss(selector);
+      await element.scrollIntoView();
+      const isSelected = (await element.getText()).toLowerCase() === "selected";
+      return isSelected;
     }, undefined, `Selected membership ${optionId} never selected`);
   }
 

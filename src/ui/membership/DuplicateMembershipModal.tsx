@@ -16,17 +16,17 @@ import useWriteTransaction from "ui/hooks/useWriteTransaction";
 
 const DuplicateMembershipModal: React.FC = () => {
   const uuid = useUUID();
-  const { data: invoices = [] } = useReadTransaction(listInvoices, {}, undefined, uuid);
+  const { data: invoices = [] } = useReadTransaction(listInvoices, {
+    resourceClass: ["member"],
+    settled: false
+  }, undefined, uuid);
   const { currentUser: { id: currentUserId, email, subscriptionId, subscription } } = useAuthState();
   const [blockingMemberInvoice, setBlockingMemberInvoice] = React.useState<Invoice>();
 
   const { history } = useReactRouter();
   const goToProfile = React.useCallback(() => history.push(buildProfileRouting(currentUserId)), [history, currentUserId]);
   React.useEffect(() => {
-    const blockingMemberInvoice = invoices.find(invoice => 
-      invoice.resourceClass === "member" &&
-      !isInvoiceSettled(invoice) && 
-      !!invoice.subscriptionId);
+    const blockingMemberInvoice = invoices.find(invoice => !!invoice.subscriptionId);
     setBlockingMemberInvoice(blockingMemberInvoice);
   }, [invoices]);
 
@@ -55,13 +55,13 @@ const DuplicateMembershipModal: React.FC = () => {
           Our system shows you have already purchased a recurring membership.
           Your account, {email}, can only manage one membership at a time.
           <br />
-          If you would like to change your membership, you must first cancel 
+          If you would like to change your membership, you must first cancel
           the existing one&nbsp;
           {isPayPal ? (
             <>
               tied to your PayPal account. For assistance, please see&nbsp;
-              <Link 
-                href={"https://wiki.manchestermakerspace.org/digital-makerspace/manage-membership#cancel-membership-subscription"} 
+              <Link
+                href={"https://wiki.manchestermakerspace.org/digital-makerspace/manage-membership#cancel-membership-subscription"}
                 target="_blank"
               >
                 our wiki.&nbsp;
@@ -73,15 +73,15 @@ const DuplicateMembershipModal: React.FC = () => {
           ) : (
             <>
               via&nbsp;
-              <Link 
-                href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUserId)} 
+              <Link
+                href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUserId)}
                 target="_blank"
               >
                 Account Settings.&nbsp;
               </Link>
             </>
           )}
-          Any time left on your current membership will remain after cancellation. 
+          Any time left on your current membership will remain after cancellation.
           Purchasing a new membership afterwards will simply extend your current membership based on the new membership term.
         </Grid>
         <Grid item xs={12}>
