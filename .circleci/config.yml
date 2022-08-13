@@ -44,6 +44,8 @@ jobs:
             chmod 0600 ~/.gem/credentials
             make deploy
             shred -u ~/.gem/credentials
+      - store_artifacts:
+          path: ./tmp/makerspace-react-rails
 
 workflows:
   workflow:

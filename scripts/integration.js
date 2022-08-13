@@ -117,4 +117,7 @@ const integrationTest = async () => {
   });
 };
 
-integrationTest();
+integrationTest().catch(e => {
+  console.error(e);
+  process.exit(1);
+});
