@@ -44,30 +44,33 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
   const { create } = useToastContext();
   const { setActiveStep } = useSignUpContext();
   const { history } = useReactRouter();
+  const { current: isNewMember } = React.useRef(!currentUser.memberContractOnFile);
 
   const onSuccess = React.useCallback(({ response: { data: transaction } }: TransactionResponse) => {
-    const invoiceId = transaction && transaction.invoice.id;
-    if (invoiceId) {
-      create({
-        status: ToastStatus.Success,
-        message: (
-          <>
-            <Typography component="span" variant="body1">Payment Successful!</Typography>
-            <Link 
+    const url = isNewMember ? buildNewMemberProfileRoute(currentUser.id) : buildProfileRouting(currentUser.id);
+
+    const invoiceId = transaction?.invoice?.id;
+    create({
+      status: ToastStatus.Success,
+      message: (
+        <>
+          <Typography component="span" variant="body1">Payment Successful!</Typography>
+          {!!invoiceId && (
+            <Link
               style={{ marginLeft: "1em" }}
-              href={Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoiceId)} 
+              href={Routing.Receipt.replace(Routing.PathPlaceholder.InvoiceId, invoiceId)}
               target="_blank"
             >
               <Typography component="span" variant="body1">View Receipt</Typography>
             </Link>
-          </>
-        )
-      })
-    }
+          )}
+        </>
+      )
+    });
 
-    history.push(buildNewMemberProfileRoute(currentUser.id));
-  }, [create, history, currentUser.id]);
-  
+    history.push(url);
+  }, [create, history, currentUser.id, isNewMember]);
+
   const { call, isRequesting: submitting, error: paymentError, } = useWriteTransaction(createTransaction, onSuccess);
 
   const {
@@ -80,7 +83,7 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
     paymentMethodId: paymentMethodQueryParam
   });
   const { allOptions, discounts } = useMembershipOptions(true);
-  const discountId = discountIdParam === ssmDiscount ? 
+  const discountId = discountIdParam === ssmDiscount ?
     allOptions.find(opt => opt.id === invoiceOptionIdParam)?.discountId : discountIdParam;
 
   const onSubmit = React.useCallback(async () => {
@@ -92,10 +95,10 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
       }
     });
   }, [
-    call, 
-    invoiceOptionIdParam, 
-    discountId, 
-    paymentMethodIdParam, 
+    call,
+    invoiceOptionIdParam,
+    discountId,
+    paymentMethodIdParam,
     discounts,
   ]);
 
@@ -212,7 +215,7 @@ export const ReviewStep: React.FC<Props> = ({ children }) => {
 
                 <Grid container spacing={2} justify="center">
                   <Grid item xs={11} style={{ marginBottom: "1rem" }}>
-                    {isRequesting ?  <LoadingOverlay contained={true} /> : 
+                    {isRequesting ?  <LoadingOverlay contained={true} /> :
                         error ? <ErrorMessage error={error} /> : paymentMethod ? (
                           <PaymentMethodComponent
                             {...paymentMethod}

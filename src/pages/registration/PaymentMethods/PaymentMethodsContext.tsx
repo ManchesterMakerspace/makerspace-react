@@ -33,10 +33,10 @@ export const PaymentMethodsProvider: React.FC<Props> = ({ children }) => {
     data
   } = useReadTransaction(getNewPaymentMethod, {});
 
-  const { 
-    call: createPaymentMethod, 
-    error: createPaymentMethodError, 
-    isRequesting: creatingPaymentMethod 
+  const {
+    call: createPaymentMethod,
+    error: createPaymentMethodError,
+    isRequesting: creatingPaymentMethod
   } = useWriteTransaction(createPaymentMethodApi, ({ response }) => {
     // On success, store nonce in URL for later
     setSearch({ [paymentMethodQueryParam]: response.data.id });
@@ -51,7 +51,7 @@ export const PaymentMethodsProvider: React.FC<Props> = ({ children }) => {
     if (data?.clientToken) {
       setClientLoading(true);
 
-      Braintree.client.create({ authorization: data?.clientToken }, 
+      Braintree.client.create({ authorization: data?.clientToken },
         (err, clientInstance) => {
           if (err) setClientError(err);
           setClient(clientInstance);
@@ -68,13 +68,13 @@ export const PaymentMethodsProvider: React.FC<Props> = ({ children }) => {
       braintreeClient: client,
     };
   }, [
-    client, 
+    client,
     createPaymentMethod,
-    tokenLoading, 
-    clientLoading, 
-    creatingPaymentMethod, 
-    tokenError, 
-    clientError, 
+    tokenLoading,
+    clientLoading,
+    creatingPaymentMethod,
+    tokenError,
+    clientError,
     createPaymentMethodError,
   ]);
 

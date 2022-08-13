@@ -22,11 +22,12 @@ export const creditCard: CreditCard = {
 
 const expiration = `12${expiry.getFullYear()}`; // December, 3yrs from test run
 export const newVisa = {
+  ...creditCard,
   expiration,
   number: creditCardNumbers.visa,
   csv: "123",
   postalCode: "90210",
-  name: "Some Guy"
+  name: "Some Guy with Visa"
 }
 
 export const newMastercard = {
@@ -34,4 +35,5 @@ export const newMastercard = {
   number: creditCardNumbers.mastercard,
   csv: "123",
   postalCode: "90210",
+  name: "Some Guy with MC"
 }

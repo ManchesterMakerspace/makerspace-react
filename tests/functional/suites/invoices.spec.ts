@@ -13,14 +13,16 @@ import { checkout } from "../../pageObjects/checkout";
 import { paymentMethods } from "../../pageObjects/paymentMethods";
 import { creditCard as defaultCreditCard } from "../../constants/paymentMethod";
 import { defaultBillingOptions } from "../../constants/invoice";
-import { defaultTransactions } from "../../constants/transaction";
+import { defaultTransaction, defaultTransactions } from "../../constants/transaction";
 import { autoLogin } from "../autoLogin";
 import { defaultBillingOptions as invoiceOptions, membershipOptionQueryParams } from "../../constants/invoice";
 import signup from "../../pageObjects/signup";
 import settings from "../../pageObjects/settings";
 import header from "../../pageObjects/header";
 import { loadMockserver } from "../mockserver";
+import { generateClientToken, loadBraintreeMockserver, mockBraintreeTokenValidation } from "../../constants/braintreeMockserver";
 const mocker = loadMockserver();
+loadBraintreeMockserver();
 
 const initInvoices = [pastDueInvoice, settledInvoice];
 const resourcedInvoices: MemberInvoice[] = initInvoices.map(invoice => ({
@@ -40,6 +42,13 @@ describe("Invoicing and Dues", () => {
         expect(await browser.getUrl()).to.eql(utils.buildUrl(memberPO.getProfilePath(basicUser.id)));
       }
     }
+
+    beforeEach(() => {
+      mocker.getNewPaymentMethod_200({
+        clientToken: generateClientToken()
+      }, { unlimited: true });
+      mockBraintreeTokenValidation(defaultCreditCard);
+    });
 
     it("Members can log in and pay outstanding dues", async () => {
       /* 1. Login as basic user
@@ -97,6 +106,8 @@ describe("Invoicing and Dues", () => {
     });
 
     it("Warns you if you're about to purchase a duplicate category", async () => {
+      mocker.listPaymentMethods_200([defaultCreditCard]);
+      mocker.getPaymentMethod_200({ id: defaultCreditCard.id }, defaultCreditCard);
       await loadInvoices(resourcedInvoices, true);
 
       // Mock a member that already has a membership invoice
@@ -132,8 +143,14 @@ describe("Invoicing and Dues", () => {
       // Ignore and continue to checkout
       await signup.ignoreDuplicateInvoiceModal();
       await signup.selectMembershipOption(membershipOption.id, false);
-      await utils.clickElement(signup.membershipSelectForm.submit);
-      await utils.waitForPageLoad(checkout.checkoutUrl);
+      await signup.goNext();
+      await utils.clickElement(paymentMethods.getPaymentMethodSelectId(defaultCreditCard.id));
+      mocker.createTransaction_200({ body: { invoiceOptionId: membershipOption.id, paymentMethodId: defaultCreditCard.id } }, defaultTransaction);
+      await signup.goNext();
+      await utils.waitForVisible(checkout.authAgreementCheckbox);
+      await utils.clickElement(checkout.authAgreementCheckbox);
+      await signup.goNext();
+      await utils.waitForPageLoad(memberPO.getProfilePath(basicUser.id));
     });
 
     it("Redirects to profile if you accept duplicate invoice notice", async () => {

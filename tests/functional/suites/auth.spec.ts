@@ -10,11 +10,17 @@ import { loadMockserver } from "../mockserver";
 import { autoLogin } from "../autoLogin";
 import { defaultInvoice } from "../../constants/invoice";
 import { Match } from "makerspace-ts-mock-client/dist/mockserver/matcher";
+import { checkout } from "../../pageObjects/checkout";
+import { paymentMethods, creditCard } from "../../pageObjects/paymentMethods";
+import { defaultTransaction } from "../../constants/transaction";
+import { generateClientToken, loadBraintreeMockserver, mockBraintreeTokenValidation } from "../../constants/braintreeMockserver";
+import { newVisa } from "../../constants/paymentMethod";
 
 const member = Object.assign({}, basicUser);
 const memberId = member.id;
 const profileUrl = memberPO.getProfilePath(memberId);
 const mocker = loadMockserver();
+loadBraintreeMockserver();
 
 describe("Authentication", () => {
   afterEach(() => mocker.reset());
@@ -87,6 +93,13 @@ describe("Authentication", () => {
       ...member,
       memberContractOnFile: false,
     }
+
+    beforeEach(() => {
+      mocker.getNewPaymentMethod_200({
+        clientToken: generateClientToken()
+      }, { unlimited: true });
+      mockBraintreeTokenValidation(newVisa);
+    });
     it("User can sign up with a selected membership option", async function () {
       /* 1. Setup mocks
           - Load membership options
@@ -101,8 +114,8 @@ describe("Authentication", () => {
          7. Verify directed to profile
       */
 
-      const membershipId = "none";
-      mocker.listInvoiceOptions_200(membershipOptionQueryParams, [])
+      const membershipId = "foo";
+      mocker.listInvoiceOptions_200(membershipOptionQueryParams, invoiceOptions)
       const { firstname, lastname, email, password, address } = newMember;
       mocker.registerMember_200({ body: {
         firstname, lastname, email, password, address
@@ -123,8 +136,35 @@ describe("Authentication", () => {
       await signup.goNext();
       await utils.waitForVisible(signup.signUpControls.cartPreview);
       mocker.getMember_200({ id: newMember.id }, { ...newMember, memberContractOnFile: true });
+      mocker.listPaymentMethods_200([]);
       await signup.goNext();
       await utils.waitForNotVisible(signup.signUpControls.cartPreview);
+      await utils.waitForNotVisible(paymentMethods.paymentMethodFormSelect.loading);
+      // Add a payment method
+      await utils.waitForVisible(paymentMethods.paymentMethodAccordian.creditCard);
+      expect((await paymentMethods.getPaymentMethods()).length).to.eql(0);
+      await utils.clickElement(paymentMethods.paymentMethodAccordian.creditCard);
+      await creditCard.fillInput("cardNumber", newVisa.number);
+      await creditCard.fillInput("csv", newVisa.csv);
+      await creditCard.fillInput("expirationDate", newVisa.expiration);
+      await creditCard.fillInput("postalCode", newVisa.postalCode);
+      await creditCard.fillInput("cardholderName", newVisa.name);
+      mocker.createPaymentMethod_200({} as any, newVisa);
+      mocker.listPaymentMethods_200([newVisa]);
+      mocker.getPaymentMethod_200({ id: newVisa.id }, newVisa);
+      await signup.goNext();
+      await utils.waitForNotVisible(paymentMethods.paymentMethodAccordian.creditCard);
+      await utils.waitForVisible(checkout.authAgreementCheckbox);
+      await utils.clickElement(checkout.authAgreementCheckbox);
+      // Submit payment
+
+      mocker.createTransaction_200({
+        body: {
+          invoiceOptionId: membershipId,
+          paymentMethodId: newVisa.id
+        }
+      }, defaultTransaction);
+      await signup.goNext();
       await utils.waitForPageLoad(memberPO.getProfilePath(newMember.id));
       expect(await utils.isElementDisplayed(memberPO.memberDetail.notificationModal));
     });
@@ -178,7 +218,7 @@ describe("Authentication", () => {
       await signup.goNext();
       expect(!!(await utils.getElementText(error))).to.be.true;
       mocker.registerMember_200({ body: {
-        firstname, lastname, email, password, address 
+        firstname, lastname, email, password, address
       } }, newMember);
       mocker.listMembersPermissions_200({ id: newMember.id }, {});
       await signup.goNext();

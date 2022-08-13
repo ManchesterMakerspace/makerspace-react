@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Install Dependencies
-          command: yarn install && yarn build
+          command: yarn install --ignore-platform && yarn build
       - run:
           name: UT
           command: yarn test

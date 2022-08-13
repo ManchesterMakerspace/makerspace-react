@@ -57,7 +57,7 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
       }, {} as Braintree.HostedFieldFieldOptions),
     }, (err, hostedFieldsInstance: Braintree.HostedFields) => {
       setInstanceLoading(false);
-      
+
       if (err) {
         setInstanceError(err);
         reportError({ body: { message: err.message } });
@@ -96,7 +96,7 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
           setError(emittedBy, "Invalid")
         }
       });
-      
+
     });
   }, [braintreeClient, setInstance, setInstanceError, setInstanceLoading, setCardType, setError]);
 
@@ -111,11 +111,11 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
           reject(err);
           return;
         }
-  
+
         return createPaymentMethod(payload.nonce, true).then(resolve).catch(reject);
       });
     });
-    
+
   }, [instance, setInstanceLoading, setInstanceError]);
 
   React.useEffect(() => {
@@ -131,13 +131,13 @@ export const CreditCardProvider: React.FC<Props> = ({ children }) => {
     }
 
     const formState = instance.getState();
-    const isValid = Object.keys(CreditCardFields).every(fieldName => formState.fields[fieldName]?.isValid);    
+    const isValid = Object.keys(CreditCardFields).every(fieldName => formState.fields[fieldName]?.isValid);
 
     if (!isValid) {
       setInstanceError("Invalid card information. Review your selections and try again");
       return { error: true };
     }
-    
+
   }, [instance, setInstanceError]);
 
   const context: CreditCardContext = React.useMemo(() => {
@@ -178,14 +178,14 @@ export const CreditCardForm: React.FC = ({ }) => {
       <Grid item xs={12}>
         <form id="cc-form" className={`scale-down ${cardType?.type}`}>
           <div className="cardinfo-card-number">
-            <label 
-              className="cardinfo-label" 
+            <label
+              className="cardinfo-label"
               htmlFor={CreditCardFields[EmittedBy.Number].name}
             >
               {CreditCardFields[EmittedBy.Number].label}
             </label>
-            <div 
-              className='input-wrapper' 
+            <div
+              className='input-wrapper'
               id={CreditCardFields[EmittedBy.Number].name}
             ></div>
             <div className={cardType?.type} id="card-image"></div>
@@ -193,21 +193,21 @@ export const CreditCardForm: React.FC = ({ }) => {
 
           <div className="cardinfo-wrapper">
             <div className="cardinfo-exp-date">
-              <label 
-                className="cardinfo-label" 
+              <label
+                className="cardinfo-label"
                 htmlFor={CreditCardFields[EmittedBy.ExpirationDate].name}
               >
                 {CreditCardFields[EmittedBy.ExpirationDate].label}
               </label>
-              <div 
-                className='input-wrapper' 
+              <div
+                className='input-wrapper'
                 id={CreditCardFields[EmittedBy.ExpirationDate].name}
               ></div>
             </div>
 
             <div className="cardinfo-cvv">
-              <label 
-                className="cardinfo-label" 
+              <label
+                className="cardinfo-label"
                 htmlFor={CreditCardFields[EmittedBy.Cvv].name}
               >
                 {CreditCardFields[EmittedBy.Cvv].label}
@@ -217,27 +217,27 @@ export const CreditCardForm: React.FC = ({ }) => {
           </div>
 
           <div className="cardinfo-name">
-            <label 
-              className="cardinfo-label" 
+            <label
+              className="cardinfo-label"
               htmlFor={CreditCardFields[EmittedBy.CardholderName].name}
             >
               {CreditCardFields[EmittedBy.CardholderName].label}
             </label>
-            <div 
-              className='input-wrapper' 
+            <div
+              className='input-wrapper'
               id={CreditCardFields[EmittedBy.CardholderName].name}
             ></div>
           </div>
 
           <div className="cardinfo-postalcode">
-            <label 
-              className="cardinfo-label" 
+            <label
+              className="cardinfo-label"
               htmlFor={CreditCardFields[EmittedBy.PostalCode].name}
             >
               {CreditCardFields[EmittedBy.PostalCode].label}
             </label>
-            <div 
-              className='input-wrapper' 
+            <div
+              className='input-wrapper'
               id={CreditCardFields[EmittedBy.PostalCode].name}
             ></div>
           </div>

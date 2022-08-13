@@ -43,7 +43,6 @@ export const MembershipSelectForm: React.FC<Props> = ({ onSubmit, showNoneOption
 
   React.useEffect(() => {
     const firstSelection = promotionOptions[0] || defaultOption;
-    console.error("FIRST SELECTION", firstSelection);
     !invoiceOptionIdParam && firstSelection && updateInvoiceOption(firstSelection);
   }, [defaultOption]);
 

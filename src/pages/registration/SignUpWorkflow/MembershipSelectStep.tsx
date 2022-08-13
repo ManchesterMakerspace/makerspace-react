@@ -4,12 +4,13 @@ import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
 
 import { InvoiceOption } from "makerspace-ts-api-client";
-import { noneInvoiceOption } from "ui/membership/MembershipSelectForm";
 import { buildNewMemberProfileRoute } from "ui/member/utils";
 import { useAuthState } from "ui/reducer/hooks";
 import { ToastStatus, useToastContext } from "components/Toast/Toast";
 import { Routing } from "app/constants";
 import { MembershipSelectForm } from "../MembershipOptions/MembershipSelectForm";
+import { noneInvoiceOption } from "../MembershipOptions";
+import DuplicateMembershipModal from "ui/membership/DuplicateMembershipModal";
 
 interface Props {}
 
@@ -26,8 +27,8 @@ export const MembershipSelectStep: React.FC<Props> = ({ children }) => {
         message: (
           <>
             <Typography component="span" variant="body1">Select a membership anytime in </Typography>
-            <Link 
-              href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUser.id)} 
+            <Link
+              href={Routing.Settings.replace(Routing.PathPlaceholder.MemberId, currentUser.id)}
               target="_blank"
             >
               <Typography component="span" variant="body1">settings</Typography>
@@ -43,8 +44,11 @@ export const MembershipSelectStep: React.FC<Props> = ({ children }) => {
   }, []);
 
   return (
-    <MembershipSelectForm onSubmit={onSubmit}>
-      {children}
-    </MembershipSelectForm>
+    <>
+      <MembershipSelectForm onSubmit={onSubmit}>
+        {children}
+      </MembershipSelectForm>
+      <DuplicateMembershipModal />
+    </>
   );
 };

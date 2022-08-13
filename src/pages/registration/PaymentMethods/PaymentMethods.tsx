@@ -18,11 +18,11 @@ import { RadioGroup } from "components/Form/inputs/RadioGroup";
 import { usePaymentMethodsContext } from "./PaymentMethodsContext";
 import { CreditCardConsumer, CreditCardForm } from "./CreditCardForm";
 import { PayPalConsumer, PayPalForm } from "./PayPalForm";
-import { 
-  paymentMethodQueryParam, 
-  PaymentType, 
-  paymentTypeFieldName, 
-  selectedFieldName, 
+import {
+  paymentMethodQueryParam,
+  PaymentType,
+  paymentTypeFieldName,
+  selectedFieldName,
 } from "./constants";
 
 interface Props {
@@ -92,7 +92,7 @@ export const PaymentMethods: React.FC<Props> = () => {
             <RadioGroup fieldName={paymentTypeFieldName} defaultValue={PaymentType.Existing}>
               <>
                 {(loading || paypalLoading || ccLoading || isRequesting) && <LoadingOverlay id="payment-method-form" />}
-                <Accordion 
+                <Accordion
                   expanded={values[paymentTypeFieldName] === PaymentType.Existing}
                   onChange={(_, expanded) => expanded && setValue(paymentTypeFieldName, PaymentType.Existing)}
                 >
@@ -138,7 +138,7 @@ export const PaymentMethods: React.FC<Props> = () => {
                     </Grid>
                   </AccordionDetails>
                 </Accordion>
-                <Accordion 
+                <Accordion
                   expanded={values[paymentTypeFieldName] === PaymentType.CreditCard}
                   onClick={() => updateType(PaymentType.CreditCard)}
                 >
@@ -156,7 +156,7 @@ export const PaymentMethods: React.FC<Props> = () => {
                     <CreditCardForm />
                   </AccordionDetails>
                 </Accordion>
-                <Accordion 
+                <Accordion
                   onClick={() => updateType(PaymentType.PayPal)}
                   expanded={values[paymentTypeFieldName] === PaymentType.PayPal}
                 >
