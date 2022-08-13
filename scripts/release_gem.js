@@ -82,6 +82,9 @@ const publishGem = async (version) => {
       exec(`gem push makerspace-react-rails-${version}.gem`, { shell: true }, (err) => {
         if (err) {
           console.error(`Error publishing gem: ${err}`);
+          if (err.stack) {
+            console.error(err.stack)
+          }
           return;
         }
         console.log("Gem published successfully");
