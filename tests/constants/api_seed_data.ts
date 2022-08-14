@@ -67,7 +67,9 @@ export const createRejectCard = (cardNumber: string) => {
 export const cancelMemberSubscription = (memberEmail: string, paypal?: boolean) => {
   return new Promise((resolve, reject) => {
     const cmd = paypal ? "paypal_webhook" : "braintree_webhook";
-    cp.exec(`${getRakeCmd()} db:${cmd}["${memberEmail}"]`, (error) => {
+    cp.exec(`${getRakeCmd()} db:${cmd}["${memberEmail}"]`, (error, stdout, stderr) => {
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
       if (error) {
         logger("RAILS_CMD").error(error);
         console.log(error);
