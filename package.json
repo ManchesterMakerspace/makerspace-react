@@ -16,7 +16,7 @@
     "lodash-es": "^4.17.21",
     "makerspace-ts-api-client": "2.9.0",
     "moment": "^2.29.4",
-    "moment-timezone": "^0.5.23",
+    "moment-timezone": "^0.5.35",
     "paypal-checkout": "^4.0.217",
     "paypal-checkout-components": "^4.1.35",
     "react": "^16.8.6",
