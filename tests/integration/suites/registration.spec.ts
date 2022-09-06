@@ -115,7 +115,7 @@ describe("Member management", () => {
 
     it("Customers can register from home page via URL with discounts", async function () {
       this.timeout(200 * 1000);
-      const discount = "SUNLAB-MONTH-50";
+      const discount = "SUNRISE-MONTH-50";
       await browser.url(utils.buildUrl(
         signup.signupUrl + `?${invoiceOptionParam}=one-month&${discountParam}=${discount}`));
 
