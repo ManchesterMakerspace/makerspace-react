@@ -118,11 +118,11 @@ class Form extends React.Component<FormModalProps, State> {
   };
 
   public setFormState = (newState: Partial<State>) => {
-    return new Promise((resolve) => this.setState(state => (merge({}, state, newState)), resolve))
+    return new Promise<void>((resolve) => this.setState(state => (merge({}, state, newState)), resolve))
   };
 
   public setValue = (fieldName: string, value: any) => {
-    return new Promise((resolve) => this.setState(state => ({
+    return new Promise<void>((resolve) => this.setState(state => ({
       values: {
           ...state.values,
           [fieldName]: isUndefined(value) ? null : value
@@ -131,7 +131,7 @@ class Form extends React.Component<FormModalProps, State> {
   }
 
   public setError = (fieldName: string, error: string) => {
-    return new Promise((resolve) => this.setState(state => ({
+    return new Promise<void>((resolve) => this.setState(state => ({
       errors: {
         ...isUndefined(error) ? {
           ...omit(state.errors, [fieldName])

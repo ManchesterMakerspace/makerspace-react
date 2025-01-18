@@ -22,7 +22,7 @@ module.exports = env => ({
     rules: [
       {
         test: /\.(png|jpg|svg)$/,
-        loader: "url-loader"
+        type: "asset/inline"
       },
       {
         test: /\.(html)$/,
@@ -30,10 +30,6 @@ module.exports = env => ({
           loader: "html-loader",
           options: {
             minimize: true,
-            removeAttributeQuotes: false,
-            caseSensitive: true,
-            customAttrSurround: [[/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/]],
-            customAttrAssign: [/\)?\]?=/]
           }
         }
       },
@@ -92,12 +88,14 @@ module.exports = env => ({
   },
   context: __dirname,
   target: "web",
+  optimization: {
+    moduleIds: "named",
+  },
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       checkSyntacticErrors: true,
-      async: false
+      async: false,
     }),
-    new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
       filename: `makerspace-react.css`
     }),
@@ -105,7 +103,7 @@ module.exports = env => ({
       template: "./src/assets/index.html",
       filename: "./index.html"
     }),
-    new CopyWebpackPlugin([{ from: "src/assets/favicon.png", to: "favicon.png" }]),
+    new CopyWebpackPlugin({ patterns: [{ from: "src/assets/favicon.png", to: "favicon.png" }] }),
     new webpack.EnvironmentPlugin({
       BILLING_ENABLED: true,
       BASE_URL: (env && env.BASE_URL) || ""

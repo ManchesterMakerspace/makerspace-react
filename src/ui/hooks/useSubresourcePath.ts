@@ -6,7 +6,7 @@ import useReactRouter from "use-react-router";
  * @param options Subpaths
  */
 export default function useSubresourcePath(options: string[]) {
-  const { match: { params: { resource }}, history, location: { pathname } } = useReactRouter();
+  const { match: { params: { resource }}, history, location: { pathname } } = useReactRouter<{ resource: string }>();
 
   const changeResource = React.useCallback((newActiveName: string) => {
     const newResource = options.find(opt => opt === newActiveName);

@@ -3,7 +3,6 @@ import { RenewalEntity } from "ui/common/RenewalForm";
 import { Properties } from "app/entities/member";
 import { timeToDate } from "ui/utils/timeToDate";
 import { Routing } from "app/constants";
-import { isObject } from "util";
 
 export const memberToRenewal = (member: Member | MemberSummary): RenewalEntity => {
   return {
@@ -18,7 +17,7 @@ export const memberIsAdmin = (member: Member | MemberSummary): boolean => {
 }
 
 export const displayMemberExpiration = (member: Member | MemberSummary | number) => {
-  const expirationTime = isObject(member) ? (member as MemberSummary).expirationTime : member as number;
+  const expirationTime = member !== null && typeof member == "object" ? (member as MemberSummary).expirationTime : member as number;
   return expirationTime ? timeToDate(expirationTime) : "N/A";
 }
 
