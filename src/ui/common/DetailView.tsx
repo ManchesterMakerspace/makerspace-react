@@ -36,7 +36,7 @@ const DetailView: React.FC<OwnProps> = ({
 }) => {
   const resourcesExist = Array.isArray(resources) && !!resources.length;
   const [activeResource, setActiveResource] = React.useState<Resource>(resourcesExist ? resources[0] : undefined);
-  const { match: { params: { resource }}, history, location: { pathname } } = useReactRouter();
+  const { match: { params: { resource }}, history, location: { pathname } } = useReactRouter<{ resource: string }>();
 
   React.useEffect(() => {
     resource && changeResource(resource);
