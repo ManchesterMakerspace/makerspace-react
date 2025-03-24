@@ -14,6 +14,7 @@ import { ActionButton } from "ui/common/ButtonRow";
 import { Whitelists, Routing } from "app/constants";
 import { getDetailsForMember } from "./constants";
 import AccessCardForm from "ui/accessCards/AccessCardForm";
+import AccessCardInputForm from "ui/accessCards/AccessCardInputForm";
 import ReportList from "ui/reports/ReportList";
 import TransactionsList from "ui/transactions/TransactionsList";
 import useReadTransaction from "../hooks/useReadTransaction";
@@ -144,6 +145,7 @@ const MemberProfile: React.FC = () => {
             <EditMember member={member} key="edit-member" onEdit={refreshMember}/>,
             <RenewMember member={member} key="renew-member" onRenew={refreshMember}/>,
             <AccessCardForm memberId={memberId} key="card-form"/>
+            <AccessCardInputForm memberId={memberId} key="card-input-form"/>
           ] : []
         ]}
         information={(
