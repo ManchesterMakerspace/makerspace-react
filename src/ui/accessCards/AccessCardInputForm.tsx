@@ -57,11 +57,6 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
   const { isRequesting: createLoading, error: createError, call: createCard } = useWriteTransaction(adminCreateCard, onSuccess);
 
   const onSubmit = React.useCallback(() => {
-    if (!rejectionCard) {
-      setError("Import new key fob before proceeding.");
-      return;
-    }
-
     if (!idVerified) {
       setError("Member ID verification required to issue key.");
       return;
@@ -69,6 +64,10 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
 
     if (cardInput && !/^([a-fA-F0-9]{2})*$/i.test(cardInput)) {
       setError("UID must be an even number of hexadecimal characters.");
+      return;
+    }
+   if (!rejectionCard && !cardInput) {
+      setError("Scan or type in new key before proceeding.");
       return;
     }
 
@@ -83,14 +82,14 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
         color="primary"
         variant={member && member.cardId ? "outlined" : "contained"}
         disabled={memberLoading}
-        label={member && member.cardId ? "Replace Fob" : "Register Fob"}
+        label={member && member.cardId ? "Manually replace Fob" : "Manually register Fob"}
         onClick={openModal}
       />
       {isOpen && <FormModal
-        id="card-form"
+        id="card-input-form"
         loading={createLoading || newCardLoading}
         isOpen={true}
-        title="Register New Fob"
+        title="Register or Input New Fob"
         closeHandler={closeModal}
         onSubmit={onSubmit}
         error={createError || newCardError || error}
@@ -101,9 +100,9 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
           : <Typography color="secondary" variant="body1" gutterBottom>No access card exists for {member.firstname}</Typography>
         }
         <ol className="instruction-list">
-          <li>Scan a new keyfob at the front door</li>
+          <li>Scan a new keyfob at the front door, or type in the hex value below</li>
           <li>
-            <div>Click the following button to import the new key fob's ID</div>
+            <div>Click the following button to import a scanned key fob's ID</div>
             <div>
               <Button
                 id="card-form-import-new-key"
@@ -115,7 +114,7 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
               </Button>
             </div>
           </li>
-          <li>Confirm new ID is displayed here:
+          <li>Confirm scanned ID is displayed here, or type in a HEX string:
             <TextField
               id="card-form-key-input"
               value={cardInput}
