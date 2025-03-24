@@ -9,7 +9,7 @@ import { useAuthState } from "ui/reducer/hooks";
 import { ToastStatus, useToastContext } from "components/Toast/Toast";
 import { Routing } from "app/constants";
 import { MembershipSelectForm } from "../MembershipOptions/MembershipSelectForm";
-import { noneInvoiceOption } from "../MembershipOptions";
+import { noneInvoiceOption, prepaidInvoiceOption } from "../MembershipOptions";
 import DuplicateMembershipModal from "ui/membership/DuplicateMembershipModal";
 
 interface Props {}
