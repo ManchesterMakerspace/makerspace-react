@@ -111,6 +111,20 @@ export class MemberPageObject extends TablePageObject {
     cancel: `${this.cardFormId}-cancel`,
     loading: `${this.cardFormId}-loading`,
   }
+    private cardInputFormId = "#card-input-form";
+  public accessCardInputForm = {
+    id: `${this.cardInputFormId}`,
+    error: `${this.cardInputFormId}-error`,
+    deactivateButton: `${this.cardInputFormId}-deactivate`,
+    lostButton: `${this.cardInputFormId}-lost`,
+    stolenButton: `${this.cardInputFormId}-stolen`,
+    importButton: `${this.cardInputFormId}-import-new-key`,
+    importConfirmation: `${this.cardInputFormId}-key-confirmation`,
+    idVerification: `${this.cardInputFormId}-id-verified`,
+    submit: `${this.cardInputFormId}-submit`,
+    cancel: `${this.cardInputFormId}-cancel`,
+    loading: `${this.cardInputFormId}-loading`,
+  }
 
   public membersListUrl = Routing.Members;
   private membersListTableId = "#members-table";
