@@ -151,4 +151,4 @@ const AccessCardForm: React.FC<{ memberId: string }> = ({ memberId }) => {
   );
 };
 
-export default AccessCardForm;
+export default AccessCardInputForm;
