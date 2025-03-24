@@ -14,7 +14,7 @@ export const noneInvoiceOption: InvoiceOption = {
 };
 
 export const prepaidInvoiceOption: InvoiceOption = {
-  id: "prepaid",
+  id: "none",
   name: "Prepaid",
   description: "Prepaid via <B>Eventbrite</B> or other voucher",
   amount: undefined,
