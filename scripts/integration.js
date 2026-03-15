@@ -3,6 +3,7 @@ const fs = require("fs");
 const simpleGit = require("simple-git/promise");
 // const exec = require("child_process").exec;
 const spawn = require("child_process").spawn;
+const execSync = require('child_process');
 
 const port = process.env.PORT || 3002;
 const reactFolder = path.join(__dirname, "..");
@@ -76,18 +77,18 @@ const integrationTest = async () => {
       runCmd(`RAILS_DIR=${railsFolder} PORT=3035 yarn e2e`, reactLogs, endProcess);
     };
     const startReact = () => {
+      console.log(`Sleeping for a few seconds...`);
+      const slept = execSync('sleep 15', { encoding: 'utf8', stdio: 'inherit' });
       process.chdir(reactFolder);
       console.log(`Starting React`);
       runCmd(`yarn start`, reactLogs);
-      setTimeout(startTest, 10 * 1000);
+      setTimeout(startTest, 25 * 1000);
     };
     const startRails = () => {
       process.chdir(railsFolder);
       console.log(`Starting Rails...`);
       //runCmd(`RAILS_ENV=test bundle exec rake db:db_reset && LOG_TESTS=${railsLogFile} RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startReact);
       runCmd(`RAILS_ENV=test bundle exec rake db:db_reset && LOG_TESTS=${railsLogFile} RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startReact);
-      console.log(`Sleeping for a few seconds...`);
-      runCmd(`sleep 15`,railsLogs);
     };
     const bundle = () => {
       process.chdir(railsFolder);
