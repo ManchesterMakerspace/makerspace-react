@@ -1,18 +1,20 @@
 version: 2.1
 orbs:
-  ruby: circleci/ruby@0.1.2
+  ruby: circleci/ruby@2.1.4
 
 jobs:
   build:
     docker:
-      - image: circleci/ruby:2.6.6-stretch-node-browsers
+      - image: cimg/ruby:3.2-node
       - image: redis
-    executor: ruby/default
     steps:
       - checkout
       - run:
           name: Install Dependencies
           command: yarn install --ignore-platform --ignore-engines && yarn build
+      - run:
+          name: Install mongo gem
+          command: gem install mongo -v '~> 2.22'
       - run:
           name: UT
           command: yarn test
@@ -26,13 +28,15 @@ jobs:
           path: ./tmp/screenshots
   publish:
     docker:
-      - image: circleci/ruby:2.6.6-stretch-node-browsers
-    executor: ruby/default
+      - image: cimg/ruby:3.2-node
     steps:
       - checkout
       - run:
           name: Install Dependencies
           command: yarn install --ignore-engines
+      - run:
+          name: Install mongo gem
+          command: gem install mongo -v '~> 2.22'
       - run:
           name: deploy
           command: |
