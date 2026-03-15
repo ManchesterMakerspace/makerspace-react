@@ -14,6 +14,9 @@ jobs:
           name: Install Dependencies
           command: yarn install --ignore-platform && yarn build
       - run:
+          name: Install wait-on
+          command: npm install -g wait-on
+      - run:
           name: UT
           command: yarn test
       - run:
