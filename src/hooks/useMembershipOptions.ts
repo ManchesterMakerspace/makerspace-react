@@ -45,7 +45,6 @@ export const useMembershipOptions = (includeNone?: boolean): ParsedInvoiceOption
     }, [] as InvoiceOption[]);
 
     const sortedNormalOpts = normalOptions.sort(byAmount);
-    sortedNormalOpts = sortedNormalOpts.concat(prepaidInvoiceOption); 
     
     return {
       error,
