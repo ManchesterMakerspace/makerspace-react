@@ -18,6 +18,9 @@ jobs:
           name: Install mongo gem
           command: gem install mongo -v '~> 2.22'
       - run:
+          name: Install bundler gem
+          command: gem install bundler:1.17.3
+      - run:
           name: UT
           command: yarn test
       - run:
@@ -40,6 +43,9 @@ jobs:
       - run:
           name: Install mongo gem
           command: gem install mongo -v '~> 2.22'
+      - run:
+          name: Install bundler gem
+          command: gem install bundler:1.17.3
       - run:
           name: deploy
           command: |
