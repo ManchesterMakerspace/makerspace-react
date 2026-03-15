@@ -84,7 +84,10 @@ const integrationTest = async () => {
     const startRails = () => {
       process.chdir(railsFolder);
       console.log(`Starting Rails...`);
+      //runCmd(`RAILS_ENV=test bundle exec rake db:db_reset && LOG_TESTS=${railsLogFile} RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startReact);
       runCmd(`RAILS_ENV=test bundle exec rake db:db_reset && LOG_TESTS=${railsLogFile} RAILS_ENV=test rails s -b 0.0.0.0 -p ${port} -d`, railsLogs, startReact);
+      console.log(`Sleeping for a few seconds...`);
+      runCmd(`sleep 15`,railsLogs);
     };
     const bundle = () => {
       process.chdir(railsFolder);
