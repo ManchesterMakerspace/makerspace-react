@@ -16,9 +16,6 @@ jobs:
           name: Install mongo gem
           command: gem install mongo -v '~> 2.22'
       - run:
-          name: Install wait-on
-          command: npm install -g wait-on
-      - run:
           name: UT
           command: yarn test
       - run:
