@@ -13,9 +13,9 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install --ignore-platform && yarn build
-#      - run:
-#         name: Install mongo gem
-#         command: gem install mongo -v '~> 2.22'
+       - run:
+          name: Install mongo gem
+          command: gem install mongo -v '~> 2.22'
       - run:
           name: UT
           command: yarn test
@@ -36,9 +36,9 @@ jobs:
       - run:
           name: Install Dependencies
           command: yarn install --immutable
-#      - run:
-#         name: Install mongo gem
-#         command: gem install mongo -v '~> 2.22'
+       - run:
+          name: Install mongo gem
+          command: gem install mongo -v '~> 2.22'
       - run:
           name: deploy
           command: |
