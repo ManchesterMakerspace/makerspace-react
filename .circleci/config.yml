@@ -1,11 +1,12 @@
 version: 2.1
 orbs:
   ruby: circleci/ruby@0.1.2
-
+  # circleci/ruby@2.6.0
+  # https://circleci.com/developer/orbs?query=ruby&page=1&pageSize=15
 jobs:
   build:
     docker:
-      - image: circleci/ruby:2.6.6-stretch-node-browsers
+      - image: circleci/ruby:2.7.5-node-browsers-legacy
       - image: redis
     executor: ruby/default
     steps:
