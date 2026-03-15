@@ -19,7 +19,7 @@ module.exports = env => ({
     rules: [
       {
         test: /\.(png|jpg|svg)$/,
-        type: "asset/inline"
+        loader: "url-loader"
       },
       {
         test: /\.(html)$/,
@@ -27,6 +27,10 @@ module.exports = env => ({
           loader: "html-loader",
           options: {
             minimize: true,
+            removeAttributeQuotes: false,
+            caseSensitive: true,
+            customAttrSurround: [[/#/, /(?:)/], [/\*/, /(?:)/], [/\[?\(?/, /(?:)/]],
+            customAttrAssign: [/\)?\]?=/]
           }
         }
       },
@@ -88,24 +92,23 @@ module.exports = env => ({
   target: "web",
   devServer: {
     hot: true,
+    disableHostCheck: true,
     historyApiFallback: true,
-    proxy: [
-      {
-        context: ["/api"],
-        target: "http://localhost:3002",
-      },
-    ],
+    proxy: {
+      "/api": "http://localhost:3002"
+    },
+    https: false,
     port: 3035,
+    inline: true,
     headers: { "Access-Control-Allow-Origin": "*" },
-  },
-  optimization: {
-    moduleIds: "named",
+    watchOptions: { ignored: /node_modules/ }
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       checkSyntacticErrors: true,
       async: false
     }),
+    new webpack.NamedModulesPlugin(),
     new MiniCssExtractPlugin({
       filename: `makerspace-react.css`
     }),
@@ -113,7 +116,7 @@ module.exports = env => ({
       template: "./src/assets/index.html",
       filename: "./index.html"
     }),
-    new CopyWebpackPlugin({ patterns: [{ from: "src/assets/favicon.png", to: "favicon.png" }] }),
+    new CopyWebpackPlugin([{ from: "src/assets/favicon.png", to: "favicon.png" }]),
     new webpack.EnvironmentPlugin({
       BILLING_ENABLED: true,
       BASE_URL: (env && env.BASE_URL) || ""
