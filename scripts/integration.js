@@ -94,6 +94,9 @@ const integrationTest = async () => {
     };
     const bundle = () => {
       process.chdir(railsFolder);
+      console.log(`Installing gems...`);
+      const gbun = execSync(`gem install bundler:1.17.3 mongo:2.23.0`, { encoding: 'utf8', stdio: 'inherit' });
+      console.log(gbun);
       console.log(`Installing Rails...`);
       runCmd("bundle install", railsLogs, startRails);
     };
