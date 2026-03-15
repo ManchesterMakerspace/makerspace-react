@@ -77,8 +77,10 @@ const integrationTest = async () => {
       runCmd(`RAILS_DIR=${railsFolder} PORT=3035 yarn e2e`, reactLogs, endProcess);
     };
     const startReact = () => {
-      console.log(`Sleeping for a few seconds...`);
-      const slept = execSync('sleep 15', { encoding: 'utf8', stdio: 'inherit' });
+      console.log(" Waiting on http://localhost:${port}...");
+      //const slept = execSync('sleep 10', { encoding: 'utf8', stdio: 'inherit' });
+      const waiter = execSync("npx wait-on --timeout 20000 http://localhost:${port}", { encoding: 'utf8', stdio: 'inherit' });
+      console.log(waiter);
       process.chdir(reactFolder);
       console.log(`Starting React`);
       runCmd(`yarn start`, reactLogs);
