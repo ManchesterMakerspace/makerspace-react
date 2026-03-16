@@ -97,6 +97,15 @@ const integrationTest = async () => {
       console.log(`Installing gems...`);
       const gbun = execSync(`gem install bundler:1.17.3 mongo:2.23.0`, { encoding: 'utf8', stdio: 'inherit' });
       console.log(gbun);
+      console.log(`Setting bundle...`);
+      const gconf = execSync(`bundle config set --local path vendor/bundle`, { encoding: 'utf8', stdio: 'inherit' });
+      console.log(gconf);
+      const rubyv = execSync(`ruby -v`, { encoding: 'utf8', stdio: 'inherit' });
+      console.log(rubyv);
+      const bunv = execSync(`bundle -v`, { encoding: 'utf8', stdio: 'inherit' });
+      console.log(`Bundle version ${bunv}`);
+      const find = execSync(`find / -name "Gemfile.lock" -print -exec cp {} ${screenshotsDir} \;`, { encoding: 'utf8', stdio: 'inherit' });
+      console.log(find);
       console.log(`Installing Rails...`);
       runCmd("bundle install", railsLogs, startRails);
     };
