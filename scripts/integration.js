@@ -104,8 +104,8 @@ const integrationTest = async () => {
       console.log(rubyv);
       const bunv = execSync(`bundle -v`, { encoding: 'utf8', stdio: 'inherit' });
       console.log(`Bundle version ${bunv}`);
-      const find = execSync(`find / -name "Gemfile.lock" -print -exec cp {} ${screenshotsDir} \;`, { encoding: 'utf8', stdio: 'inherit' });
-      console.log(find);
+      //const find = execSync(`find / -name "Gemfile.lock" -print -exec cp {} ${screenshotsDir} \;`, { encoding: 'utf8', stdio: 'inherit' });
+      //console.log(find);
       console.log(`Installing Rails...`);
       runCmd("bundle install", railsLogs, startRails);
     };
