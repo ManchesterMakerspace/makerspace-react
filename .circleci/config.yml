@@ -13,14 +13,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Set Ruby Version
-          command: |
-            export PATH="$HOME/.rbenv/bin:$PATH"
-            eval "$(rbenv init -)"
-            rbenv local 2.7.5
-            rbenv install 2.7.5 || true # Install if not exists
-            rbenv rehash
-            ruby -v
+          name: Get Ruby Version
+          command:  ruby -v
       - run:
           name: Install Dependencies
           command: yarn install --ignore-platform && yarn build
