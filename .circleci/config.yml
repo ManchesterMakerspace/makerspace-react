@@ -1,8 +1,9 @@
 version: 2.1
 orbs:
-  ruby: circleci/ruby@0.1.2
-  # circleci/ruby@2.6.0
-  # https://circleci.com/developer/orbs?query=ruby&page=1&pageSize=15
+  ruby: circleci/ruby@2.6.0
+#  #ruby: circleci/ruby@0.1.2
+#  # circleci/ruby@2.6.0
+#  # https://circleci.com/developer/orbs?query=ruby&page=1&pageSize=15
 jobs:
   build:
     docker:
@@ -11,6 +12,9 @@ jobs:
     executor: ruby/default
     steps:
       - checkout
+      - run:
+          name: Get Ruby Version
+          command:  ruby -v
       - run:
           name: Install Dependencies
           command: yarn install --ignore-platform && yarn build
