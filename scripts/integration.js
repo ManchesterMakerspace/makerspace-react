@@ -7,7 +7,7 @@ const execSync = require("child_process").execSync;
 
 const port = process.env.PORT || 3002;
 const reactFolder = path.join(__dirname, "..");
-const railsName = "makerspace-rails";
+const railsName = "makerspace-rails-2026";
 const tmp = path.join(process.cwd(), "tmp");
 const railsFolder = path.join(tmp, railsName);
 const screenshotsDir = path.join(tmp, "screenshots");
@@ -16,7 +16,7 @@ const railsLogFile = path.join(screenshotsDir, "rails.log");
 const reactLogFile = path.join(screenshotsDir, "react.log");
 
 const railsRepo = {
-  url: "https://github.com/ManchesterMakerspace/makerspace-rails.git",
+  url: "https://github.com/ManchesterMakerspace/makerspace-rails-2026.git",
 }
 
 const integrationTest = async () => {
