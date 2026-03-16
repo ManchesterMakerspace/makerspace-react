@@ -105,10 +105,10 @@ const integrationTest = async () => {
       const bunv = execSync(`bundle -v`, { encoding: 'utf8', stdio: 'inherit' });
       console.log(`Bundle version ${bunv}`);
       //const find = execSync(`find / -name "Gemfile.lock" -print -exec cp {} ${screenshotsDir} \;`, { encoding: 'utf8', stdio: 'inherit' });
-      const lock = execSync(`cp /home/circleci/project/tmp/makerspace-rails/Gemfile.lock {screenshotsDir}/gemfile.log`, { encoding: 'utf8', stdio: 'inherit' });
+      const lock = execSync(`cp ${railsFolder}/Gemfile.lock ${screenshotsDir}/Gemfile.log`, { encoding: 'utf8', stdio: 'inherit' });
       console.log(lock);
-      const version = execSync(`fgrep 2.6.6 /home/circleci/project/tmp/makerspace-rails/Gemfile.lock`, { encoding: 'utf8', stdio: 'inherit' });
-      console.log(version);
+      //const version = execSync(`fgrep 2.6.6 /home/circleci/project/tmp/makerspace-rails/Gemfile.lock`, { encoding: 'utf8', stdio: 'inherit' });
+      //console.log(version);
       console.log(`Installing Rails...`);
       runCmd("bundle install", railsLogs, startRails);
     };
