@@ -40,7 +40,7 @@ export class PageUtils {
         return browser.getUrl().then((url: string) => url !== currentUrl);
       }, waitTime);
     } catch {
-      throw new Error(`Page never changed from ${currentUrl}`);
+      throw new Error(`Page never changed from ${currentUrl} within ${waitTime}ms timeout`);
     }
   }
 
@@ -62,7 +62,7 @@ export class PageUtils {
         }, waitTime);
       }
     } catch {
-      throw new Error(`${targetUrl} never loaded`);
+      throw new Error(`${targetUrl} never loaded within ${waitTime}ms timeout`);
     }
   }
 
@@ -79,7 +79,7 @@ export class PageUtils {
         });
       }, waitTime);
     } catch {
-      throw new Error(`${targetMatch} never loaded`);
+      throw new Error(`${targetMatch} never loaded within ${waitTime}ms timeout`);
     }
   }
 
@@ -230,13 +230,14 @@ export class PageUtils {
     }
   }
   public waitForNotVisible = async (elementLocator: string, timeout?: number) => {
+    const waitTime = timeout || this.waitUntilTime; // never loaded within ${waitTime}ms timeout
     try {
       await browser.waitUntil(() => {
         return this.isElementDisplayed(elementLocator).then((displayed) => !displayed);
       }, timeout || this.waitUntilTime);
       await browser.pause(200);
     } catch {
-      throw new Error(`Error waiting for element to not be visible: ${elementLocator}`);
+      throw new Error(`Error waiting for element to not be visible: ${elementLocator} within ${waitTime}ms timeout`);
     }
   }
 
@@ -287,7 +288,7 @@ export class PageUtils {
         setTimeout(async () => {
           await browser.sendKeys([Key.ENTER]);
           resolve();
-        }, 500);
+        }, 1500);
       })
     } catch (e) {
       throw new Error(`Unable to enter keys: ${searchVal} in input: ${elementLocator}`);
