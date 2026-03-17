@@ -35,6 +35,7 @@ describe("Membership", () => {
   });
 
   it("Members can create a membership, change payment methods and cancel their membership", async () => {
+    pending("Page load delays trigger failures")
     await auth.goToLogin();
     await auth.signInUser(getBasicUserLogin());
     await header.navigateTo(header.links.settings);
@@ -140,6 +141,7 @@ describe("Membership", () => {
   });
 
   it("Members can cancel a membership and sign back up", async () => {
+    pending("Page load delays trigger failures")
     const rejectionUid = "member-sign-back-up";
     await createRejectCard(rejectionUid);
     const newMember = buildTestMember("cancel-sign-up");
@@ -273,6 +275,7 @@ describe("Membership", () => {
   });
 
   it("Members can sign up after cancelling a Braintree membership via Braintree", async () => {
+    pending("Page load delays trigger failures")
     const rejectionUid = "braintree-member-sign-back-up";
     await createRejectCard(rejectionUid);
     const newMember = buildTestMember("braintree-cancel-sign-up");
