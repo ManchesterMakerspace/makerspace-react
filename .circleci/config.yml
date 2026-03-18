@@ -20,9 +20,20 @@ jobs:
           name: FT
           command: yarn ft
       - run:
+          background: true
+          command: |
+              touch ./tmp/screenshots/rails.log
+              tail -f ./tmp/screenshots/rails.log
+      - run:
           name: E2E
           no_output_timeout: 35m
           command: make integration
+      - run:
+          name: Collect timestamps
+          when: on_fail
+          command: |
+                date
+                ls -la ./tmp/screenshots/*.log
       - store_artifacts:
           path: ./tmp/screenshots
   publish:
