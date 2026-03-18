@@ -72,7 +72,7 @@ const integrationTest = async () => {
 
     const startTest = () => {
       process.chdir(reactFolder);
-      console.log(`Starting test`);
+      console.log(`Starting test!!!`);
       runCmd(`RAILS_DIR=${railsFolder} PORT=3035 yarn e2e`, reactLogs, endProcess);
     };
     const startReact = () => {
