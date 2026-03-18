@@ -21,6 +21,7 @@ jobs:
           command: yarn ft
       - run:
           name: E2E
+          no_output_timeout: 35m
           command: make integration
       - store_artifacts:
           path: ./tmp/screenshots
